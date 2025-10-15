@@ -148,31 +148,31 @@
 ### Tasks
 
 #### 3.1 Failures
-- [ ] **CODE:** Create abstract Failure class
-- [ ] **CODE:** Implement CacheFailure
-- [ ] **CODE:** Implement OcrFailure
-- [ ] **CODE:** Implement LlmFailure
-- [ ] **CODE:** Implement ValidationFailure
-- [ ] **CODE:** Implement FilePickerFailure
-- [ ] **COMMIT:** `feat: implement failure types for error handling`
+- [x] **CODE:** Create abstract Failure class
+- [x] **CODE:** Implement CacheFailure
+- [x] **CODE:** Implement OcrFailure
+- [x] **CODE:** Implement LlmFailure
+- [x] **CODE:** Implement ValidationFailure
+- [x] **CODE:** Implement FilePickerFailure
+- [x] **COMMIT:** `feat: implement failure types for error handling`
 
 **Location:** `lib/core/error/failures.dart`
 
 **Git Commits:**
-- (empty)
+- 9c4756b feat: implement failure types for error handling
 
 #### 3.2 Exceptions
-- [ ] **CODE:** Create CacheException
-- [ ] **CODE:** Create OcrException
-- [ ] **CODE:** Create LlmException
-- [ ] **CODE:** Create ValidationException
-- [ ] **CODE:** Create FilePickerException
-- [ ] **COMMIT:** `feat: implement exception types`
+- [x] **CODE:** Create CacheException
+- [x] **CODE:** Create OcrException
+- [x] **CODE:** Create LlmException
+- [x] **CODE:** Create ValidationException
+- [x] **CODE:** Create FilePickerException
+- [x] **COMMIT:** `feat: implement exception types`
 
 **Location:** `lib/core/error/exceptions.dart`
 
 **Git Commits:**
-- (empty)
+- d325bb8 feat: implement exception types
 
 ---
 

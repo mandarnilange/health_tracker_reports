@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Biomarker: Entity representing a lab test parameter with status logic
   - Report: Aggregate entity for blood test reports with biomarker filtering
   - AppConfig: Entity for application settings (LLM config, dark mode)
+- Core error handling infrastructure:
+  - Abstract Failure class with 5 concrete implementations (Cache, Ocr, Llm, Validation, FilePicker)
+  - Exception types for data layer (5 exception classes)
+  - Type-safe error handling with `Either<Failure, T>` pattern
 - TDD workflow established with strict RED-GREEN-COMMIT cycle
 - Changelog reorganization into standard CHANGELOG.md format
 
@@ -65,6 +69,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Flutter analyze clean with no issues
 
 ## Git Commit History
+
+### Error Handling
+
+#### 2025-10-15 - Failures and Exceptions
+- `d325bb8` - feat: implement exception types
+- `9c4756b` - feat: implement failure types for error handling
 
 ### Domain Entities (TDD)
 
