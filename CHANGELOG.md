@@ -8,8 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Domain entities: ReferenceRange, Biomarker, Report with comprehensive test coverage
+- Domain entities with 100% test coverage:
+  - ReferenceRange: Value object for biomarker normal ranges
+  - Biomarker: Entity representing a lab test parameter with status logic
+  - Report: Aggregate entity for blood test reports with biomarker filtering
+  - AppConfig: Entity for application settings (LLM config, dark mode)
 - TDD workflow established with strict RED-GREEN-COMMIT cycle
+- Changelog reorganization into standard CHANGELOG.md format
 
 ## [0.1.0] - 2025-10-15
 
@@ -62,6 +67,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Git Commit History
 
 ### Domain Entities (TDD)
+
+#### 2025-10-15 - AppConfig Entity
+- `f7d13d7` - feat: implement AppConfig entity for app settings
+- `11f2e58` - test: add comprehensive tests for AppConfig entity
 
 #### 2025-10-15 - Report Entity
 - `36ba890` - docs: update phase-1 tasks with Report entity completion

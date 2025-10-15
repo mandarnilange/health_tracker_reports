@@ -125,20 +125,21 @@
 - 2ee1717 feat: implement Report entity with biomarker aggregation
 
 #### 2.4 AppConfig Entity
-- [ ] **TEST:** Write test for AppConfig entity creation
-- [ ] **CODE:** Implement AppConfig entity (llmApiKey, llmProvider, useLlmExtraction, darkModeEnabled)
-- [ ] **TEST:** Write test for copyWith method
-- [ ] **CODE:** Implement copyWith method
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for AppConfig entity`
-- [ ] **COMMIT:** `feat: implement AppConfig entity`
+- [x] **TEST:** Write test for AppConfig entity creation
+- [x] **CODE:** Implement AppConfig entity (llmApiKey, llmProvider, useLlmExtraction, darkModeEnabled)
+- [x] **TEST:** Write test for copyWith method
+- [x] **CODE:** Implement copyWith method
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for AppConfig entity`
+- [x] **COMMIT:** `feat: implement AppConfig entity`
 
 **Location:** `lib/domain/entities/app_config.dart`
 
 **Test Location:** `test/unit/domain/entities/app_config_test.dart`
 
 **Git Commits:**
-- (empty)
+- 11f2e58 test: add comprehensive tests for AppConfig entity
+- f7d13d7 feat: implement AppConfig entity for app settings
 
 ---
 
