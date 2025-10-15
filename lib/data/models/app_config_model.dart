@@ -1,17 +1,33 @@
 import 'package:health_tracker_reports/domain/entities/app_config.dart';
+import 'package:hive/hive.dart';
 
-/// Data model for [AppConfig] entity with JSON serialization support.
-///
-/// Extends [AppConfig] to inherit domain logic while adding
-/// serialization capabilities for data layer operations.
+part 'app_config_model.g.dart';
+
+@HiveType(typeId: 0)
 class AppConfigModel extends AppConfig {
+  @HiveField(0)
+  final String? llmApiKey;
+
+  @HiveField(1)
+  final String? llmProvider;
+
+  @HiveField(2)
+  final bool useLlmExtraction;
+
+  @HiveField(3)
+  final bool darkModeEnabled;
   /// Creates an [AppConfigModel] with the given properties
   const AppConfigModel({
-    super.llmApiKey,
-    super.llmProvider,
-    super.useLlmExtraction = false,
-    super.darkModeEnabled = false,
-  });
+    this.llmApiKey,
+    this.llmProvider,
+    this.useLlmExtraction = false,
+    this.darkModeEnabled = false,
+  }) : super(
+          llmApiKey: llmApiKey,
+          llmProvider: llmProvider,
+          useLlmExtraction: useLlmExtraction,
+          darkModeEnabled: darkModeEnabled,
+        );
 
   /// Creates an [AppConfigModel] from an [AppConfig] entity
   factory AppConfigModel.fromEntity(AppConfig entity) {
@@ -41,5 +57,14 @@ class AppConfigModel extends AppConfig {
       'useLlmExtraction': useLlmExtraction,
       'darkModeEnabled': darkModeEnabled,
     };
+  }
+
+  AppConfig toEntity() {
+    return AppConfig(
+      llmApiKey: llmApiKey,
+      llmProvider: llmProvider,
+      useLlmExtraction: useLlmExtraction,
+      darkModeEnabled: darkModeEnabled,
+    );
   }
 }

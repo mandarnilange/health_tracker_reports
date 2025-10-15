@@ -1,160 +1,60 @@
+
 import 'package:flutter_test/flutter_test.dart';
-import 'package:health_tracker_reports/data/datasources/local/hive_database.dart';
-import 'package:hive/hive.dart';
+import 'package:health_tracker_reports/data/models/reference_range_model.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:hive/hive.dart';
+import 'package:health_tracker_reports/data/datasources/local/hive_database.dart';
+import 'package:health_tracker_reports/data/models/report_model.dart';
+import 'package:health_tracker_reports/data/models/app_config_model.dart';
+import 'package:health_tracker_reports/data/models/biomarker_model.dart';
 
-class MockHiveInterface extends Mock implements HiveInterface {}
-
+class MockHive extends Mock implements HiveInterface {}
 class MockBox<T> extends Mock implements Box<T> {}
 
 void main() {
+  late HiveDatabase hiveDatabase;
+  late MockHive mockHive;
+
+  setUp(() {
+    mockHive = MockHive();
+    hiveDatabase = HiveDatabase(hive: mockHive);
+    registerFallbackValue(ReportModelAdapter());
+    registerFallbackValue(AppConfigModelAdapter());
+    registerFallbackValue(BiomarkerModelAdapter());
+    registerFallbackValue(ReferenceRangeModelAdapter());
+  });
+
   group('HiveDatabase', () {
-    late MockHiveInterface mockHive;
-    late MockBox<Map<dynamic, dynamic>> mockReportsBox;
-    late MockBox<Map<dynamic, dynamic>> mockConfigBox;
+    test('should initialize Hive and register adapters', () async {
+      // Arrange
+      when(() => mockHive.init(any())).thenReturn(null);
+      when(() => mockHive.registerAdapter<ReportModel>(any())).thenReturn(null);
+      when(() => mockHive.registerAdapter<AppConfigModel>(any())).thenReturn(null);
+      when(() => mockHive.registerAdapter<BiomarkerModel>(any())).thenReturn(null);
+      when(() => mockHive.registerAdapter<ReferenceRangeModel>(any())).thenReturn(null);
 
-    setUp(() {
-      mockHive = MockHiveInterface();
-      mockReportsBox = MockBox<Map<dynamic, dynamic>>();
-      mockConfigBox = MockBox<Map<dynamic, dynamic>>();
+      // Act
+      await hiveDatabase.init();
+
+      // Assert
+      verify(() => mockHive.init('health_tracker_reports')).called(1);
+      verify(() => mockHive.registerAdapter<ReportModel>(any())).called(1);
+      verify(() => mockHive.registerAdapter<AppConfigModel>(any())).called(1);
+      verify(() => mockHive.registerAdapter<BiomarkerModel>(any())).called(1);
+      verify(() => mockHive.registerAdapter<ReferenceRangeModel>(any())).called(1);
     });
 
-    group('initialization', () {
-      test('should initialize Hive with the provided path', () async {
-        // Arrange
-        const testPath = '/test/path';
-        when(() => mockHive.init(testPath)).thenAnswer((_) async => {});
-        when(() => mockHive.openBox<Map<dynamic, dynamic>>(HiveDatabase.reportsBoxName))
-            .thenAnswer((_) async => mockReportsBox);
-        when(() => mockHive.openBox<Map<dynamic, dynamic>>(HiveDatabase.configBoxName))
-            .thenAnswer((_) async => mockConfigBox);
+    test('should open boxes', () async {
+      // Arrange
+      when(() => mockHive.openBox<ReportModel>(any())).thenAnswer((_) async => MockBox<ReportModel>());
+      when(() => mockHive.openBox<AppConfigModel>(any())).thenAnswer((_) async => MockBox<AppConfigModel>());
 
-        // Act
-        await HiveDatabase.initialize(testPath, hiveInstance: mockHive);
+      // Act
+      await hiveDatabase.openBoxes();
 
-        // Assert
-        verify(() => mockHive.init(testPath)).called(1);
-      });
-
-      test('should open reports box during initialization', () async {
-        // Arrange
-        const testPath = '/test/path';
-        when(() => mockHive.init(testPath)).thenAnswer((_) async => {});
-        when(() => mockHive.openBox<Map<dynamic, dynamic>>(HiveDatabase.reportsBoxName))
-            .thenAnswer((_) async => mockReportsBox);
-        when(() => mockHive.openBox<Map<dynamic, dynamic>>(HiveDatabase.configBoxName))
-            .thenAnswer((_) async => mockConfigBox);
-
-        // Act
-        await HiveDatabase.initialize(testPath, hiveInstance: mockHive);
-
-        // Assert
-        verify(() => mockHive.openBox<Map<dynamic, dynamic>>(HiveDatabase.reportsBoxName))
-            .called(1);
-      });
-
-      test('should open config box during initialization', () async {
-        // Arrange
-        const testPath = '/test/path';
-        when(() => mockHive.init(testPath)).thenAnswer((_) async => {});
-        when(() => mockHive.openBox<Map<dynamic, dynamic>>(HiveDatabase.reportsBoxName))
-            .thenAnswer((_) async => mockReportsBox);
-        when(() => mockHive.openBox<Map<dynamic, dynamic>>(HiveDatabase.configBoxName))
-            .thenAnswer((_) async => mockConfigBox);
-
-        // Act
-        await HiveDatabase.initialize(testPath, hiveInstance: mockHive);
-
-        // Assert
-        verify(() => mockHive.openBox<Map<dynamic, dynamic>>(HiveDatabase.configBoxName))
-            .called(1);
-      });
-
-      test('should store box references after opening', () async {
-        // Arrange
-        const testPath = '/test/path';
-        when(() => mockHive.init(testPath)).thenAnswer((_) async => {});
-        when(() => mockHive.openBox<Map<dynamic, dynamic>>(HiveDatabase.reportsBoxName))
-            .thenAnswer((_) async => mockReportsBox);
-        when(() => mockHive.openBox<Map<dynamic, dynamic>>(HiveDatabase.configBoxName))
-            .thenAnswer((_) async => mockConfigBox);
-
-        // Act
-        await HiveDatabase.initialize(testPath, hiveInstance: mockHive);
-
-        // Assert
-        expect(HiveDatabase.reportsBox, mockReportsBox);
-        expect(HiveDatabase.configBox, mockConfigBox);
-      });
-    });
-
-    group('box access', () {
-      test('should provide access to reports box', () async {
-        // Arrange
-        const testPath = '/test/path';
-        when(() => mockHive.init(testPath)).thenAnswer((_) async => {});
-        when(() => mockHive.openBox<Map<dynamic, dynamic>>(HiveDatabase.reportsBoxName))
-            .thenAnswer((_) async => mockReportsBox);
-        when(() => mockHive.openBox<Map<dynamic, dynamic>>(HiveDatabase.configBoxName))
-            .thenAnswer((_) async => mockConfigBox);
-
-        // Act
-        await HiveDatabase.initialize(testPath, hiveInstance: mockHive);
-        final box = HiveDatabase.reportsBox;
-
-        // Assert
-        expect(box, mockReportsBox);
-      });
-
-      test('should provide access to config box', () async {
-        // Arrange
-        const testPath = '/test/path';
-        when(() => mockHive.init(testPath)).thenAnswer((_) async => {});
-        when(() => mockHive.openBox<Map<dynamic, dynamic>>(HiveDatabase.reportsBoxName))
-            .thenAnswer((_) async => mockReportsBox);
-        when(() => mockHive.openBox<Map<dynamic, dynamic>>(HiveDatabase.configBoxName))
-            .thenAnswer((_) async => mockConfigBox);
-
-        // Act
-        await HiveDatabase.initialize(testPath, hiveInstance: mockHive);
-        final box = HiveDatabase.configBox;
-
-        // Assert
-        expect(box, mockConfigBox);
-      });
-    });
-
-    group('box names', () {
-      test('should have correct reports box name', () {
-        // Assert
-        expect(HiveDatabase.reportsBoxName, 'reports');
-      });
-
-      test('should have correct config box name', () {
-        // Assert
-        expect(HiveDatabase.configBoxName, 'config');
-      });
-    });
-
-    group('close', () {
-      test('should close all boxes', () async {
-        // Arrange
-        const testPath = '/test/path';
-        when(() => mockHive.init(testPath)).thenAnswer((_) async => {});
-        when(() => mockHive.openBox<Map<dynamic, dynamic>>(HiveDatabase.reportsBoxName))
-            .thenAnswer((_) async => mockReportsBox);
-        when(() => mockHive.openBox<Map<dynamic, dynamic>>(HiveDatabase.configBoxName))
-            .thenAnswer((_) async => mockConfigBox);
-        when(() => mockHive.close()).thenAnswer((_) async => {});
-
-        await HiveDatabase.initialize(testPath, hiveInstance: mockHive);
-
-        // Act
-        await HiveDatabase.close(hiveInstance: mockHive);
-
-        // Assert
-        verify(() => mockHive.close()).called(1);
-      });
+      // Assert
+      verify(() => mockHive.openBox<ReportModel>(HiveDatabase.reportBoxName)).called(1); 
+      verify(() => mockHive.openBox<AppConfigModel>(HiveDatabase.configBoxName)).called(1);
     });
   });
 }

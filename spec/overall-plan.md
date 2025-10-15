@@ -217,7 +217,7 @@ health_tracker_reports/
 ### Phase 1: Foundation & OCR Upload (MVP)
 **Delivers:** Automated report upload with OCR extraction
 
-**Duration:** ~15-20 commits
+**Duration:** ~25-30 commits
 
 **Key Features:**
 - Flutter project scaffolding
@@ -238,6 +238,8 @@ health_tracker_reports/
 - 90%+ test coverage
 
 **Task File:** `phase-1-ocr-upload-tasks.md`
+
+**Status:** In Progress
 
 ---
 

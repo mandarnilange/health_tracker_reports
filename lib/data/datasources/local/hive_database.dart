@@ -1,48 +1,28 @@
+import 'package:health_tracker_reports/data/models/app_config_model.dart';
+import 'package:health_tracker_reports/data/models/biomarker_model.dart';
+import 'package:health_tracker_reports/data/models/reference_range_model.dart';
+import 'package:health_tracker_reports/data/models/report_model.dart';
 import 'package:hive/hive.dart';
+import 'package:injectable/injectable.dart';
 
-/// Manages Hive database initialization and box access.
-///
-/// This class provides a centralized way to initialize Hive and access
-/// the application's data boxes. It uses static methods and properties
-/// for simplicity and global access.
 class HiveDatabase {
-  /// Box name for storing reports
-  static const String reportsBoxName = 'reports';
+  final HiveInterface hive;
 
-  /// Box name for storing app configuration
+  HiveDatabase({required this.hive});
+
+  static const String reportBoxName = 'reports';
   static const String configBoxName = 'config';
 
-  /// Box for storing reports as JSON maps
-  static late Box<Map<dynamic, dynamic>> reportsBox;
-
-  /// Box for storing app configuration as JSON maps
-  static late Box<Map<dynamic, dynamic>> configBox;
-
-  /// Initializes Hive with the given path and opens required boxes.
-  ///
-  /// This method must be called before accessing any boxes.
-  /// The [path] parameter specifies where Hive should store its data.
-  /// The optional [hiveInstance] parameter allows for dependency injection in tests.
-  static Future<void> initialize(
-    String path, {
-    HiveInterface? hiveInstance,
-  }) async {
-    final hive = hiveInstance ?? Hive;
-
-    // Initialize Hive with the provided path
-    hive.init(path);
-
-    // Open the boxes
-    reportsBox = await hive.openBox<Map<dynamic, dynamic>>(reportsBoxName);
-    configBox = await hive.openBox<Map<dynamic, dynamic>>(configBoxName);
+  Future<void> init() async {
+    hive.init('health_tracker_reports');
+    hive.registerAdapter(ReportModelAdapter());
+    hive.registerAdapter(AppConfigModelAdapter());
+    hive.registerAdapter(BiomarkerModelAdapter());
+    hive.registerAdapter(ReferenceRangeModelAdapter());
   }
 
-  /// Closes all Hive boxes and cleans up resources.
-  ///
-  /// This should be called when the app is shutting down.
-  /// The optional [hiveInstance] parameter allows for dependency injection in tests.
-  static Future<void> close({HiveInterface? hiveInstance}) async {
-    final hive = hiveInstance ?? Hive;
-    await hive.close();
+  Future<void> openBoxes() async {
+    await hive.openBox<ReportModel>(reportBoxName);
+    await hive.openBox<AppConfigModel>(configBoxName);
   }
 }

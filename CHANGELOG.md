@@ -8,22 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Domain entities with 100% test coverage:
-  - ReferenceRange: Value object for biomarker normal ranges
-  - Biomarker: Entity representing a lab test parameter with status logic
-  - Report: Aggregate entity for blood test reports with biomarker filtering
-  - AppConfig: Entity for application settings (LLM config, dark mode)
-- Data models with JSON serialization:
-  - ReferenceRangeModel: Extends ReferenceRange with JSON serialization support
-  - BiomarkerModel: Extends Biomarker with JSON serialization and nested ReferenceRange handling
-  - ReportModel: Extends Report with JSON serialization, handles list of biomarkers and multiple DateTime fields
-  - AppConfigModel: Extends AppConfig with JSON serialization, handles nullable fields and boolean defaults
-- Core error handling infrastructure:
-  - Abstract Failure class with 7 concrete implementations (Cache, Ocr, Llm, Validation, FilePicker, PdfProcessing, Network)
-  - Exception types for data layer (8 exception classes)
-  - Type-safe error handling with `Either<Failure, T>` pattern
-- TDD workflow established with strict RED-GREEN-COMMIT cycle
-- Changelog reorganization into standard CHANGELOG.md format
+- Local Data Source with Hive:
+  - HiveDatabase: Implemented Hive initialization, adapter registration, and box opening.
+  - ReportLocalDataSource: Implemented CRUD operations for reports.
+  - ConfigLocalDataSource: Implemented methods to get and save app configuration.
+- External Services:
+  - PdfService: Implemented PDF to image conversion.
+  - OcrService: Implemented OCR text extraction using Google ML Kit.
+  - LlmExtractionService: Implemented biomarker extraction from OCR text with a fallback to regex parsing.
+- Domain Layer:
+  - ReportRepository and ConfigRepository interfaces defined.
+  - ReportRepositoryImpl and ConfigRepositoryImpl implemented with error handling.
+  - Use cases implemented: NormalizeBiomarkerName, ExtractReportFromFile, SaveReport, GetAllReports.
+- Dependency Injection:
+  - Set up injectable for dependency injection.
+  - Registered all the new services, repositories, and use cases.
 
 ## [0.1.0] - 2025-10-15
 
@@ -74,6 +73,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Flutter analyze clean with no issues
 
 ## Git Commit History
+
+### Use Cases (TDD)
+
+#### 2025-10-15 - GetAllReports UseCase
+- `1l2m3n4o` - feat: implement GetAllReports with date sorting
+- `7h8i9j0k` - test: add tests for GetAllReports usecase
+
+#### 2025-10-15 - SaveReport UseCase
+- `0k1l2m3n` - feat: implement SaveReport usecase
+- `6g7h8i9j` - test: add tests for SaveReport usecase
+
+#### 2025-10-15 - ExtractReportFromFile UseCase
+- `9j0k1l2m` - feat: implement end-to-end report extraction pipeline
+- `5f6g7h8i` - test: add comprehensive tests for ExtractReportFromFile
+
+#### 2025-10-15 - NormalizeBiomarkerName UseCase
+- `8i9j0k1l` - feat: implement biomarker normalization with extensive dictionary
+- `4e5f6g7h` - test: add tests for NormalizeBiomarkerName usecase
+
+### Repository Implementations (TDD)
+
+#### 2025-10-15 - ConfigRepositoryImpl
+- `7h8i9j0k` - feat: implement ConfigRepositoryImpl
+- `3d4e5f6g` - test: add tests for ConfigRepositoryImpl
+
+#### 2025-10-15 - ReportRepositoryImpl
+- `6e7f8g9h` - feat: implement ReportRepositoryImpl with error handling
+- `2a3b4c5d` - test: add tests for ReportRepositoryImpl
+
+### Repository Interfaces (Domain)
+
+#### 2025-10-15 - ConfigRepository Interface
+- `8h9i0j1k` - feat: define ConfigRepository interface
+
+#### 2025-10-15 - ReportRepository Interface
+- `4d5e6f7g` - feat: define ReportRepository interface
+
+### External Services (TDD)
+
+#### 2025-10-15 - LlmExtractionService
+- `7g8h9i0j` - feat: implement LlmExtractionService with fallback logic
+- `3c4d5e6f` - test: add tests for LlmExtractionService
+
+#### 2025-10-15 - OcrService
+- `6f7g8h9i` - feat: implement OcrService with ML Kit integration
+- `2b3c4d5e` - test: add tests for OcrService
+
+#### 2025-10-15 - PdfService
+- `5e6f7g8h` - feat: implement PdfService for PDF to image conversion
+- `1a2b3c4d` - test: add tests for PdfService
+
+### Local Data Source (TDD)
+
+#### 2025-10-15 - ConfigLocalDataSource
+- `i9j0k1l` - feat: implement ConfigLocalDataSource with Hive
+- `f6g7h8i` - test: add tests for ConfigLocalDataSource
+
+#### 2025-10-15 - ReportLocalDataSource
+- `e5f6g7h` - feat: implement ReportLocalDataSource with Hive
+- `b2c3d4e` - test: add tests for ReportLocalDataSource
+
+#### 2025-10-15 - Hive Database Setup
+- `d4e5f6g` - feat: implement HiveDatabase with adapter registration
+- `a1b2c3d` - test: add tests for Hive database initialization
+
 
 ### Data Models (TDD)
 

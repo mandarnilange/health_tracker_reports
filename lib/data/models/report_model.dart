@@ -1,22 +1,56 @@
 import 'package:health_tracker_reports/data/models/biomarker_model.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
+import 'package:hive/hive.dart';
 
-/// Data model for [Report] entity with JSON serialization support.
-///
-/// Extends [Report] to inherit domain logic while adding
-/// serialization capabilities for data layer operations.
+part 'report_model.g.dart';
+
+@HiveType(typeId: 3)
 class ReportModel extends Report {
+  @HiveField(0)
+  final String id;
+
+  @HiveField(1)
+  final DateTime date;
+
+  @HiveField(2)
+  final String labName;
+
+  @HiveField(3)
+  final List<BiomarkerModel> biomarkers;
+
+  @HiveField(4)
+  final String originalFilePath;
+
+  @HiveField(5)
+  final String? notes;
+
+  @HiveField(6)
+  final DateTime createdAt;
+
+  @HiveField(7)
+  final DateTime updatedAt;
+
   /// Creates a [ReportModel] with the given properties
   const ReportModel({
-    required super.id,
-    required super.date,
-    required super.labName,
-    required super.biomarkers,
-    required super.originalFilePath,
-    super.notes,
-    required super.createdAt,
-    required super.updatedAt,
-  });
+    required this.id,
+    required this.date,
+    required this.labName,
+    required this.biomarkers,
+    required this.originalFilePath,
+    this.notes,
+    required this.createdAt,
+    required this.updatedAt,
+  })
+      : super(
+          id: id,
+          date: date,
+          labName: labName,
+          biomarkers: biomarkers,
+          originalFilePath: originalFilePath,
+          notes: notes,
+          createdAt: createdAt,
+          updatedAt: updatedAt,
+        );
 
   /// Creates a [ReportModel] from a [Report] entity
   factory ReportModel.fromEntity(Report entity) {
@@ -57,13 +91,24 @@ class ReportModel extends Report {
       'id': id,
       'date': date.toIso8601String(),
       'labName': labName,
-      'biomarkers': biomarkers
-          .map((biomarker) => BiomarkerModel.fromEntity(biomarker).toJson())
-          .toList(),
+      'biomarkers': biomarkers.map((biomarker) => biomarker.toJson()).toList(),
       'originalFilePath': originalFilePath,
       'notes': notes,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
+  }
+
+  Report toEntity() {
+    return Report(
+      id: id,
+      date: date,
+      labName: labName,
+      biomarkers: biomarkers.map((e) => e.toEntity()).toList(),
+      originalFilePath: originalFilePath,
+      notes: notes,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
   }
 }

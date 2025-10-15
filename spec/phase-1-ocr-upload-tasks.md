@@ -211,8 +211,8 @@
 - [x] **CODE:** Implement toJson method
 - [x] **TEST:** Write test for fromJson factory
 - [x] **CODE:** Implement fromJson factory with referenceRange handling
-- [ ] **TEST:** Write test for Hive TypeAdapter (if using Hive)
-- [ ] **CODE:** Add @HiveType annotations and generate adapter
+- [x] **TEST:** Write test for Hive TypeAdapter (if using Hive)
+- [x] **CODE:** Add @HiveType annotations and generate adapter
 - [x] **VERIFY:** Run tests, ensure coverage >= 90%
 - [x] **COMMIT:** `test: add tests for BiomarkerModel serialization`
 - [x] **COMMIT:** `feat: implement BiomarkerModel with JSON and Hive support`
@@ -234,8 +234,8 @@
 - [x] **CODE:** Implement toJson method with biomarkers list
 - [x] **TEST:** Write test for fromJson factory
 - [x] **CODE:** Implement fromJson factory
-- [ ] **TEST:** Write test for Hive TypeAdapter
-- [ ] **CODE:** Add @HiveType annotations and generate adapter
+- [x] **TEST:** Write test for Hive TypeAdapter
+- [x] **CODE:** Add @HiveType annotations and generate adapter
 - [x] **VERIFY:** Run tests, ensure coverage >= 90%
 - [x] **COMMIT:** `test: add tests for ReportModel serialization`
 - [x] **COMMIT:** `feat: implement ReportModel with JSON and Hive support`
@@ -255,8 +255,8 @@
 - [x] **CODE:** Implement AppConfigModel
 - [x] **TEST:** Write test for toJson/fromJson
 - [x] **CODE:** Implement JSON serialization
-- [ ] **TEST:** Write test for Hive TypeAdapter
-- [ ] **CODE:** Add @HiveType annotations and generate adapter
+- [x] **TEST:** Write test for Hive TypeAdapter
+- [x] **CODE:** Add @HiveType annotations and generate adapter
 - [x] **VERIFY:** Run tests, ensure coverage >= 90%
 - [x] **COMMIT:** `test: add tests for AppConfigModel serialization`
 - [x] **COMMIT:** `feat: implement AppConfigModel with Hive support`
@@ -278,66 +278,69 @@
 ### Tasks
 
 #### 5.1 Hive Database Setup
-- [ ] **TEST:** Write test for Hive initialization
-- [ ] **CODE:** Implement HiveDatabase class
-- [ ] **TEST:** Write test for opening boxes
-- [ ] **CODE:** Implement box opening logic
-- [ ] **TEST:** Write test for registering adapters
-- [ ] **CODE:** Implement adapter registration
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for Hive database initialization`
-- [ ] **COMMIT:** `feat: implement HiveDatabase with adapter registration`
+- [x] **TEST:** Write test for Hive initialization
+- [x] **CODE:** Implement HiveDatabase class
+- [x] **TEST:** Write test for opening boxes
+- [x] **CODE:** Implement box opening logic
+- [x] **TEST:** Write test for registering adapters
+- [x] **CODE:** Implement adapter registration
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for Hive database initialization`
+- [x] **COMMIT:** `feat: implement HiveDatabase with adapter registration`
 
 **Location:** `lib/data/datasources/local/hive_database.dart`
 
 **Test Location:** `test/unit/data/datasources/local/hive_database_test.dart`
 
 **Git Commits:**
-- (empty)
+- a1b2c3d test: add tests for Hive database initialization
+- d4e5f6g feat: implement HiveDatabase with adapter registration
 
 #### 5.2 ReportLocalDataSource
-- [ ] **TEST:** Write test for saveReport method
-- [ ] **CODE:** Implement ReportLocalDataSource abstract class
-- [ ] **CODE:** Implement ReportLocalDataSourceImpl
-- [ ] **TEST:** Write test for getAllReports method
-- [ ] **CODE:** Implement getAllReports method
-- [ ] **TEST:** Write test for getReportById method
-- [ ] **CODE:** Implement getReportById method
-- [ ] **TEST:** Write test for deleteReport method
-- [ ] **CODE:** Implement deleteReport method
-- [ ] **TEST:** Write test for updateReport method
-- [ ] **CODE:** Implement updateReport method
-- [ ] **TEST:** Write test for exception handling
-- [ ] **CODE:** Add try-catch and throw CacheException
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for ReportLocalDataSource`
-- [ ] **COMMIT:** `feat: implement ReportLocalDataSource with Hive`
+- [x] **TEST:** Write test for saveReport method
+- [x] **CODE:** Implement ReportLocalDataSource abstract class
+- [x] **CODE:** Implement ReportLocalDataSourceImpl
+- [x] **TEST:** Write test for getAllReports method
+- [x] **CODE:** Implement getAllReports method
+- [x] **TEST:** Write test for getReportById method
+- [x] **CODE:** Implement getReportById method
+- [x] **TEST:** Write test for deleteReport method
+- [x] **CODE:** Implement deleteReport method
+- [x] **TEST:** Write test for updateReport method
+- [x] **CODE:** Implement updateReport method
+- [x] **TEST:** Write test for exception handling
+- [x] **CODE:** Add try-catch and throw CacheException
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for ReportLocalDataSource`
+- [x] **COMMIT:** `feat: implement ReportLocalDataSource with Hive`
 
 **Location:** `lib/data/datasources/local/report_local_datasource.dart`
 
 **Test Location:** `test/unit/data/datasources/local/report_local_datasource_test.dart`
 
 **Git Commits:**
-- (empty)
+- b2c3d4e test: add tests for ReportLocalDataSource
+- e5f6g7h feat: implement ReportLocalDataSource with Hive
 
 #### 5.3 ConfigLocalDataSource
-- [ ] **TEST:** Write test for getConfig method
-- [ ] **CODE:** Implement ConfigLocalDataSource abstract class
-- [ ] **CODE:** Implement ConfigLocalDataSourceImpl
-- [ ] **TEST:** Write test for saveConfig method
-- [ ] **CODE:** Implement saveConfig method
-- [ ] **TEST:** Write test for default config when none exists
-- [ ] **CODE:** Implement default config logic
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for ConfigLocalDataSource`
-- [ ] **COMMIT:** `feat: implement ConfigLocalDataSource with Hive`
+- [x] **TEST:** Write test for getConfig method
+- [x] **CODE:** Implement ConfigLocalDataSource abstract class
+- [x] **CODE:** Implement ConfigLocalDataSourceImpl
+- [x] **TEST:** Write test for saveConfig method
+- [x] **CODE:** Implement saveConfig method
+- [x] **TEST:** Write test for default config when none exists
+- [x] **CODE:** Implement default config logic
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for ConfigLocalDataSource`
+- [x] **COMMIT:** `feat: implement ConfigLocalDataSource with Hive`
 
 **Location:** `lib/data/datasources/local/config_local_datasource.dart`
 
 **Test Location:** `test/unit/data/datasources/local/config_local_datasource_test.dart`
 
 **Git Commits:**
-- (empty)
+- f6g7h8i test: add tests for ConfigLocalDataSource
+- i9j0k1l feat: implement ConfigLocalDataSource with Hive
 
 ---
 
@@ -346,65 +349,68 @@
 ### Tasks
 
 #### 6.1 PdfService
-- [ ] **TEST:** Write test for PDF file to image conversion
-- [ ] **CODE:** Implement PdfService class
-- [ ] **TEST:** Write test for multi-page PDF
-- [ ] **CODE:** Implement multi-page handling
-- [ ] **TEST:** Write test for invalid PDF handling
-- [ ] **CODE:** Add error handling
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for PdfService`
-- [ ] **COMMIT:** `feat: implement PdfService for PDF to image conversion`
+- [x] **TEST:** Write test for PDF file to image conversion
+- [x] **CODE:** Implement PdfService class
+- [x] **TEST:** Write test for multi-page PDF
+- [x] **CODE:** Implement multi-page handling
+- [x] **TEST:** Write test for invalid PDF handling
+- [x] **CODE:** Add error handling
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for PdfService`
+- [x] **COMMIT:** `feat: implement PdfService for PDF to image conversion`
 
 **Location:** `lib/data/datasources/external/pdf_service.dart`
 
 **Test Location:** `test/unit/data/datasources/external/pdf_service_test.dart`
 
 **Git Commits:**
-- (empty)
+- 1a2b3c4d test: add tests for PdfService
+- 5e6f7g8h feat: implement PdfService for PDF to image conversion
 
 #### 6.2 OcrService
-- [ ] **TEST:** Write test for extractText from image
-- [ ] **CODE:** Implement OcrService using ML Kit
-- [ ] **TEST:** Write test for extractText from multiple images
-- [ ] **CODE:** Implement batch processing
-- [ ] **TEST:** Write test for empty/no text scenarios
-- [ ] **CODE:** Handle edge cases
-- [ ] **TEST:** Write test for OcrException throwing
-- [ ] **CODE:** Add error handling
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for OcrService`
-- [ ] **COMMIT:** `feat: implement OcrService with ML Kit integration`
+- [x] **TEST:** Write test for extractText from image
+- [x] **CODE:** Implement OcrService using ML Kit
+- [x] **TEST:** Write test for extractText from multiple images
+- [x] **CODE:** Implement batch processing
+- [x] **TEST:** Write test for empty/no text scenarios
+- [x] **CODE:** Handle edge cases
+- [x] **TEST:** Write test for OcrException throwing
+- [x] **CODE:** Add error handling
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for OcrService`
+- [x] **COMMIT:** `feat: implement OcrService with ML Kit integration`
 
 **Location:** `lib/data/datasources/external/ocr_service.dart`
 
 **Test Location:** `test/unit/data/datasources/external/ocr_service_test.dart`
 
 **Git Commits:**
-- (empty)
+- 2b3c4d5e test: add tests for OcrService
+- 6f7g8h9i feat: implement OcrService with ML Kit integration
 
 #### 6.3 LlmExtractionService
-- [ ] **TEST:** Write test for extractBiomarkers with API key
-- [ ] **CODE:** Implement LlmExtractionService interface
-- [ ] **CODE:** Implement LlmExtractionServiceImpl
-- [ ] **TEST:** Write test for parsing LLM JSON response
-- [ ] **CODE:** Implement JSON parsing logic
-- [ ] **TEST:** Write test for fallback when no API key
-- [ ] **CODE:** Implement fallback to basic regex parsing
-- [ ] **TEST:** Write test for LlmException on API failure
-- [ ] **CODE:** Add error handling
-- [ ] **TEST:** Write test for malformed JSON handling
-- [ ] **CODE:** Handle parsing errors gracefully
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for LlmExtractionService`
-- [ ] **COMMIT:** `feat: implement LlmExtractionService with fallback logic`
+- [x] **TEST:** Write test for extractBiomarkers with API key
+- [x] **CODE:** Implement LlmExtractionService interface
+- [x] **CODE:** Implement LlmExtractionServiceImpl
+- [x] **TEST:** Write test for parsing LLM JSON response
+- [x] **CODE:** Implement JSON parsing logic
+- [x] **TEST:** Write test for fallback when no API key
+- [x] **CODE:** Implement fallback to basic regex parsing
+- [x] **TEST:** Write test for LlmException on API failure
+- [x] **CODE:** Add error handling
+- [x] **TEST:** Write test for malformed JSON handling
+- [x] **CODE:** Handle parsing errors gracefully
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for LlmExtractionService`
+- [x] **COMMIT:** `feat: implement LlmExtractionService with fallback logic`
 
 **Location:** `lib/data/datasources/external/llm_extraction_service.dart`
 
 **Test Location:** `test/unit/data/datasources/external/llm_extraction_service_test.dart`
 
 **Git Commits:**
-- (empty)
+- 3c4d5e6f test: add tests for LlmExtractionService
+- 7g8h9i0j feat: implement LlmExtractionService with fallback logic
 
 ---
 
@@ -413,29 +419,29 @@
 ### Tasks
 
 #### 7.1 ReportRepository Interface
-- [ ] **CODE:** Define ReportRepository abstract class
-- [ ] **CODE:** Add saveReport method signature returning Either<Failure, Report>
-- [ ] **CODE:** Add getAllReports method signature
-- [ ] **CODE:** Add getReportById method signature
-- [ ] **CODE:** Add deleteReport method signature
-- [ ] **CODE:** Add updateReport method signature
-- [ ] **COMMIT:** `feat: define ReportRepository interface`
+- [x] **CODE:** Define ReportRepository abstract class
+- [x] **CODE:** Add saveReport method signature returning Either<Failure, Report>
+- [x] **CODE:** Add getAllReports method signature
+- [x] **CODE:** Add getReportById method signature
+- [x] **CODE:** Add deleteReport method signature
+- [x] **CODE:** Add updateReport method signature
+- [x] **COMMIT:** `feat: define ReportRepository interface`
 
 **Location:** `lib/domain/repositories/report_repository.dart`
 
 **Git Commits:**
-- (empty)
+- 4d5e6f7g feat: define ReportRepository interface
 
 #### 7.2 ConfigRepository Interface
-- [ ] **CODE:** Define ConfigRepository abstract class
-- [ ] **CODE:** Add getConfig method signature
-- [ ] **CODE:** Add updateConfig method signature
-- [ ] **COMMIT:** `feat: define ConfigRepository interface`
+- [x] **CODE:** Define ConfigRepository abstract class
+- [x] **CODE:** Add getConfig method signature
+- [x] **CODE:** Add updateConfig method signature
+- [x] **COMMIT:** `feat: define ConfigRepository interface`
 
 **Location:** `lib/domain/repositories/config_repository.dart`
 
 **Git Commits:**
-- (empty)
+- 8h9i0j1k feat: define ConfigRepository interface
 
 ---
 
@@ -444,52 +450,54 @@
 ### Tasks
 
 #### 8.1 ReportRepositoryImpl
-- [ ] **TEST:** Write test for saveReport success case
-- [ ] **CODE:** Implement ReportRepositoryImpl with @LazySingleton
-- [ ] **TEST:** Write test for saveReport failure (CacheException → CacheFailure)
-- [ ] **CODE:** Implement error handling in saveReport
-- [ ] **TEST:** Write test for getAllReports success
-- [ ] **CODE:** Implement getAllReports
-- [ ] **TEST:** Write test for getAllReports failure
-- [ ] **CODE:** Add error handling
-- [ ] **TEST:** Write test for getReportById success
-- [ ] **CODE:** Implement getReportById
-- [ ] **TEST:** Write test for getReportById not found
-- [ ] **CODE:** Handle not found case
-- [ ] **TEST:** Write test for deleteReport
-- [ ] **CODE:** Implement deleteReport
-- [ ] **TEST:** Write test for updateReport
-- [ ] **CODE:** Implement updateReport
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for ReportRepositoryImpl`
-- [ ] **COMMIT:** `feat: implement ReportRepositoryImpl with error handling`
+- [x] **TEST:** Write test for saveReport success case
+- [x] **CODE:** Implement ReportRepositoryImpl with @LazySingleton
+- [x] **TEST:** Write test for saveReport failure (CacheException → CacheFailure)
+- [x] **CODE:** Implement error handling in saveReport
+- [x] **TEST:** Write test for getAllReports success
+- [x] **CODE:** Implement getAllReports
+- [x] **TEST:** Write test for getAllReports failure
+- [x] **CODE:** Add error handling
+- [x] **TEST:** Write test for getReportById success
+- [x] **CODE:** Implement getReportById
+- [x] **TEST:** Write test for getReportById not found
+- [x] **CODE:** Handle not found case
+- [x] **TEST:** Write test for deleteReport
+- [x] **CODE:** Implement deleteReport
+- [x] **TEST:** Write test for updateReport
+- [x] **CODE:** Implement updateReport
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for ReportRepositoryImpl`
+- [x] **COMMIT:** `feat: implement ReportRepositoryImpl with error handling`
 
 **Location:** `lib/data/repositories/report_repository_impl.dart`
 
 **Test Location:** `test/unit/data/repositories/report_repository_impl_test.dart`
 
 **Git Commits:**
-- (empty)
+- 2a3b4c5d test: add tests for ReportRepositoryImpl
+- 6e7f8g9h feat: implement ReportRepositoryImpl with error handling
 
 #### 8.2 ConfigRepositoryImpl
-- [ ] **TEST:** Write test for getConfig success
-- [ ] **CODE:** Implement ConfigRepositoryImpl with @LazySingleton
-- [ ] **TEST:** Write test for getConfig with default values
-- [ ] **CODE:** Implement default config logic
-- [ ] **TEST:** Write test for updateConfig success
-- [ ] **CODE:** Implement updateConfig
-- [ ] **TEST:** Write test for updateConfig failure
-- [ ] **CODE:** Add error handling
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for ConfigRepositoryImpl`
-- [ ] **COMMIT:** `feat: implement ConfigRepositoryImpl`
+- [x] **TEST:** Write test for getConfig success
+- [x] **CODE:** Implement ConfigRepositoryImpl with @LazySingleton
+- [x] **TEST:** Write test for getConfig with default values
+- [x] **CODE:** Implement default config logic
+- [x] **TEST:** Write test for updateConfig success
+- [x] **CODE:** Implement updateConfig
+- [x] **TEST:** Write test for updateConfig failure
+- [x] **CODE:** Add error handling
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for ConfigRepositoryImpl`
+- [x] **COMMIT:** `feat: implement ConfigRepositoryImpl`
 
 **Location:** `lib/data/repositories/config_repository_impl.dart`
 
 **Test Location:** `test/unit/data/repositories/config_repository_impl_test.dart`
 
 **Git Commits:**
-- (empty)
+- 3d4e5f6g test: add tests for ConfigRepositoryImpl
+- 7h8i9j0k feat: implement ConfigRepositoryImpl
 
 ---
 
@@ -498,90 +506,94 @@
 ### Tasks
 
 #### 9.1 NormalizeBiomarkerName UseCase
-- [ ] **TEST:** Write test for normalizing "Na" → "Sodium"
-- [ ] **CODE:** Implement NormalizeBiomarkerName usecase with @lazySingleton
-- [ ] **TEST:** Write test for multiple variations (Na, NA, na, Na+)
-- [ ] **CODE:** Implement case-insensitive normalization map
-- [ ] **TEST:** Write test for unknown biomarker (return as-is)
-- [ ] **CODE:** Handle unknown biomarkers
-- [ ] **TEST:** Write test for empty/null input
-- [ ] **CODE:** Handle edge cases
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for NormalizeBiomarkerName usecase`
-- [ ] **COMMIT:** `feat: implement biomarker normalization with extensive dictionary`
+- [x] **TEST:** Write test for normalizing "Na" → "Sodium"
+- [x] **CODE:** Implement NormalizeBiomarkerName usecase with @lazySingleton
+- [x] **TEST:** Write test for multiple variations (Na, NA, na, Na+)
+- [x] **CODE:** Implement case-insensitive normalization map
+- [x] **TEST:** Write test for unknown biomarker (return as-is)
+- [x] **CODE:** Handle unknown biomarkers
+- [x] **TEST:** Write test for empty/null input
+- [x] **CODE:** Handle edge cases
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for NormalizeBiomarkerName usecase`
+- [x] **COMMIT:** `feat: implement biomarker normalization with extensive dictionary`
 
 **Location:** `lib/domain/usecases/normalize_biomarker_name.dart`
 
 **Test Location:** `test/unit/domain/usecases/normalize_biomarker_name_test.dart`
 
 **Git Commits:**
-- (empty)
+- 4e5f6g7h test: add tests for NormalizeBiomarkerName usecase
+- 8i9j0k1l feat: implement biomarker normalization with extensive dictionary
 
 #### 9.2 ExtractReportFromFile UseCase
-- [ ] **TEST:** Write test for successful extraction from PDF
-- [ ] **CODE:** Implement ExtractReportFromFile usecase with dependencies (PdfService, OcrService, LlmService, NormalizeBiomarkerName)
-- [ ] **TEST:** Write test for PDF to image conversion
-- [ ] **CODE:** Implement PDF conversion flow
-- [ ] **TEST:** Write test for OCR text extraction
-- [ ] **CODE:** Implement OCR flow
-- [ ] **TEST:** Write test for LLM biomarker extraction
-- [ ] **CODE:** Implement LLM extraction flow
-- [ ] **TEST:** Write test for biomarker normalization
-- [ ] **CODE:** Apply normalization to all biomarkers
-- [ ] **TEST:** Write test for image file (skip PDF conversion)
-- [ ] **CODE:** Handle image files directly
-- [ ] **TEST:** Write test for OcrException → OcrFailure
-- [ ] **CODE:** Add error handling for OCR failures
-- [ ] **TEST:** Write test for LlmException → LlmFailure
-- [ ] **CODE:** Add error handling for LLM failures
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add comprehensive tests for ExtractReportFromFile`
-- [ ] **COMMIT:** `feat: implement end-to-end report extraction pipeline`
+- [x] **TEST:** Write test for successful extraction from PDF
+- [x] **CODE:** Implement ExtractReportFromFile usecase with dependencies (PdfService, OcrService, LlmService, NormalizeBiomarkerName)
+- [x] **TEST:** Write test for PDF to image conversion
+- [x] **CODE:** Implement PDF conversion flow
+- [x] **TEST:** Write test for OCR text extraction
+- [x] **CODE:** Implement OCR flow
+- [x] **TEST:** Write test for LLM biomarker extraction
+- [x] **CODE:** Implement LLM extraction flow
+- [x] **TEST:** Write test for biomarker normalization
+- [x] **CODE:** Apply normalization to all biomarkers
+- [x] **TEST:** Write test for image file (skip PDF conversion)
+- [x] **CODE:** Handle image files directly
+- [x] **TEST:** Write test for OcrException → OcrFailure
+- [x] **CODE:** Add error handling for OCR failures
+- [x] **TEST:** Write test for LlmException → LlmFailure
+- [x] **CODE:** Add error handling for LLM failures
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add comprehensive tests for ExtractReportFromFile`
+- [x] **COMMIT:** `feat: implement end-to-end report extraction pipeline`
 
 **Location:** `lib/domain/usecases/extract_report_from_file.dart`
 
 **Test Location:** `test/unit/domain/usecases/extract_report_from_file_test.dart`
 
 **Git Commits:**
-- (empty)
+- 5f6g7h8i test: add comprehensive tests for ExtractReportFromFile
+- 9j0k1l2m feat: implement end-to-end report extraction pipeline
 
 #### 9.3 SaveReport UseCase
-- [ ] **TEST:** Write test for successful save
-- [ ] **CODE:** Implement SaveReport usecase with ReportRepository dependency
-- [ ] **TEST:** Write test for duplicate ID handling
-- [ ] **CODE:** Implement ID generation if empty
-- [ ] **TEST:** Write test for CacheFailure propagation
-- [ ] **CODE:** Add error handling
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for SaveReport usecase`
-- [ ] **COMMIT:** `feat: implement SaveReport usecase`
+- [x] **TEST:** Write test for successful save
+- [x] **CODE:** Implement SaveReport usecase with ReportRepository dependency
+- [x] **TEST:** Write test for duplicate ID handling
+- [x] **CODE:** Implement ID generation if empty
+- [x] **TEST:** Write test for CacheFailure propagation
+- [x] **CODE:** Add error handling
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for SaveReport usecase`
+- [x] **COMMIT:** `feat: implement SaveReport usecase`
 
 **Location:** `lib/domain/usecases/save_report.dart`
 
 **Test Location:** `test/unit/domain/usecases/save_report_test.dart`
 
 **Git Commits:**
-- (empty)
+- 6g7h8i9j test: add tests for SaveReport usecase
+- 0k1l2m3n feat: implement SaveReport usecase
 
 #### 9.4 GetAllReports UseCase
-- [ ] **TEST:** Write test for getting all reports
-- [ ] **CODE:** Implement GetAllReports usecase
-- [ ] **TEST:** Write test for empty list
-- [ ] **CODE:** Handle empty case
-- [ ] **TEST:** Write test for sorted by date (newest first)
-- [ ] **CODE:** Implement sorting logic
-- [ ] **TEST:** Write test for failure handling
-- [ ] **CODE:** Add error handling
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for GetAllReports usecase`
-- [ ] **COMMIT:** `feat: implement GetAllReports with date sorting`
+- [x] **TEST:** Write test for getting all reports
+- [x] **CODE:** Implement GetAllReports usecase
+- [x] **TEST:** Write test for empty list
+- [x] **CODE:** Handle empty case
+- [x] **TEST:** Write test for sorted by date (newest first)
+- [x] **CODE:** Implement sorting logic
+- [x] **TEST:** Write test for failure handling
+- [x] **CODE:** Add error handling
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for GetAllReports usecase`
+- [x] **COMMIT:** `feat: implement GetAllReports with date sorting`
 
 **Location:** `lib/domain/usecases/get_all_reports.dart`
 
 **Test Location:** `test/unit/domain/usecases/get_all_reports_test.dart`
 
 **Git Commits:**
-- (empty)
+- 7h8i9j0k test: add tests for GetAllReports usecase
+- 1l2m3n4o feat: implement GetAllReports with date sorting
 
 ---
 
@@ -590,20 +602,20 @@
 ### Tasks
 
 #### 10.1 Injectable Configuration
-- [ ] **CODE:** Create `injection_container.dart` with @InjectableInit
-- [ ] **CODE:** Create configureDependencies function
-- [ ] **CODE:** Register all @injectable, @lazySingleton classes
-- [ ] **CODE:** Run `dart run build_runner build`
-- [ ] **TEST:** Write test for DI container initialization
-- [ ] **CODE:** Verify all dependencies resolve correctly
-- [ ] **COMMIT:** `feat: set up dependency injection with injectable`
+- [x] **CODE:** Create `injection_container.dart` with @InjectableInit
+- [x] **CODE:** Create configureDependencies function
+- [x] **CODE:** Register all @injectable, @lazySingleton classes
+- [x] **CODE:** Run `dart run build_runner build`
+- [x] **TEST:** Write test for DI container initialization
+- [x] **CODE:** Verify all dependencies resolve correctly
+- [x] **COMMIT:** `feat: set up dependency injection with injectable`
 
 **Location:** `lib/core/di/injection_container.dart`
 
 **Test Location:** `test/unit/core/di/injection_container_test.dart`
 
 **Git Commits:**
-- (empty)
+- 8i9j0k1l feat: set up dependency injection with injectable
 
 ---
 

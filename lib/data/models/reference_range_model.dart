@@ -1,15 +1,21 @@
 import 'package:health_tracker_reports/domain/entities/reference_range.dart';
+import 'package:hive/hive.dart';
 
-/// Data model for [ReferenceRange] entity with JSON serialization support.
-///
-/// Extends [ReferenceRange] to inherit domain logic while adding
-/// serialization capabilities for data layer operations.
+part 'reference_range_model.g.dart';
+
+@HiveType(typeId: 2)
 class ReferenceRangeModel extends ReferenceRange {
+  @HiveField(0)
+  final double min;
+
+  @HiveField(1)
+  final double max;
+
   /// Creates a [ReferenceRangeModel] with the given min and max values
   const ReferenceRangeModel({
-    required super.min,
-    required super.max,
-  });
+    required this.min,
+    required this.max,
+  }) : super(min: min, max: max);
 
   /// Creates a [ReferenceRangeModel] from a [ReferenceRange] entity
   factory ReferenceRangeModel.fromEntity(ReferenceRange entity) {
@@ -33,5 +39,12 @@ class ReferenceRangeModel extends ReferenceRange {
       'min': min,
       'max': max,
     };
+  }
+
+  ReferenceRange toEntity() {
+    return ReferenceRange(
+      min: min,
+      max: max,
+    );
   }
 }
