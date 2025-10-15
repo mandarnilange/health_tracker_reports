@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ReferenceRangeModel: Extends ReferenceRange with JSON serialization support
   - BiomarkerModel: Extends Biomarker with JSON serialization and nested ReferenceRange handling
   - ReportModel: Extends Report with JSON serialization, handles list of biomarkers and multiple DateTime fields
+  - AppConfigModel: Extends AppConfig with JSON serialization, handles nullable fields and boolean defaults
 - Core error handling infrastructure:
   - Abstract Failure class with 7 concrete implementations (Cache, Ocr, Llm, Validation, FilePicker, PdfProcessing, Network)
   - Exception types for data layer (8 exception classes)
@@ -75,6 +76,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Git Commit History
 
 ### Data Models (TDD)
+
+#### 2025-10-15 - AppConfigModel
+- `5fceb25` - feat: implement AppConfigModel with JSON serialization
+- `7813f57` - test: add comprehensive tests for AppConfigModel
 
 #### 2025-10-15 - ReportModel
 - `7f1eab2` - feat: implement ReportModel with JSON serialization

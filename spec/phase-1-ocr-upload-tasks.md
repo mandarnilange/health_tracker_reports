@@ -251,22 +251,25 @@
 **Note:** Hive TypeAdapter will be added later when implementing local storage.
 
 #### 4.4 AppConfigModel
-- [ ] **TEST:** Write test for fromEntity factory
-- [ ] **CODE:** Implement AppConfigModel
-- [ ] **TEST:** Write test for toJson/fromJson
-- [ ] **CODE:** Implement JSON serialization
+- [x] **TEST:** Write test for fromEntity factory
+- [x] **CODE:** Implement AppConfigModel
+- [x] **TEST:** Write test for toJson/fromJson
+- [x] **CODE:** Implement JSON serialization
 - [ ] **TEST:** Write test for Hive TypeAdapter
 - [ ] **CODE:** Add @HiveType annotations and generate adapter
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for AppConfigModel serialization`
-- [ ] **COMMIT:** `feat: implement AppConfigModel with Hive support`
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for AppConfigModel serialization`
+- [x] **COMMIT:** `feat: implement AppConfigModel with Hive support`
 
 **Location:** `lib/data/models/app_config_model.dart`
 
 **Test Location:** `test/unit/data/models/app_config_model_test.dart`
 
 **Git Commits:**
-- (empty)
+- 7813f57 test: add comprehensive tests for AppConfigModel
+- 5fceb25 feat: implement AppConfigModel with JSON serialization
+
+**Note:** Hive TypeAdapter will be added later when implementing local storage.
 
 ---
 
@@ -752,9 +755,9 @@
 - ✅ Feature 1: Project Setup & Infrastructure (4/4 sub-features)
 - ✅ Feature 2: Core Domain Entities (4/4 entities)
 - ✅ Feature 3: Core Error Handling (2/2 components)
-- 🚧 Feature 4: Data Models (2/4 models - ReferenceRangeModel, BiomarkerModel)
+- ✅ Feature 4: Data Models (4/4 models - ReferenceRangeModel, BiomarkerModel, ReportModel, AppConfigModel)
 
-**Test Coverage:** 124 tests passing, flutter analyze clean
+**Test Coverage:** 179 tests passing, flutter analyze clean
 
 **Last Updated:** 2025-10-15
 
