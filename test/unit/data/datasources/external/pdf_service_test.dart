@@ -9,8 +9,20 @@ import 'package:mocktail/mocktail.dart';
 import 'package:pdf_render/pdf_render.dart';
 
 class MockPdfDocumentWrapper extends Mock implements PdfDocumentWrapper {}
-class MockPdfDocument extends Mock implements PdfDocument {}
-class MockPdfPage extends Mock implements PdfPage {}
+class MockPdfDocument extends Mock implements PdfDocument {
+  @override
+  bool operator ==(dynamic other) => super == other;
+
+  @override
+  int get hashCode => super.hashCode;
+}
+class MockPdfPage extends Mock implements PdfPage {
+  @override
+  bool operator ==(dynamic other) => super == other;
+
+  @override
+  int get hashCode => super.hashCode;
+}
 class MockPdfPageImage extends Mock implements PdfPageImage {}
 class MockImage extends Mock implements ui.Image {}
 
