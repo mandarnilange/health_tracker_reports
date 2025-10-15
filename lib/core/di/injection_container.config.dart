@@ -38,6 +38,8 @@ import 'package:health_tracker_reports/domain/repositories/config_repository.dar
     as _i649;
 import 'package:health_tracker_reports/domain/repositories/report_repository.dart'
     as _i767;
+import 'package:health_tracker_reports/domain/usecases/delete_report.dart'
+    as _i248;
 import 'package:health_tracker_reports/domain/usecases/extract_report_from_file.dart'
     as _i839;
 import 'package:health_tracker_reports/domain/usecases/get_all_reports.dart'
@@ -93,6 +95,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i567.SaveReport(repository: gh<_i767.ReportRepository>()));
     gh.lazySingleton<_i657.GetAllReports>(
         () => _i657.GetAllReports(repository: gh<_i767.ReportRepository>()));
+    gh.lazySingleton<_i248.DeleteReport>(
+        () => _i248.DeleteReport(repository: gh<_i767.ReportRepository>()));
     gh.lazySingleton<_i829.OcrService>(
         () => _i829.OcrService(textRecognizer: gh<_i612.TextRecognizer>()));
     gh.lazySingleton<_i649.ConfigRepository>(() => _i616.ConfigRepositoryImpl(

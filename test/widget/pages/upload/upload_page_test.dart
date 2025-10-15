@@ -9,12 +9,36 @@ import 'package:health_tracker_reports/domain/entities/reference_range.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/presentation/pages/upload/review_page.dart';
 import 'package:health_tracker_reports/presentation/pages/upload/upload_page.dart';
+import 'package:health_tracker_reports/domain/usecases/extract_report_from_file.dart';
 import 'package:health_tracker_reports/presentation/providers/extraction_provider.dart';
 import 'package:health_tracker_reports/presentation/providers/file_picker_provider.dart';
 import 'package:health_tracker_reports/presentation/providers/reports_provider.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockExtractionNotifier extends Mock implements ExtractionNotifier {}
+
+class MockExtractReportFromFile extends Mock implements ExtractReportFromFile {}
+
+class FakeExtractionNotifier extends ExtractionNotifier {
+  FakeExtractionNotifier(super.extractReportFromFile);
+
+  Report? reportToReturn;
+
+  @override
+  Future<Either<Failure, Report>> extractFromFile(String filePath) async {
+    state = const AsyncValue.loading();
+    await Future<void>.delayed(const Duration(milliseconds: 10));
+
+    if (reportToReturn != null) {
+      state = AsyncValue.data(reportToReturn);
+      return Right(reportToReturn!);
+    }
+
+    const failure = OcrFailure(message: 'Not implemented');
+    state = AsyncValue.error(failure, StackTrace.current);
+    return const Left(failure);
+  }
+}
 
 class MockReportsNotifier extends Mock implements ReportsNotifier {}
 
@@ -59,6 +83,13 @@ void main() {
     mockReportsNotifier = MockReportsNotifier();
     mockFilePicker = MockReportFilePicker();
     mockNavigatorObserver = MockNavigatorObserver();
+
+    // Set up default state for extraction notifier
+    when(() => mockExtractionNotifier.state)
+        .thenReturn(const AsyncValue.data(null));
+
+    // Stub listener methods to avoid NotImplemented errors
+    when(() => mockExtractionNotifier.addListener(any())).thenReturn(null);
   });
 
   ProviderScope createWidgetUnderTest() {
@@ -90,7 +121,11 @@ void main() {
   }
 
   group('UploadPage', () {
+    // TODO: Fix mock setup for state-based tests
     testWidgets('shows instructions when no report selected', (tester) async {
+      when(() => mockExtractionNotifier.state)
+          .thenReturn(const AsyncValue.data(null));
+
       await tester.pumpWidget(createWidgetUnderTest());
 
       expect(find.text('Select Blood Report'), findsOneWidget);
@@ -99,13 +134,8 @@ void main() {
 
     testWidgets('shows loading indicator while extraction running',
         (tester) async {
-      when(() => mockFilePicker.pickReportPath())
-          .thenAnswer((_) async => '/tmp/report.pdf');
-      when(() => mockExtractionNotifier.extractFromFile(any()))
-          .thenAnswer((_) async {
-        await Future<void>.delayed(const Duration(milliseconds: 10));
-        return const Left(OcrFailure(message: ''));
-      });
+      when(() => mockExtractionNotifier.state)
+          .thenReturn(const AsyncValue.loading());
 
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pump();
@@ -115,16 +145,11 @@ void main() {
     });
 
     testWidgets('shows error card when extraction fails', (tester) async {
-      when(() => mockExtractionNotifier.extractFromFile(any())).thenAnswer(
-        (_) async => const Left(OcrFailure(message: 'Extraction failed')),
-      );
-      when(() => mockFilePicker.pickReportPath())
-          .thenAnswer((_) async => '/tmp/report.pdf');
+      const failure = OcrFailure(message: 'Extraction failed');
+      when(() => mockExtractionNotifier.state)
+          .thenReturn(AsyncValue.error(failure, StackTrace.current));
 
       await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pump();
-
-      await tester.tap(find.text('Select Blood Report'));
       await tester.pump();
 
       expect(find.text('Error'), findsOneWidget);
@@ -133,6 +158,8 @@ void main() {
     });
 
     testWidgets('invokes file picker when upload card tapped', (tester) async {
+      when(() => mockExtractionNotifier.state)
+          .thenReturn(const AsyncValue.data(null));
       when(() => mockFilePicker.pickReportPath())
           .thenAnswer((_) async => '/tmp/report.pdf');
       when(() => mockExtractionNotifier.extractFromFile(any()))
@@ -151,18 +178,50 @@ void main() {
 
     testWidgets('navigates to ReviewPage when extraction succeeds',
         (tester) async {
+      // Use a fake notifier that properly manages state
+      final mockExtractUseCase = MockExtractReportFromFile();
+      final fakeNotifier = FakeExtractionNotifier(mockExtractUseCase)
+        ..reportToReturn = testReport;
+
       when(() => mockFilePicker.pickReportPath())
           .thenAnswer((_) async => '/tmp/report.pdf');
-      when(() => mockExtractionNotifier.extractFromFile(any()))
-          .thenAnswer((_) async => Right(testReport));
-      when(() => mockExtractionNotifier.reset()).thenReturn(null);
 
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pump();
+      final router = GoRouter(
+        observers: [mockNavigatorObserver],
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, state) => const UploadPage(),
+          ),
+          GoRoute(
+            path: '/review',
+            builder: (context, state) =>
+                ReviewPage(initialReport: state.extra! as Report),
+          ),
+        ],
+      );
 
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            extractionProvider.overrideWith((ref) => fakeNotifier),
+            reportsProvider.overrideWith((ref) => mockReportsNotifier),
+            reportFilePickerProvider.overrideWithValue(mockFilePicker),
+          ],
+          child: MaterialApp.router(
+            routerConfig: router,
+          ),
+        ),
+      );
+
+      // Verify initial state shows upload card
+      expect(find.text('Select Blood Report'), findsOneWidget);
+
+      // Tap to select file and extract
       await tester.tap(find.text('Select Blood Report'));
       await tester.pumpAndSettle();
 
+      // Should navigate to review page
       verify(() => mockNavigatorObserver.didPush(any(), any())).called(2);
       expect(find.byType(ReviewPage), findsOneWidget);
     });
