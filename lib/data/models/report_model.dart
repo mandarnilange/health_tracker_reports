@@ -6,27 +6,35 @@ part 'report_model.g.dart';
 
 @HiveType(typeId: 3)
 class ReportModel extends Report {
+  @override
   @HiveField(0)
   final String id;
 
+  @override
   @HiveField(1)
   final DateTime date;
 
+  @override
   @HiveField(2)
   final String labName;
 
+  @override
   @HiveField(3)
   final List<BiomarkerModel> biomarkers;
 
+  @override
   @HiveField(4)
   final String originalFilePath;
 
+  @override
   @HiveField(5)
   final String? notes;
 
+  @override
   @HiveField(6)
   final DateTime createdAt;
 
+  @override
   @HiveField(7)
   final DateTime updatedAt;
 

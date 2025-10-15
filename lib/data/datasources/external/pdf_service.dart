@@ -5,7 +5,6 @@ import 'dart:ui' as ui;
 import 'package:health_tracker_reports/core/error/exceptions.dart';
 import 'package:health_tracker_reports/data/datasources/external/pdf_document_wrapper.dart';
 import 'package:injectable/injectable.dart';
-import 'package:pdf_render/pdf_render.dart';
 
 @lazySingleton
 class PdfService {

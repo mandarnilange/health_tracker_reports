@@ -5,15 +5,19 @@ part 'app_config_model.g.dart';
 
 @HiveType(typeId: 0)
 class AppConfigModel extends AppConfig {
+  @override
   @HiveField(0)
   final String? llmApiKey;
 
+  @override
   @HiveField(1)
   final String? llmProvider;
 
+  @override
   @HiveField(2)
   final bool useLlmExtraction;
 
+  @override
   @HiveField(3)
   final bool darkModeEnabled;
   /// Creates an [AppConfigModel] with the given properties

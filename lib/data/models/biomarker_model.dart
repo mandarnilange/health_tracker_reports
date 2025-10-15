@@ -6,21 +6,27 @@ part 'biomarker_model.g.dart';
 
 @HiveType(typeId: 1)
 class BiomarkerModel extends Biomarker {
+  @override
   @HiveField(0)
   final String id;
 
+  @override
   @HiveField(1)
   final String name;
 
+  @override
   @HiveField(2)
   final double value;
 
+  @override
   @HiveField(3)
   final String unit;
 
+  @override
   @HiveField(4)
   final ReferenceRangeModel referenceRange;
 
+  @override
   @HiveField(5)
   final DateTime measuredAt;
 

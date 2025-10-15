@@ -3,7 +3,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:health_tracker_reports/data/datasources/external/ocr_service.dart';
 import 'package:health_tracker_reports/core/error/exceptions.dart';
 import 'package:mocktail/mocktail.dart';

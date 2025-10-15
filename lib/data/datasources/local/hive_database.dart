@@ -3,7 +3,6 @@ import 'package:health_tracker_reports/data/models/biomarker_model.dart';
 import 'package:health_tracker_reports/data/models/reference_range_model.dart';
 import 'package:health_tracker_reports/data/models/report_model.dart';
 import 'package:hive/hive.dart';
-import 'package:injectable/injectable.dart';
 
 class HiveDatabase {
   final HiveInterface hive;

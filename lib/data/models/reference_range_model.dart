@@ -5,9 +5,11 @@ part 'reference_range_model.g.dart';
 
 @HiveType(typeId: 2)
 class ReferenceRangeModel extends ReferenceRange {
+  @override
   @HiveField(0)
   final double min;
 
+  @override
   @HiveField(1)
   final double max;
 

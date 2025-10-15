@@ -1,0 +1,6 @@
+- [x] Fix missing @override annotations in model files.
+- [x] Fix type mismatches in test/unit/data/models/biomarker_model_test.dart.
+- [x] Fix undefined name 'tReferenceRange' in test/unit/data/models/biomarker_model_test.dart.
+- [x] Fix invalid_implementation_override errors in test/unit/data/datasources/external/pdf_service_test.dart.
+- [x] Fix unused_local_variable warning in test/unit/data/datasources/external/llm_extraction_service_test.dart.
+- [ ] Review new and modified files for bugs, security, performance, and clarity.
