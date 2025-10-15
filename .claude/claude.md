@@ -25,7 +25,7 @@ This file contains:
 - Maintain 90% minimum code coverage
 - Use conventional commits format
 - Update /spec task files after each commit
-- Update overall-plan.md changelog
+- Update CHANGELOG.md after significant commits
 
 ### Git Workflow
 - Commit after each test-implementation pair

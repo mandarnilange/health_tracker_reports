@@ -449,42 +449,16 @@ const biomarkerNormalization = {
 
 ## Changelog
 
-### 2025-10-15
+For detailed changelog with all commits and changes, see [CHANGELOG.md](../CHANGELOG.md).
 
-#### Package Updates
-- **chore**: Update dependencies to latest versions (commit 5109116)
-  - Updated 8 major packages to latest compatible versions
-  - go_router: 14.6.2 → 16.2.4
-  - fl_chart: 0.70.1 → 1.1.1
-  - google_mlkit_text_recognition: 0.13.1 → 0.15.0
-  - googleapis: 13.2.0 → 15.0.0
-  - google_sign_in: 6.2.2 → 7.2.0
-  - flutter_local_notifications: 18.0.1 → 19.4.2
-  - share_plus: 10.1.2 → 12.0.0
-  - Updated AGENTS.md with correct versions and manual Riverpod provider examples
-  - Verified: flutter analyze clean ✓, all tests passing ✓
+The changelog follows [Keep a Changelog](https://keepachangelog.com/) format and includes:
+- All commits with descriptions and hashes
+- Package version updates
+- Feature additions and changes
+- Bug fixes and refactoring
+- Breaking changes
 
-#### Project Initialization
-- **chore**: Initialize Flutter project with clean architecture setup (commit c599232)
-  - Created Flutter project structure for iOS, Android, and Web
-  - Set up clean architecture folder structure (core, domain, data, presentation)
-  - Configured pubspec.yaml with all required dependencies:
-    - State Management: Riverpod 2.6.1
-    - DI: get_it 8.0.2 + injectable 2.5.0
-    - Local Storage: Hive 2.2.3
-    - Routing: go_router 14.6.2
-    - OCR: Google ML Kit 0.13.1
-    - Charts: fl_chart 0.70.1
-    - Testing: mocktail 1.0.4
-  - Added build.yaml for injectable code generation
-  - Created comprehensive test folder structure
-  - Successfully installed all dependencies via flutter pub get
-
-#### Documentation Setup
-- **docs**: Create AGENTS.md with complete architecture guide
-- **docs**: Create spec/overall-plan.md with implementation roadmap
-- **docs**: Create phase task files (phase-1 through phase-5)
-- **docs**: Create .claude/claude.md for AI agent context
+**Note:** Update CHANGELOG.md after each significant commit or group of related commits.
 
 ---
 

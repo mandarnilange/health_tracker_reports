@@ -592,6 +592,106 @@ chore: update dependencies
 
 ---
 
+## Changelog Maintenance
+
+All project changes must be documented in `CHANGELOG.md` in the project root directory.
+
+### When to Update CHANGELOG.md
+
+Update the changelog:
+- After each commit or group of related commits
+- When completing a feature
+- When fixing bugs
+- When making breaking changes
+- When updating dependencies
+
+### Changelog Format
+
+Follow [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format:
+
+```markdown
+## [Unreleased]
+
+### Added
+- New features go here
+- Domain entities: ReferenceRange, Biomarker, Report with comprehensive test coverage
+
+### Changed
+- Changes to existing functionality
+- Updated package X from version Y to Z
+
+### Fixed
+- Bug fixes
+- Resolved issue with biomarker normalization
+
+### Removed
+- Removed features/code
+
+## [0.1.0] - 2025-10-15
+
+### Added
+- Initial Flutter project structure
+- Clean architecture setup
+...
+
+## Git Commit History
+
+### Domain Entities (TDD)
+
+#### 2025-10-15 - Report Entity
+- `36ba890` - docs: update phase-1 tasks with Report entity completion
+- `2ee1717` - feat: implement Report entity with biomarker aggregation
+- `eef6412` - test: add comprehensive tests for Report entity
+```
+
+### Changelog Update Workflow
+
+1. **After committing code:**
+   ```bash
+   # 1. Make your changes
+   # 2. Commit with conventional commit message
+   git commit -m "feat: implement Report entity with biomarker aggregation"
+
+   # 3. Update CHANGELOG.md immediately
+   # Add entry under [Unreleased] section
+   # Include commit hash, type, and description
+   ```
+
+2. **Grouping related commits:**
+   - Group related commits by feature/area
+   - Use date-based subsections for organization
+   - Include all commit hashes for traceability
+
+3. **Before creating a release:**
+   - Move all `[Unreleased]` entries to a new version section
+   - Add release date
+   - Update version number following semantic versioning
+
+### Example Entry
+
+```markdown
+## [Unreleased]
+
+### Added
+- Domain entities with 100% test coverage:
+  - Report entity with biomarker filtering capabilities (commit 2ee1717)
+  - Biomarker entity with status logic (commit 31e0af4)
+  - ReferenceRange value object (commit ed227d3)
+
+### Changed
+- Updated all task files with completion status (commit 36ba890)
+```
+
+### Important Notes
+
+- **Always update CHANGELOG.md** - It's part of the definition of done
+- **Be descriptive** - Future you (and others) will thank you
+- **Include commit hashes** - Makes it easy to find exact changes
+- **Group by type** - Added, Changed, Fixed, Removed
+- **Write for humans** - Explain what and why, not just the code change
+
+---
+
 ## File Upload & OCR Flow
 
 ```
