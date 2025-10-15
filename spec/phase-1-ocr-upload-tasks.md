@@ -202,24 +202,27 @@
 - 5f690c7 feat: implement ReferenceRangeModel with JSON serialization
 
 #### 4.2 BiomarkerModel
-- [ ] **TEST:** Write test for fromEntity factory
-- [ ] **CODE:** Implement BiomarkerModel extending Biomarker
-- [ ] **TEST:** Write test for toJson method
-- [ ] **CODE:** Implement toJson method
-- [ ] **TEST:** Write test for fromJson factory
-- [ ] **CODE:** Implement fromJson factory with referenceRange handling
+- [x] **TEST:** Write test for fromEntity factory
+- [x] **CODE:** Implement BiomarkerModel extending Biomarker
+- [x] **TEST:** Write test for toJson method
+- [x] **CODE:** Implement toJson method
+- [x] **TEST:** Write test for fromJson factory
+- [x] **CODE:** Implement fromJson factory with referenceRange handling
 - [ ] **TEST:** Write test for Hive TypeAdapter (if using Hive)
 - [ ] **CODE:** Add @HiveType annotations and generate adapter
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for BiomarkerModel serialization`
-- [ ] **COMMIT:** `feat: implement BiomarkerModel with JSON and Hive support`
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for BiomarkerModel serialization`
+- [x] **COMMIT:** `feat: implement BiomarkerModel with JSON and Hive support`
 
 **Location:** `lib/data/models/biomarker_model.dart`
 
 **Test Location:** `test/unit/data/models/biomarker_model_test.dart`
 
 **Git Commits:**
-- (empty)
+- c3ad3c7 test: add comprehensive tests for BiomarkerModel
+- 40e5d67 feat: implement BiomarkerModel with JSON serialization
+
+**Note:** Hive TypeAdapter will be added later when implementing local storage.
 
 #### 4.3 ReportModel
 - [ ] **TEST:** Write test for fromEntity factory

@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - AppConfig: Entity for application settings (LLM config, dark mode)
 - Data models with JSON serialization:
   - ReferenceRangeModel: Extends ReferenceRange with JSON serialization support
+  - BiomarkerModel: Extends Biomarker with JSON serialization and nested ReferenceRange handling
 - Core error handling infrastructure:
   - Abstract Failure class with 7 concrete implementations (Cache, Ocr, Llm, Validation, FilePicker, PdfProcessing, Network)
   - Exception types for data layer (8 exception classes)
@@ -73,6 +74,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Git Commit History
 
 ### Data Models (TDD)
+
+#### 2025-10-15 - BiomarkerModel
+- `40e5d67` - feat: implement BiomarkerModel with JSON serialization
+- `c3ad3c7` - test: add comprehensive tests for BiomarkerModel
 
 #### 2025-10-15 - ReferenceRangeModel
 - `5f690c7` - feat: implement ReferenceRangeModel with JSON serialization
