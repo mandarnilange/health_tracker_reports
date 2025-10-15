@@ -159,7 +159,7 @@
 **Location:** `lib/core/error/failures.dart`
 
 **Git Commits:**
-- 9c4756b feat: implement failure types for error handling
+- b94c607 feat: implement error handling with Failures and Exceptions
 
 #### 3.2 Exceptions
 - [x] **CODE:** Create CacheException
@@ -172,7 +172,7 @@
 **Location:** `lib/core/error/exceptions.dart`
 
 **Git Commits:**
-- d325bb8 feat: implement exception types
+- b94c607 feat: implement error handling with Failures and Exceptions
 
 ---
 

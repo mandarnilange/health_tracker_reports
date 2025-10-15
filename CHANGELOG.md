@@ -73,8 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Error Handling
 
 #### 2025-10-15 - Failures and Exceptions
-- `d325bb8` - feat: implement exception types
-- `9c4756b` - feat: implement failure types for error handling
+- `b94c607` - feat: implement error handling with Failures and Exceptions
 
 ### Domain Entities (TDD)
 
