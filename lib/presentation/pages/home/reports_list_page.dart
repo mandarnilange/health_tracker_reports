@@ -7,10 +7,12 @@ export 'package:health_tracker_reports/presentation/providers/report_usecase_pro
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/presentation/providers/report_usecase_providers.dart';
 import 'package:health_tracker_reports/presentation/providers/reports_provider.dart';
+import 'package:health_tracker_reports/presentation/router/route_names.dart';
 import 'package:intl/intl.dart';
 
 /// Home page displaying the list of saved reports.
@@ -72,11 +74,8 @@ class _ReportsListPageState extends ConsumerState<ReportsListPage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(builder: (_) => const SizedBox.shrink()),
-          );
-        },
+        onPressed: () => context.go(RouteNames.upload),
+        tooltip: 'Upload New Report',
         child: const Icon(Icons.add),
       ),
     );
@@ -90,6 +89,8 @@ class _ReportListItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final dateText = DateFormat.yMMMd().format(report.date);
     final biomarkerCount = report.totalBiomarkerCount;
     final outOfRangeCount = report.outOfRangeCount;
@@ -100,28 +101,203 @@ class _ReportListItem extends ConsumerWidget {
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.symmetric(horizontal: 24),
-        color: Colors.red.shade700,
-        child: const Icon(Icons.delete, color: Colors.white),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        decoration: BoxDecoration(
+          color: colorScheme.error,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(Icons.delete, color: colorScheme.onError),
       ),
       confirmDismiss: (_) => _deleteReport(context, ref, report.id),
-      child: ListTile(
-        title: Text(report.labName),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(dateText),
-            Text('$biomarkerCount biomarker${biomarkerCount == 1 ? '' : 's'}'),
-            Text('$outOfRangeCount out of range'),
-          ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        child: Card(
+          elevation: 2,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => context.go(RouteNames.reportDetailWithId(report.id)),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  // Report Icon
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.description,
+                      size: 32,
+                      color: colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+
+                  // Report Details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Lab Name
+                        Text(
+                          report.labName,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+
+                        // Date
+                        Text(
+                          dateText,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Biomarker Info Row
+                        Row(
+                          children: [
+                            // Total biomarkers
+                            Icon(
+                              Icons.science,
+                              size: 16,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '$biomarkerCount ${biomarkerCount == 1 ? 'test' : 'tests'}',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+
+                            // Out of range warning chip
+                            if (outOfRangeCount > 0) ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: colorScheme.errorContainer,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.warning,
+                                      size: 14,
+                                      color: colorScheme.onErrorContainer,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '$outOfRangeCount',
+                                      style: theme.textTheme.labelSmall?.copyWith(
+                                        color: colorScheme.onErrorContainer,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ] else ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: colorScheme.tertiaryContainer,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.check_circle,
+                                      size: 14,
+                                      color: colorScheme.onTertiaryContainer,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'All Normal',
+                                      style: theme.textTheme.labelSmall?.copyWith(
+                                        color: colorScheme.onTertiaryContainer,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Trailing Icons
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          Icons.delete_outline,
+                          color: colorScheme.error,
+                        ),
+                        onPressed: () async {
+                          final confirmed = await _showDeleteConfirmation(context);
+                          if (confirmed && context.mounted) {
+                            await _deleteReport(context, ref, report.id);
+                          }
+                        },
+                        tooltip: 'Delete report',
+                      ),
+                      Icon(
+                        Icons.chevron_right,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(builder: (_) => const SizedBox.shrink()),
-          );
-        },
       ),
     );
+  }
+
+  Future<bool> _showDeleteConfirmation(BuildContext context) async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Report'),
+        content: Text('Are you sure you want to delete ${report.labName}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    ) ?? false;
   }
 
   Future<bool> _deleteReport(
