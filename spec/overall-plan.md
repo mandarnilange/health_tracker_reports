@@ -451,6 +451,19 @@ const biomarkerNormalization = {
 
 ### 2025-10-15
 
+#### Package Updates
+- **chore**: Update dependencies to latest versions (commit 5109116)
+  - Updated 8 major packages to latest compatible versions
+  - go_router: 14.6.2 → 16.2.4
+  - fl_chart: 0.70.1 → 1.1.1
+  - google_mlkit_text_recognition: 0.13.1 → 0.15.0
+  - googleapis: 13.2.0 → 15.0.0
+  - google_sign_in: 6.2.2 → 7.2.0
+  - flutter_local_notifications: 18.0.1 → 19.4.2
+  - share_plus: 10.1.2 → 12.0.0
+  - Updated AGENTS.md with correct versions and manual Riverpod provider examples
+  - Verified: flutter analyze clean ✓, all tests passing ✓
+
 #### Project Initialization
 - **chore**: Initialize Flutter project with clean architecture setup (commit c599232)
   - Created Flutter project structure for iOS, Android, and Web
