@@ -181,24 +181,25 @@
 ### Tasks
 
 #### 4.1 ReferenceRangeModel
-- [ ] **TEST:** Write test for fromEntity factory
-- [ ] **CODE:** Implement ReferenceRangeModel extending ReferenceRange
-- [ ] **TEST:** Write test for toJson method
-- [ ] **CODE:** Implement toJson method
-- [ ] **TEST:** Write test for fromJson factory
-- [ ] **CODE:** Implement fromJson factory
-- [ ] **TEST:** Write test for JSON serialization round-trip
-- [ ] **CODE:** Ensure round-trip works correctly
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for ReferenceRangeModel serialization`
-- [ ] **COMMIT:** `feat: implement ReferenceRangeModel with JSON serialization`
+- [x] **TEST:** Write test for fromEntity factory
+- [x] **CODE:** Implement ReferenceRangeModel extending ReferenceRange
+- [x] **TEST:** Write test for toJson method
+- [x] **CODE:** Implement toJson method
+- [x] **TEST:** Write test for fromJson factory
+- [x] **CODE:** Implement fromJson factory
+- [x] **TEST:** Write test for JSON serialization round-trip
+- [x] **CODE:** Ensure round-trip works correctly
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for ReferenceRangeModel serialization`
+- [x] **COMMIT:** `feat: implement ReferenceRangeModel with JSON serialization`
 
 **Location:** `lib/data/models/reference_range_model.dart`
 
 **Test Location:** `test/unit/data/models/reference_range_model_test.dart`
 
 **Git Commits:**
-- (empty)
+- d1ec92a test: add comprehensive tests for ReferenceRangeModel
+- 5f690c7 feat: implement ReferenceRangeModel with JSON serialization
 
 #### 4.2 BiomarkerModel
 - [ ] **TEST:** Write test for fromEntity factory

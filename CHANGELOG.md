@@ -13,9 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Biomarker: Entity representing a lab test parameter with status logic
   - Report: Aggregate entity for blood test reports with biomarker filtering
   - AppConfig: Entity for application settings (LLM config, dark mode)
+- Data models with JSON serialization:
+  - ReferenceRangeModel: Extends ReferenceRange with JSON serialization support
 - Core error handling infrastructure:
-  - Abstract Failure class with 5 concrete implementations (Cache, Ocr, Llm, Validation, FilePicker)
-  - Exception types for data layer (5 exception classes)
+  - Abstract Failure class with 7 concrete implementations (Cache, Ocr, Llm, Validation, FilePicker, PdfProcessing, Network)
+  - Exception types for data layer (8 exception classes)
   - Type-safe error handling with `Either<Failure, T>` pattern
 - TDD workflow established with strict RED-GREEN-COMMIT cycle
 - Changelog reorganization into standard CHANGELOG.md format
@@ -69,6 +71,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Flutter analyze clean with no issues
 
 ## Git Commit History
+
+### Data Models (TDD)
+
+#### 2025-10-15 - ReferenceRangeModel
+- `5f690c7` - feat: implement ReferenceRangeModel with JSON serialization
+- `d1ec92a` - test: add comprehensive tests for ReferenceRangeModel
 
 ### Error Handling
 
