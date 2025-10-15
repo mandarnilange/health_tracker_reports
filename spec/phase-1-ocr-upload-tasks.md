@@ -77,26 +77,27 @@
 - ed227d3 feat: implement ReferenceRange value object
 
 #### 2.2 Biomarker Entity
-- [ ] **TEST:** Write test for Biomarker entity creation with all fields
-- [ ] **CODE:** Implement Biomarker entity (id, name, value, unit, referenceRange, measuredAt)
-- [ ] **TEST:** Write test for `isOutOfRange` getter
-- [ ] **CODE:** Implement `isOutOfRange` getter
-- [ ] **TEST:** Write test for `status` getter (low/normal/high)
-- [ ] **CODE:** Implement `status` getter with BiomarkerStatus enum
-- [ ] **TEST:** Write test for Equatable props
-- [ ] **CODE:** Implement Equatable correctly
-- [ ] **TEST:** Write test for copyWith method
-- [ ] **CODE:** Implement copyWith method
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add comprehensive tests for Biomarker entity`
-- [ ] **COMMIT:** `feat: implement Biomarker entity with status logic`
+- [x] **TEST:** Write test for Biomarker entity creation with all fields
+- [x] **CODE:** Implement Biomarker entity (id, name, value, unit, referenceRange, measuredAt)
+- [x] **TEST:** Write test for `isOutOfRange` getter
+- [x] **CODE:** Implement `isOutOfRange` getter
+- [x] **TEST:** Write test for `status` getter (low/normal/high)
+- [x] **CODE:** Implement `status` getter with BiomarkerStatus enum
+- [x] **TEST:** Write test for Equatable props
+- [x] **CODE:** Implement Equatable correctly
+- [x] **TEST:** Write test for copyWith method
+- [x] **CODE:** Implement copyWith method
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add comprehensive tests for Biomarker entity`
+- [x] **COMMIT:** `feat: implement Biomarker entity with status logic`
 
 **Location:** `lib/domain/entities/biomarker.dart`
 
 **Test Location:** `test/unit/domain/entities/biomarker_test.dart`
 
 **Git Commits:**
-- (empty)
+- 7771ca0 test: add comprehensive tests for Biomarker entity
+- 31e0af4 feat: implement Biomarker entity with status logic
 
 #### 2.3 Report Entity
 - [ ] **TEST:** Write test for Report entity creation
