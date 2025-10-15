@@ -228,24 +228,27 @@
 **Note:** Hive TypeAdapter will be added later when implementing local storage.
 
 #### 4.3 ReportModel
-- [ ] **TEST:** Write test for fromEntity factory
-- [ ] **CODE:** Implement ReportModel extending Report
-- [ ] **TEST:** Write test for toJson method
-- [ ] **CODE:** Implement toJson method with biomarkers list
-- [ ] **TEST:** Write test for fromJson factory
-- [ ] **CODE:** Implement fromJson factory
+- [x] **TEST:** Write test for fromEntity factory
+- [x] **CODE:** Implement ReportModel extending Report
+- [x] **TEST:** Write test for toJson method
+- [x] **CODE:** Implement toJson method with biomarkers list
+- [x] **TEST:** Write test for fromJson factory
+- [x] **CODE:** Implement fromJson factory
 - [ ] **TEST:** Write test for Hive TypeAdapter
 - [ ] **CODE:** Add @HiveType annotations and generate adapter
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for ReportModel serialization`
-- [ ] **COMMIT:** `feat: implement ReportModel with JSON and Hive support`
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for ReportModel serialization`
+- [x] **COMMIT:** `feat: implement ReportModel with JSON and Hive support`
 
 **Location:** `lib/data/models/report_model.dart`
 
 **Test Location:** `test/unit/data/models/report_model_test.dart`
 
 **Git Commits:**
-- (empty)
+- 9a2c408 test: add comprehensive tests for ReportModel
+- 7f1eab2 feat: implement ReportModel with JSON serialization
+
+**Note:** Hive TypeAdapter will be added later when implementing local storage.
 
 #### 4.4 AppConfigModel
 - [ ] **TEST:** Write test for fromEntity factory
