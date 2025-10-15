@@ -48,8 +48,7 @@ class ReportModel extends Report {
     this.notes,
     required this.createdAt,
     required this.updatedAt,
-  })
-      : super(
+  }) : super(
           id: id,
           date: date,
           labName: labName,

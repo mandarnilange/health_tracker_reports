@@ -1,4 +1,3 @@
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/data/datasources/local/report_local_datasource.dart';
 import 'package:health_tracker_reports/data/models/report_model.dart';
@@ -81,7 +80,8 @@ void main() {
       expect(result, tReportModelList);
     });
 
-    test('should throw a CacheException when getting all reports fails', () async {
+    test('should throw a CacheException when getting all reports fails',
+        () async {
       // Arrange
       when(() => mockBox.values).thenThrow(Exception());
 
@@ -115,7 +115,8 @@ void main() {
       expect(result, tReportModel);
     });
 
-    test('should throw a CacheException when getting a report by id fails', () async {
+    test('should throw a CacheException when getting a report by id fails',
+        () async {
       // Arrange
       when(() => mockBox.get(any())).thenThrow(Exception());
 
@@ -139,7 +140,8 @@ void main() {
       verify(() => mockBox.delete('1')).called(1);
     });
 
-    test('should throw a CacheException when deleting a report fails', () async {
+    test('should throw a CacheException when deleting a report fails',
+        () async {
       // Arrange
       when(() => mockBox.delete(any())).thenThrow(Exception());
 
@@ -173,7 +175,8 @@ void main() {
       verify(() => mockBox.put(tReportModel.id, tReportModel)).called(1);
     });
 
-    test('should throw a CacheException when updating a report fails', () async {
+    test('should throw a CacheException when updating a report fails',
+        () async {
       // Arrange
       when(() => mockBox.put(any(), any())).thenThrow(Exception());
 

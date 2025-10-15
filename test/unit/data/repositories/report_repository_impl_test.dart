@@ -39,9 +39,12 @@ void main() {
       updatedAt: DateTime.now(),
     );
 
-    test('should return the report when the call to local data source is successful', () async {
+    test(
+        'should return the report when the call to local data source is successful',
+        () async {
       // Arrange
-      when(() => mockLocalDataSource.saveReport(any())).thenAnswer((_) async => {});
+      when(() => mockLocalDataSource.saveReport(any()))
+          .thenAnswer((_) async => {});
 
       // Act
       final result = await repository.saveReport(tReport);
@@ -50,9 +53,12 @@ void main() {
       expect(result, Right(tReport));
     });
 
-    test('should return a CacheFailure when the call to local data source is unsuccessful', () async {
+    test(
+        'should return a CacheFailure when the call to local data source is unsuccessful',
+        () async {
       // Arrange
-      when(() => mockLocalDataSource.saveReport(any())).thenThrow(CacheException());
+      when(() => mockLocalDataSource.saveReport(any()))
+          .thenThrow(CacheException());
 
       // Act
       final result = await repository.saveReport(tReport);
@@ -76,9 +82,12 @@ void main() {
     ];
     final tReportList = tReportModelList.map((e) => e.toEntity()).toList();
 
-    test('should return a list of reports when the call to local data source is successful', () async {
+    test(
+        'should return a list of reports when the call to local data source is successful',
+        () async {
       // Arrange
-      when(() => mockLocalDataSource.getAllReports()).thenAnswer((_) async => tReportModelList);
+      when(() => mockLocalDataSource.getAllReports())
+          .thenAnswer((_) async => tReportModelList);
 
       // Act
       final result = await repository.getAllReports();
@@ -90,9 +99,12 @@ void main() {
       );
     });
 
-    test('should return a CacheFailure when the call to local data source is unsuccessful', () async {
+    test(
+        'should return a CacheFailure when the call to local data source is unsuccessful',
+        () async {
       // Arrange
-      when(() => mockLocalDataSource.getAllReports()).thenThrow(CacheException());
+      when(() => mockLocalDataSource.getAllReports())
+          .thenThrow(CacheException());
 
       // Act
       final result = await repository.getAllReports();
@@ -115,9 +127,12 @@ void main() {
     );
     final tReport = tReportModel.toEntity();
 
-    test('should return a report when the call to local data source is successful', () async {
+    test(
+        'should return a report when the call to local data source is successful',
+        () async {
       // Arrange
-      when(() => mockLocalDataSource.getReportById(any())).thenAnswer((_) async => tReportModel);
+      when(() => mockLocalDataSource.getReportById(any()))
+          .thenAnswer((_) async => tReportModel);
 
       // Act
       final result = await repository.getReportById(tReportId);
@@ -126,9 +141,12 @@ void main() {
       expect(result, Right(tReport));
     });
 
-    test('should return a CacheFailure when the call to local data source is unsuccessful', () async {
+    test(
+        'should return a CacheFailure when the call to local data source is unsuccessful',
+        () async {
       // Arrange
-      when(() => mockLocalDataSource.getReportById(any())).thenThrow(CacheException());
+      when(() => mockLocalDataSource.getReportById(any()))
+          .thenThrow(CacheException());
 
       // Act
       final result = await repository.getReportById(tReportId);
@@ -141,9 +159,11 @@ void main() {
   group('deleteReport', () {
     final tReportId = '1';
 
-    test('should return void when the call to local data source is successful', () async {
+    test('should return void when the call to local data source is successful',
+        () async {
       // Arrange
-      when(() => mockLocalDataSource.deleteReport(any())).thenAnswer((_) async => {});
+      when(() => mockLocalDataSource.deleteReport(any()))
+          .thenAnswer((_) async => {});
 
       // Act
       final result = await repository.deleteReport(tReportId);
@@ -152,9 +172,12 @@ void main() {
       expect(result, Right(null));
     });
 
-    test('should return a CacheFailure when the call to local data source is unsuccessful', () async {
+    test(
+        'should return a CacheFailure when the call to local data source is unsuccessful',
+        () async {
       // Arrange
-      when(() => mockLocalDataSource.deleteReport(any())).thenThrow(CacheException());
+      when(() => mockLocalDataSource.deleteReport(any()))
+          .thenThrow(CacheException());
 
       // Act
       final result = await repository.deleteReport(tReportId);
@@ -175,9 +198,11 @@ void main() {
       updatedAt: DateTime.now(),
     );
 
-    test('should return void when the call to local data source is successful', () async {
+    test('should return void when the call to local data source is successful',
+        () async {
       // Arrange
-      when(() => mockLocalDataSource.updateReport(any())).thenAnswer((_) async => {});
+      when(() => mockLocalDataSource.updateReport(any()))
+          .thenAnswer((_) async => {});
 
       // Act
       final result = await repository.updateReport(tReport);
@@ -186,9 +211,12 @@ void main() {
       expect(result, Right(null));
     });
 
-    test('should return a CacheFailure when the call to local data source is unsuccessful', () async {
+    test(
+        'should return a CacheFailure when the call to local data source is unsuccessful',
+        () async {
       // Arrange
-      when(() => mockLocalDataSource.updateReport(any())).thenThrow(CacheException());
+      when(() => mockLocalDataSource.updateReport(any()))
+          .thenThrow(CacheException());
 
       // Act
       final result = await repository.updateReport(tReport);

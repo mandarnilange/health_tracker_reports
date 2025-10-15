@@ -9,6 +9,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 class MockTextRecognizer extends Mock implements TextRecognizer {}
+
 class MockRecognizedText extends Mock implements RecognizedText {}
 
 void main() {
@@ -38,7 +39,8 @@ void main() {
       // Arrange
       final tRecognizedText = MockRecognizedText();
       when(() => tRecognizedText.text).thenReturn('Hello');
-      when(() => mockTextRecognizer.processImage(any())).thenAnswer((_) async => tRecognizedText);
+      when(() => mockTextRecognizer.processImage(any()))
+          .thenAnswer((_) async => tRecognizedText);
 
       // Act
       final result = await ocrService.extractText([tImage]);
@@ -55,9 +57,11 @@ void main() {
       final tRecognizedText2 = MockRecognizedText();
       when(() => tRecognizedText1.text).thenReturn('Hello');
       when(() => tRecognizedText2.text).thenReturn('World');
-      when(() => mockTextRecognizer.processImage(any(that: predicate((i) => (i as InputImage).bytes == tImage1))))
+      when(() => mockTextRecognizer.processImage(
+              any(that: predicate((i) => (i as InputImage).bytes == tImage1))))
           .thenAnswer((_) async => tRecognizedText1);
-      when(() => mockTextRecognizer.processImage(any(that: predicate((i) => (i as InputImage).bytes == tImage2))))
+      when(() => mockTextRecognizer.processImage(
+              any(that: predicate((i) => (i as InputImage).bytes == tImage2))))
           .thenAnswer((_) async => tRecognizedText2);
 
       // Act
@@ -71,7 +75,8 @@ void main() {
       // Arrange
       final tRecognizedText = MockRecognizedText();
       when(() => tRecognizedText.text).thenReturn('');
-      when(() => mockTextRecognizer.processImage(any())).thenAnswer((_) async => tRecognizedText);
+      when(() => mockTextRecognizer.processImage(any()))
+          .thenAnswer((_) async => tRecognizedText);
 
       // Act
       final result = await ocrService.extractText([tImage]);

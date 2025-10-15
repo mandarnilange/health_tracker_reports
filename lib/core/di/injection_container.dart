@@ -1,4 +1,3 @@
-
 import 'package:get_it/get_it.dart';
 import 'package:health_tracker_reports/data/datasources/local/hive_database.dart';
 import 'package:health_tracker_reports/data/datasources/local/config_local_datasource.dart';
@@ -30,10 +29,12 @@ abstract class AppModule {
   HiveInterface get hive => Hive;
 
   @lazySingleton
-  Box<ReportModel> get reportBox => Hive.box<ReportModel>(HiveDatabase.reportBoxName);
+  Box<ReportModel> get reportBox =>
+      Hive.box<ReportModel>(HiveDatabase.reportBoxName);
 
   @lazySingleton
-  Box<AppConfigModel> get configBox => Hive.box<AppConfigModel>(HiveDatabase.configBoxName);
+  Box<AppConfigModel> get configBox =>
+      Hive.box<AppConfigModel>(HiveDatabase.configBoxName);
 
   @lazySingleton
   PdfDocumentWrapper get pdfDocumentWrapper => PdfDocumentWrapper();
@@ -42,8 +43,10 @@ abstract class AppModule {
   TextRecognizer get textRecognizer => TextRecognizer();
 
   @lazySingleton
-  ConfigLocalDataSource get configLocalDataSource => ConfigLocalDataSourceImpl(box: configBox);
+  ConfigLocalDataSource get configLocalDataSource =>
+      ConfigLocalDataSourceImpl(box: configBox);
 
   @preResolve
-  Future<AppConfigModel> get appConfigModel => configLocalDataSource.getConfig();
+  Future<AppConfigModel> get appConfigModel =>
+      configLocalDataSource.getConfig();
 }

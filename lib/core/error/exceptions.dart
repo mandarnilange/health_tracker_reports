@@ -40,7 +40,8 @@ class ValidationException extends AppException {
 /// Exception thrown when file picking/selection fails
 class FilePickerException extends AppException {
   /// Creates a [FilePickerException] with an optional custom message
-  const FilePickerException([super.message = 'File selection cancelled or failed']);
+  const FilePickerException(
+      [super.message = 'File selection cancelled or failed']);
 }
 
 /// Exception thrown during PDF processing

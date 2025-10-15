@@ -1,5 +1,3 @@
-
-
 import 'package:health_tracker_reports/data/models/app_config_model.dart';
 import 'package:health_tracker_reports/data/models/report_model.dart';
 import 'package:health_tracker_reports/core/error/exceptions.dart';

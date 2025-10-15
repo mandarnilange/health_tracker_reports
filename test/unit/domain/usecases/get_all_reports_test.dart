@@ -1,4 +1,3 @@
-
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
@@ -87,7 +86,9 @@ void main() {
     );
   });
 
-  test('should return a CacheFailure when the call to repository is unsuccessful', () async {
+  test(
+      'should return a CacheFailure when the call to repository is unsuccessful',
+      () async {
     // Arrange
     when(() => mockReportRepository.getAllReports())
         .thenAnswer((_) async => Left(CacheFailure()));

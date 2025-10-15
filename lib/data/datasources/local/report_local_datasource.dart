@@ -1,4 +1,3 @@
-
 import 'package:health_tracker_reports/data/models/report_model.dart';
 import 'package:health_tracker_reports/core/error/exceptions.dart';
 import 'package:hive/hive.dart';

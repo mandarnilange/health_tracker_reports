@@ -132,7 +132,8 @@ void main() {
         expect(result.biomarkers[1], isA<BiomarkerModel>());
       });
 
-      test('should create model that equals another model with same values', () {
+      test('should create model that equals another model with same values',
+          () {
         // Act
         final result = ReportModel.fromEntity(tReport);
 
@@ -550,7 +551,11 @@ void main() {
           id: tId,
           date: tDate,
           labName: tLabName,
-          biomarkers: [tBiomarkerModels[0], outOfRangeBiomarker1, outOfRangeBiomarker2],
+          biomarkers: [
+            tBiomarkerModels[0],
+            outOfRangeBiomarker1,
+            outOfRangeBiomarker2
+          ],
           originalFilePath: tOriginalFilePath,
           notes: tNotes,
           createdAt: tCreatedAt,

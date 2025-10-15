@@ -33,7 +33,8 @@ void main() {
         expect(result.max, tReferenceRange.max);
       });
 
-      test('should create model that equals another model with same values', () {
+      test('should create model that equals another model with same values',
+          () {
         // Act
         final result = ReferenceRangeModel.fromEntity(tReferenceRange);
 

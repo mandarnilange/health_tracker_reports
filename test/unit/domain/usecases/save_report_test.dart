@@ -1,4 +1,3 @@
-
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
@@ -61,11 +60,14 @@ void main() {
     await usecase(tReportWithEmptyId);
 
     // Assert
-    final captured = verify(() => mockReportRepository.saveReport(captureAny())).captured;
+    final captured =
+        verify(() => mockReportRepository.saveReport(captureAny())).captured;
     expect(captured.first.id, isNotEmpty);
   });
 
-  test('should return a CacheFailure when the call to repository is unsuccessful', () async {
+  test(
+      'should return a CacheFailure when the call to repository is unsuccessful',
+      () async {
     // Arrange
     when(() => mockReportRepository.saveReport(any()))
         .thenAnswer((_) async => Left(CacheFailure()));

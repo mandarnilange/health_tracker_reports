@@ -1,4 +1,3 @@
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/data/datasources/local/config_local_datasource.dart';
 import 'package:health_tracker_reports/data/models/app_config_model.dart';
@@ -37,7 +36,8 @@ void main() {
       expect(result, tAppConfigModel);
     });
 
-    test('should return a default AppConfigModel when the box is empty', () async {
+    test('should return a default AppConfigModel when the box is empty',
+        () async {
       // Arrange
       when(() => mockBox.get(any())).thenReturn(null);
 
@@ -48,7 +48,8 @@ void main() {
       expect(result, AppConfigModel());
     });
 
-    test('should throw a CacheException when getting the config fails', () async {
+    test('should throw a CacheException when getting the config fails',
+        () async {
       // Arrange
       when(() => mockBox.get(any())).thenThrow(Exception());
 
@@ -71,10 +72,13 @@ void main() {
       await dataSource.saveConfig(tAppConfigModel);
 
       // Assert
-      verify(() => mockBox.put(ConfigLocalDataSourceImpl.configKey, tAppConfigModel)).called(1);
+      verify(() =>
+              mockBox.put(ConfigLocalDataSourceImpl.configKey, tAppConfigModel))
+          .called(1);
     });
 
-    test('should throw a CacheException when saving the config fails', () async {
+    test('should throw a CacheException when saving the config fails',
+        () async {
       // Arrange
       when(() => mockBox.put(any(), any())).thenThrow(Exception());
 

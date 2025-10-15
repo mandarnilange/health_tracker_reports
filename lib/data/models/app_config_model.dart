@@ -20,6 +20,7 @@ class AppConfigModel extends AppConfig {
   @override
   @HiveField(3)
   final bool darkModeEnabled;
+
   /// Creates an [AppConfigModel] with the given properties
   const AppConfigModel({
     this.llmApiKey,

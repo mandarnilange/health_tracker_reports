@@ -206,7 +206,8 @@ void main() {
         expect(config.hasLlmConfigured, false);
       });
 
-      test('should return false when both llmApiKey and llmProvider are null', () {
+      test('should return false when both llmApiKey and llmProvider are null',
+          () {
         // Arrange
         const config = AppConfig();
 

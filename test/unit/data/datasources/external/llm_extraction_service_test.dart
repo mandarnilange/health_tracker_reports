@@ -1,4 +1,3 @@
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/data/datasources/external/llm_extraction_service.dart';
 import 'package:health_tracker_reports/core/error/exceptions.dart';
@@ -14,7 +13,8 @@ void main() {
 
   setUp(() {
     mockAppConfigModel = MockAppConfigModel();
-    llmExtractionService = LlmExtractionServiceImpl(appConfig: mockAppConfigModel);
+    llmExtractionService =
+        LlmExtractionServiceImpl(appConfig: mockAppConfigModel);
   });
 
   group('extractBiomarkers', () {
@@ -32,7 +32,8 @@ void main() {
       expect(result, isA<ReportModel>());
     });
 
-    test('should fallback to regex parsing when useLlmExtraction is false', () async {
+    test('should fallback to regex parsing when useLlmExtraction is false',
+        () async {
       // Arrange
       when(() => mockAppConfigModel.useLlmExtraction).thenReturn(false);
       when(() => mockAppConfigModel.llmApiKey).thenReturn(null);
@@ -47,9 +48,10 @@ void main() {
     test('should throw an LlmException when the API call fails', () async {
       // Arrange
       when(() => mockAppConfigModel.useLlmExtraction).thenReturn(true);
-      when(() => mockAppConfigModel.llmApiKey).thenReturn('test_api_key_failure');
+      when(() => mockAppConfigModel.llmApiKey)
+          .thenReturn('test_api_key_failure');
       final service = LlmExtractionServiceImpl(appConfig: mockAppConfigModel);
-      
+
       // Act
       final call = service.extractBiomarkers;
 
@@ -60,7 +62,8 @@ void main() {
     test('should throw an LlmException for malformed JSON', () async {
       // Arrange
       when(() => mockAppConfigModel.useLlmExtraction).thenReturn(true);
-      when(() => mockAppConfigModel.llmApiKey).thenReturn('test_api_key_malformed_json');
+      when(() => mockAppConfigModel.llmApiKey)
+          .thenReturn('test_api_key_malformed_json');
       final service = LlmExtractionServiceImpl(appConfig: mockAppConfigModel);
 
       // Act

@@ -38,8 +38,7 @@ class BiomarkerModel extends Biomarker {
     required this.unit,
     required this.referenceRange,
     required this.measuredAt,
-  })
-      : super(
+  }) : super(
           id: id,
           name: name,
           value: value,

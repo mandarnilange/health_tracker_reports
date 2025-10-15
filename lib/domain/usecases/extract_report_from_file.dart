@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -45,7 +44,8 @@ class ExtractReportFromFile {
         return biomarker.copyWith(name: normalizedName);
       }).toList();
 
-      return Right(reportModel.toEntity().copyWith(biomarkers: normalizedBiomarkers));
+      return Right(
+          reportModel.toEntity().copyWith(biomarkers: normalizedBiomarkers));
     } on OcrException catch (e) {
       return Left(OcrFailure(message: e.message));
     } on LlmException catch (e) {

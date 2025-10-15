@@ -1,4 +1,3 @@
-
 import 'package:pdf_render/pdf_render.dart';
 
 class PdfDocumentWrapper {

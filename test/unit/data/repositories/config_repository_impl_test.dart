@@ -1,4 +1,3 @@
-
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/core/error/exceptions.dart';
@@ -25,9 +24,12 @@ void main() {
     final tAppConfigModel = AppConfigModel(darkModeEnabled: true);
     final tAppConfig = tAppConfigModel.toEntity();
 
-    test('should return an AppConfig when the call to local data source is successful', () async {
+    test(
+        'should return an AppConfig when the call to local data source is successful',
+        () async {
       // Arrange
-      when(() => mockLocalDataSource.getConfig()).thenAnswer((_) async => tAppConfigModel);
+      when(() => mockLocalDataSource.getConfig())
+          .thenAnswer((_) async => tAppConfigModel);
 
       // Act
       final result = await repository.getConfig();
@@ -36,7 +38,9 @@ void main() {
       expect(result, Right(tAppConfig));
     });
 
-    test('should return a CacheFailure when the call to local data source is unsuccessful', () async {
+    test(
+        'should return a CacheFailure when the call to local data source is unsuccessful',
+        () async {
       // Arrange
       when(() => mockLocalDataSource.getConfig()).thenThrow(CacheException());
 
@@ -51,9 +55,11 @@ void main() {
   group('saveConfig', () {
     final tAppConfig = AppConfig(darkModeEnabled: true);
 
-    test('should return void when the call to local data source is successful', () async {
+    test('should return void when the call to local data source is successful',
+        () async {
       // Arrange
-      when(() => mockLocalDataSource.saveConfig(any())).thenAnswer((_) async => {});
+      when(() => mockLocalDataSource.saveConfig(any()))
+          .thenAnswer((_) async => {});
 
       // Act
       final result = await repository.saveConfig(tAppConfig);
@@ -62,9 +68,12 @@ void main() {
       expect(result, Right(null));
     });
 
-    test('should return a CacheFailure when the call to local data source is unsuccessful', () async {
+    test(
+        'should return a CacheFailure when the call to local data source is unsuccessful',
+        () async {
       // Arrange
-      when(() => mockLocalDataSource.saveConfig(any())).thenThrow(CacheException());
+      when(() => mockLocalDataSource.saveConfig(any()))
+          .thenThrow(CacheException());
 
       // Act
       final result = await repository.saveConfig(tAppConfig);

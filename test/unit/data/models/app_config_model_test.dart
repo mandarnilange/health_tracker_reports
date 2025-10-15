@@ -43,7 +43,8 @@ void main() {
         expect(result.darkModeEnabled, tAppConfig.darkModeEnabled);
       });
 
-      test('should create model that equals another model with same values', () {
+      test('should create model that equals another model with same values',
+          () {
         // Act
         final result = AppConfigModel.fromEntity(tAppConfig);
 
@@ -356,7 +357,8 @@ void main() {
         expect(result.darkModeEnabled, false);
       });
 
-      test('should preserve mixed null and non-null values through round-trip', () {
+      test('should preserve mixed null and non-null values through round-trip',
+          () {
         // Arrange
         const modelWithMixed = AppConfigModel(
           llmApiKey: tLlmApiKey,

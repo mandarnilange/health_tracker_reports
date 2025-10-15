@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Phase 1: Presentation Upload Flow (2025-10-15)
+
+- Upload flow UI with Riverpod integration, including file selection, extraction progress, error handling, and navigation to review (`lib/presentation/pages/upload/upload_page.dart`).
+- Review page with editable biomarker list, validation, and persistence through `ReportsNotifier` (`lib/presentation/pages/upload/review_page.dart`).
+- Home reports list with refresh, swipe-to-delete, and basic navigation scaffolding (`lib/presentation/pages/home/reports_list_page.dart`).
+- Provider abstractions for file picking and use case access (`lib/presentation/providers/file_picker_provider.dart`, `lib/presentation/providers/report_usecase_providers.dart`).
+- Comprehensive widget and unit tests covering the new presentation logic and providers (`test/widget/pages/upload`, `test/unit/presentation/providers`).
+
+### Changed
+
+- Refined `ReportsNotifier` and `ExtractionNotifier` to consume injected dependencies and support lazy loading (`lib/presentation/providers/reports_provider.dart`, `lib/presentation/providers/extraction_provider.dart`).
+- Updated go_router configuration to include the review route and new page imports (`lib/presentation/router/app_router.dart`, `lib/presentation/router/route_names.dart`).
+- Adjusted config provider tests to instantiate providers explicitly before assertions (`test/unit/presentation/providers/config_provider_test.dart`).
+
+### Removed
+
+- Deleted the default Flutter counter widget test (`test/widget_test.dart`).
+
 ### Added - Phase 1: Data & Domain Layers Complete (2025-10-15)
 
 **Local Data Sources (Feature 5):**

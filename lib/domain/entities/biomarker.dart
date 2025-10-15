@@ -75,7 +75,8 @@ class Biomarker extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, name, value, unit, referenceRange, measuredAt];
+  List<Object?> get props =>
+      [id, name, value, unit, referenceRange, measuredAt];
 }
 
 /// Represents the status of a biomarker value relative to its reference range.

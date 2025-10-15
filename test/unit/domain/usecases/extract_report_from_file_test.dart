@@ -14,9 +14,13 @@ import 'package:health_tracker_reports/domain/usecases/normalize_biomarker_name.
 import 'package:mocktail/mocktail.dart';
 
 class MockPdfService extends Mock implements PdfService {}
+
 class MockOcrService extends Mock implements OcrService {}
+
 class MockLlmExtractionService extends Mock implements LlmExtractionService {}
-class MockNormalizeBiomarkerName extends Mock implements NormalizeBiomarkerName {}
+
+class MockNormalizeBiomarkerName extends Mock
+    implements NormalizeBiomarkerName {}
 
 void main() {
   late ExtractReportFromFile usecase;
@@ -64,9 +68,12 @@ void main() {
 
   test('should extract text from PDF and return a report', () async {
     // Arrange
-    when(() => mockPdfService.convertToImages(any())).thenAnswer((_) async => [tImageBytes]);
-    when(() => mockOcrService.extractText(any())).thenAnswer((_) async => tOcrText);
-    when(() => mockLlmExtractionService.extractBiomarkers(any())).thenAnswer((_) async => tReportModel);
+    when(() => mockPdfService.convertToImages(any()))
+        .thenAnswer((_) async => [tImageBytes]);
+    when(() => mockOcrService.extractText(any()))
+        .thenAnswer((_) async => tOcrText);
+    when(() => mockLlmExtractionService.extractBiomarkers(any()))
+        .thenAnswer((_) async => tReportModel);
     when(() => mockNormalizeBiomarkerName(any())).thenReturn('Normalized Name');
 
     // Act
@@ -76,15 +83,18 @@ void main() {
     expect(result, Right(tReport));
     verify(() => mockPdfService.convertToImages(tPdfPath)).called(1);
     verify(() => mockOcrService.extractText([tImageBytes])).called(1);
-    verify(() => mockLlmExtractionService.extractBiomarkers(tOcrText)).called(1);
+    verify(() => mockLlmExtractionService.extractBiomarkers(tOcrText))
+        .called(1);
   });
 
   test('should extract text from image and return a report', () async {
     // Arrange
     final file = File(tImagePath);
     await file.writeAsBytes(tImageBytes);
-    when(() => mockOcrService.extractText(any())).thenAnswer((_) async => tOcrText);
-    when(() => mockLlmExtractionService.extractBiomarkers(any())).thenAnswer((_) async => tReportModel);
+    when(() => mockOcrService.extractText(any()))
+        .thenAnswer((_) async => tOcrText);
+    when(() => mockLlmExtractionService.extractBiomarkers(any()))
+        .thenAnswer((_) async => tReportModel);
     when(() => mockNormalizeBiomarkerName(any())).thenReturn('Normalized Name');
 
     // Act
@@ -94,7 +104,8 @@ void main() {
     expect(result, Right(tReport));
     verifyNever(() => mockPdfService.convertToImages(any()));
     verify(() => mockOcrService.extractText(any())).called(1);
-    verify(() => mockLlmExtractionService.extractBiomarkers(tOcrText)).called(1);
+    verify(() => mockLlmExtractionService.extractBiomarkers(tOcrText))
+        .called(1);
 
     // Clean up
     await file.delete();
@@ -102,8 +113,10 @@ void main() {
 
   test('should return OcrFailure when OCR fails', () async {
     // Arrange
-    when(() => mockPdfService.convertToImages(any())).thenAnswer((_) async => [tImageBytes]);
-    when(() => mockOcrService.extractText(any())).thenThrow(OcrException('OCR failed'));
+    when(() => mockPdfService.convertToImages(any()))
+        .thenAnswer((_) async => [tImageBytes]);
+    when(() => mockOcrService.extractText(any()))
+        .thenThrow(OcrException('OCR failed'));
 
     // Act
     final result = await usecase(tPdfPath);
@@ -114,8 +127,10 @@ void main() {
 
   test('should return LlmFailure when LLM extraction fails', () async {
     // Arrange
-    when(() => mockPdfService.convertToImages(any())).thenAnswer((_) async => [tImageBytes]);
-    when(() => mockOcrService.extractText(any())).thenAnswer((_) async => tOcrText);
+    when(() => mockPdfService.convertToImages(any()))
+        .thenAnswer((_) async => [tImageBytes]);
+    when(() => mockOcrService.extractText(any()))
+        .thenAnswer((_) async => tOcrText);
     when(() => mockLlmExtractionService.extractBiomarkers(any()))
         .thenThrow(LlmException('LLM failed'));
 

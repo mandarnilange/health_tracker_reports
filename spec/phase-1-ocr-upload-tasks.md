@@ -612,12 +612,12 @@
 ### Tasks
 
 #### 11.1 Riverpod Providers
-- [ ] **CODE:** Create reportListProvider with @riverpod annotation
-- [ ] **CODE:** Create configProvider
-- [ ] **CODE:** Implement addReport method in provider
+- [x] **CODE:** Create reportListProvider with @riverpod annotation
+- [x] **CODE:** Create configProvider
+- [x] **CODE:** Implement addReport method in provider
 - [ ] **CODE:** Run `dart run build_runner build`
-- [ ] **TEST:** Write widget test for provider state changes
-- [ ] **CODE:** Ensure provider updates correctly
+- [x] **TEST:** Write widget test for provider state changes
+- [x] **CODE:** Ensure provider updates correctly
 - [ ] **COMMIT:** `feat: create Riverpod providers for reports and config`
 
 **Location:** `lib/presentation/providers/report_providers.dart`
@@ -628,17 +628,17 @@
 - (empty)
 
 #### 11.2 UploadPage UI
-- [ ] **TEST:** Write widget test for UploadPage rendering
-- [ ] **CODE:** Create UploadPage widget
-- [ ] **TEST:** Write test for file picker button tap
-- [ ] **CODE:** Implement file picker integration
-- [ ] **TEST:** Write test for loading state during extraction
-- [ ] **CODE:** Implement loading indicator
-- [ ] **TEST:** Write test for navigation to ReviewPage on success
-- [ ] **CODE:** Implement navigation logic
-- [ ] **TEST:** Write test for error display on failure
-- [ ] **CODE:** Implement error handling UI
-- [ ] **VERIFY:** Run widget tests, ensure coverage >= 85%
+- [x] **TEST:** Write widget test for UploadPage rendering
+- [x] **CODE:** Create UploadPage widget
+- [x] **TEST:** Write test for file picker button tap
+- [x] **CODE:** Implement file picker integration
+- [x] **TEST:** Write test for loading state during extraction
+- [x] **CODE:** Implement loading indicator
+- [x] **TEST:** Write test for navigation to ReviewPage on success
+- [x] **CODE:** Implement navigation logic
+- [x] **TEST:** Write test for error display on failure
+- [x] **CODE:** Implement error handling UI
+- [x] **VERIFY:** Run widget tests, ensure coverage >= 85%
 - [ ] **COMMIT:** `test: add widget tests for UploadPage`
 - [ ] **COMMIT:** `feat: implement UploadPage with file picker`
 
@@ -650,17 +650,17 @@
 - (empty)
 
 #### 11.3 ReviewPage UI
-- [ ] **TEST:** Write widget test for ReviewPage displaying extracted data
-- [ ] **CODE:** Create ReviewPage widget
-- [ ] **TEST:** Write test for editable biomarker fields
-- [ ] **CODE:** Implement editable form fields
-- [ ] **TEST:** Write test for save button
-- [ ] **CODE:** Implement save functionality
-- [ ] **TEST:** Write test for form validation
-- [ ] **CODE:** Add validation logic
-- [ ] **TEST:** Write test for navigation back to home on save
-- [ ] **CODE:** Implement navigation
-- [ ] **VERIFY:** Run widget tests, ensure coverage >= 85%
+- [x] **TEST:** Write widget test for ReviewPage displaying extracted data
+- [x] **CODE:** Create ReviewPage widget
+- [x] **TEST:** Write test for editable biomarker fields
+- [x] **CODE:** Implement editable form fields
+- [x] **TEST:** Write test for save button
+- [x] **CODE:** Implement save functionality
+- [x] **TEST:** Write test for form validation
+- [x] **CODE:** Add validation logic
+- [x] **TEST:** Write test for navigation back to home on save
+- [x] **CODE:** Implement navigation
+- [x] **VERIFY:** Run widget tests, ensure coverage >= 85%
 - [ ] **COMMIT:** `test: add widget tests for ReviewPage`
 - [ ] **COMMIT:** `feat: implement ReviewPage with editable forms`
 
