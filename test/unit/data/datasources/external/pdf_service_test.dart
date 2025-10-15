@@ -9,26 +9,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:pdf_render/pdf_render.dart';
 
 class MockPdfDocumentWrapper extends Mock implements PdfDocumentWrapper {}
-class MockPdfDocument implements PdfDocument {
-  @override
-  bool operator ==(Object? other) => identical(this, other) || other is PdfDocument;
-
-  @override
-  int get hashCode => 0;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-class MockPdfPage implements PdfPage {
-  @override
-  bool operator ==(Object? other) => identical(this, other) || other is PdfPage;
-
-  @override
-  int get hashCode => 0;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
+class MockPdfDocument extends Mock implements PdfDocument {}
+class MockPdfPage extends Mock implements PdfPage {}
 class MockPdfPageImage extends Mock implements PdfPageImage {}
 class MockImage extends Mock implements ui.Image {}
 
