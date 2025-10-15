@@ -100,28 +100,29 @@
 - 31e0af4 feat: implement Biomarker entity with status logic
 
 #### 2.3 Report Entity
-- [ ] **TEST:** Write test for Report entity creation
-- [ ] **CODE:** Implement Report entity (id, date, labName, biomarkers, originalFilePath, notes, createdAt, updatedAt)
-- [ ] **TEST:** Write test for `outOfRangeBiomarkers` getter
-- [ ] **CODE:** Implement `outOfRangeBiomarkers` getter
-- [ ] **TEST:** Write test for `hasOutOfRangeBiomarkers` getter
-- [ ] **CODE:** Implement `hasOutOfRangeBiomarkers` getter
-- [ ] **TEST:** Write test for `outOfRangeCount` getter
-- [ ] **CODE:** Implement `outOfRangeCount` getter
-- [ ] **TEST:** Write test for `totalBiomarkerCount` getter
-- [ ] **CODE:** Implement `totalBiomarkerCount` getter
-- [ ] **TEST:** Write test for copyWith method
-- [ ] **CODE:** Implement copyWith method
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for Report entity`
-- [ ] **COMMIT:** `feat: implement Report entity with biomarker summary methods`
+- [x] **TEST:** Write test for Report entity creation
+- [x] **CODE:** Implement Report entity (id, date, labName, biomarkers, originalFilePath, notes, createdAt, updatedAt)
+- [x] **TEST:** Write test for `outOfRangeBiomarkers` getter
+- [x] **CODE:** Implement `outOfRangeBiomarkers` getter
+- [x] **TEST:** Write test for `hasOutOfRangeBiomarkers` getter
+- [x] **CODE:** Implement `hasOutOfRangeBiomarkers` getter
+- [x] **TEST:** Write test for `outOfRangeCount` getter
+- [x] **CODE:** Implement `outOfRangeCount` getter
+- [x] **TEST:** Write test for `totalBiomarkerCount` getter
+- [x] **CODE:** Implement `totalBiomarkerCount` getter
+- [x] **TEST:** Write test for copyWith method
+- [x] **CODE:** Implement copyWith method
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for Report entity`
+- [x] **COMMIT:** `feat: implement Report entity with biomarker summary methods`
 
 **Location:** `lib/domain/entities/report.dart`
 
 **Test Location:** `test/unit/domain/entities/report_test.dart`
 
 **Git Commits:**
-- (empty)
+- eef6412 test: add comprehensive tests for Report entity
+- 2ee1717 feat: implement Report entity with biomarker aggregation
 
 #### 2.4 AppConfig Entity
 - [ ] **TEST:** Write test for AppConfig entity creation
