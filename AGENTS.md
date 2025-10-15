@@ -98,39 +98,48 @@ lib/
 ### Core Dependencies
 ```yaml
 dependencies:
-  flutter_riverpod: ^2.5.1        # State management
-  riverpod_annotation: ^2.3.5     # Code generation for providers
-  get_it: ^7.6.7                  # Dependency injection
-  injectable: ^2.3.2              # DI code generation
+  flutter_riverpod: ^2.6.1        # State management (manual providers, no code gen)
+  get_it: ^8.0.2                  # Dependency injection
+  injectable: ^2.5.0              # DI code generation
   hive: ^2.2.3                    # Local database
   hive_flutter: ^1.1.0            # Hive Flutter integration
-  go_router: ^14.0.2              # Routing
+  go_router: ^16.2.4              # Routing
 
   # File & OCR
-  file_picker: ^8.0.0             # File selection
+  file_picker: ^8.1.6             # File selection
   pdf_render: ^1.4.3              # PDF to image
-  google_mlkit_text_recognition: ^0.11.0  # OCR
-  image: ^4.1.7                   # Image processing
+  google_mlkit_text_recognition: ^0.15.0  # OCR
+  image: ^4.3.0                   # Image processing
 
   # Charts & PDF
-  fl_chart: ^0.68.0               # Charts
-  pdf: ^3.10.8                    # PDF generation
-  printing: ^5.12.0               # PDF sharing
+  fl_chart: ^1.1.1                # Charts
+  pdf: ^3.11.1                    # PDF generation
+  printing: ^5.14.1               # PDF sharing
 
   # Utilities
-  intl: ^0.19.0                   # Internationalization
-  equatable: ^2.0.5               # Value equality
+  intl: ^0.20.1                   # Internationalization
+  equatable: ^2.0.7               # Value equality
   dartz: ^0.10.1                  # Functional programming (Either)
+  uuid: ^4.5.1                    # UUID generation
+
+  # Google Drive
+  googleapis: ^15.0.0             # Google APIs
+  google_sign_in: ^7.2.0          # Google Sign-In
+  extension_google_sign_in_as_googleapis_auth: ^3.0.0  # Auth extension
+
+  # Notifications
+  flutter_local_notifications: ^19.4.2  # Local notifications
+
+  # Sharing
+  share_plus: ^12.0.0             # Native sharing
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mocktail: ^1.0.3                # Mocking
-  build_runner: ^2.4.8            # Code generation
-  injectable_generator: ^2.4.1    # DI generation
-  riverpod_generator: ^2.4.0      # Provider generation
-  hive_generator: ^2.0.1          # Hive adapters
-  flutter_lints: ^3.0.1           # Linting
+  mocktail: ^1.0.4                # Mocking
+  build_runner: ^2.4.14           # Code generation
+  injectable_generator: ^2.4.0    # DI generation (no Riverpod/Hive generators)
+  flutter_lints: ^6.0.0           # Linting
 ```
 
 ---
@@ -305,24 +314,53 @@ class ExtractReportFromFile {
 
 ### 5. Riverpod Providers
 
-Use code generation for type safety and performance.
+Use manual providers for simplicity (no code generation needed).
 
 ```dart
 // presentation/providers/report_providers.dart
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/di/injection_container.dart';
+import '../../domain/entities/report.dart';
+import '../../domain/usecases/get_all_reports.dart';
+import '../../domain/usecases/extract_report_from_file.dart';
+import '../../domain/usecases/save_report.dart';
 
-part 'report_providers.g.dart';
+// Provider for fetching all reports
+final reportListProvider = FutureProvider<List<Report>>((ref) async {
+  final getReports = getIt<GetAllReports>();
+  final result = await getReports();
+  return result.fold(
+    (failure) => throw failure,
+    (reports) => reports,
+  );
+});
 
-@riverpod
-class ReportList extends _$ReportList {
-  @override
-  Future<List<Report>> build() async {
+// Provider for filtered reports
+final filteredReportsProvider = Provider.family<List<Report>, bool>((ref, showOnlyOutOfRange) {
+  final reportsAsync = ref.watch(reportListProvider);
+
+  return reportsAsync.when(
+    data: (reports) {
+      if (!showOnlyOutOfRange) return reports;
+      return reports.where((r) => r.hasOutOfRangeBiomarkers).toList();
+    },
+    loading: () => [],
+    error: (_, __) => [],
+  );
+});
+
+// StateNotifier for managing report operations
+class ReportNotifier extends StateNotifier<AsyncValue<List<Report>>> {
+  ReportNotifier() : super(const AsyncValue.loading()) {
+    _loadReports();
+  }
+
+  Future<void> _loadReports() async {
     final getReports = getIt<GetAllReports>();
     final result = await getReports();
-    return result.fold(
-      (failure) => throw failure,
-      (reports) => reports,
+    state = result.fold(
+      (failure) => AsyncValue.error(failure, StackTrace.current),
+      (reports) => AsyncValue.data(reports),
     );
   }
 
@@ -338,31 +376,18 @@ class ReportList extends _$ReportList {
       },
       (report) async {
         final saveResult = await saveReport(report);
-        saveResult.fold(
+        await saveResult.fold(
           (failure) => state = AsyncValue.error(failure, StackTrace.current),
-          (_) => ref.invalidateSelf(), // Refresh list
+          (_) => _loadReports(), // Refresh list
         );
       },
     );
   }
 }
 
-@riverpod
-class FilteredReports extends _$FilteredReports {
-  @override
-  List<Report> build(bool showOnlyOutOfRange) {
-    final allReports = ref.watch(reportListProvider);
-
-    return allReports.when(
-      data: (reports) {
-        if (!showOnlyOutOfRange) return reports;
-        return reports.where((r) => r.hasOutOfRangeBiomarkers).toList();
-      },
-      loading: () => [],
-      error: (_, __) => [],
-    );
-  }
-}
+final reportNotifierProvider = StateNotifierProvider<ReportNotifier, AsyncValue<List<Report>>>(
+  (ref) => ReportNotifier(),
+);
 ```
 
 ### 6. Dependency Injection with get_it + injectable
