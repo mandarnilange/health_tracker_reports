@@ -58,22 +58,23 @@
 ### Tasks
 
 #### 2.1 ReferenceRange Value Object
-- [ ] **TEST:** Write test for ReferenceRange creation
-- [ ] **CODE:** Implement ReferenceRange entity
-- [ ] **TEST:** Write test for `isOutOfRange(value)` method
-- [ ] **CODE:** Implement `isOutOfRange(value)` logic
-- [ ] **TEST:** Write test for edge cases (null values, equal to boundaries)
-- [ ] **CODE:** Handle edge cases
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for ReferenceRange value object`
-- [ ] **COMMIT:** `feat: implement ReferenceRange with boundary validation`
+- [x] **TEST:** Write test for ReferenceRange creation
+- [x] **CODE:** Implement ReferenceRange entity
+- [x] **TEST:** Write test for `isOutOfRange(value)` method
+- [x] **CODE:** Implement `isOutOfRange(value)` logic
+- [x] **TEST:** Write test for edge cases (null values, equal to boundaries)
+- [x] **CODE:** Handle edge cases
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for ReferenceRange value object`
+- [x] **COMMIT:** `feat: implement ReferenceRange with boundary validation`
 
 **Location:** `lib/domain/entities/reference_range.dart`
 
 **Test Location:** `test/unit/domain/entities/reference_range_test.dart`
 
 **Git Commits:**
-- (empty)
+- 5d7e4e7 test: add comprehensive tests for ReferenceRange entity
+- ed227d3 feat: implement ReferenceRange value object
 
 #### 2.2 Biomarker Entity
 - [ ] **TEST:** Write test for Biomarker entity creation with all fields
