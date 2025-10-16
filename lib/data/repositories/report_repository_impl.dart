@@ -3,8 +3,8 @@ import 'package:health_tracker_reports/core/error/exceptions.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/data/datasources/local/report_local_datasource.dart';
 import 'package:health_tracker_reports/data/models/report_model.dart';
-import 'package:health_tracker_reports/domain/entities/biomarker.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
+import 'package:health_tracker_reports/domain/entities/trend_data_point.dart';
 import 'package:health_tracker_reports/domain/repositories/report_repository.dart';
 import 'package:injectable/injectable.dart';
 
@@ -72,12 +72,50 @@ class ReportRepositoryImpl implements ReportRepository {
   }
 
   @override
-  Future<Either<Failure, List<Biomarker>>> getBiomarkerTrend(
+  Future<Either<Failure, List<TrendDataPoint>>> getBiomarkerTrend(
     String biomarkerName, {
     DateTime? startDate,
     DateTime? endDate,
-  }) {
-    // TODO: implement getBiomarkerTrend
-    throw UnimplementedError();
+  }) async {
+    try {
+      final reports = await localDataSource.getAllReports();
+      final targetName = biomarkerName.toLowerCase();
+      final trendPoints = <TrendDataPoint>[];
+
+      for (final reportModel in reports) {
+        for (final biomarkerModel in reportModel.biomarkers) {
+          final biomarkerNameNormalized = biomarkerModel.name.toLowerCase();
+
+          if (biomarkerNameNormalized != targetName) {
+            continue;
+          }
+
+          final biomarkerEntity = biomarkerModel.toEntity();
+          final comparisonDate = biomarkerEntity.measuredAt;
+
+          if (startDate != null && comparisonDate.isBefore(startDate)) {
+            continue;
+          }
+
+          if (endDate != null && comparisonDate.isAfter(endDate)) {
+            continue;
+          }
+
+          trendPoints.add(
+            TrendDataPoint.fromBiomarker(
+              biomarker: biomarkerEntity,
+              date: reportModel.date,
+              reportId: reportModel.id,
+            ),
+          );
+        }
+      }
+
+      trendPoints.sort((a, b) => a.date.compareTo(b.date));
+
+      return Right(trendPoints);
+    } on CacheException {
+      return Left(CacheFailure());
+    }
   }
 }

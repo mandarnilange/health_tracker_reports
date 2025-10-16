@@ -4,8 +4,11 @@ import 'package:health_tracker_reports/core/error/exceptions.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/data/datasources/local/report_local_datasource.dart';
 import 'package:health_tracker_reports/data/models/report_model.dart';
+import 'package:health_tracker_reports/data/models/biomarker_model.dart';
+import 'package:health_tracker_reports/data/models/reference_range_model.dart';
 import 'package:health_tracker_reports/data/repositories/report_repository_impl.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
+import 'package:health_tracker_reports/domain/entities/trend_data_point.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockReportLocalDataSource extends Mock implements ReportLocalDataSource {}
@@ -26,6 +29,134 @@ void main() {
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     )));
+  });
+
+  group('getBiomarkerTrend', () {
+    final referenceRangeModel = ReferenceRangeModel(min: 13.0, max: 17.0);
+    final hemoglobinBiomarker = BiomarkerModel(
+      id: 'bio-1',
+      name: 'Hemoglobin',
+      value: 14.5,
+      unit: 'g/dL',
+      referenceRange: referenceRangeModel,
+      measuredAt: DateTime(2023, 1, 1),
+    );
+    final hemoglobinBiomarkerLater = BiomarkerModel(
+      id: 'bio-2',
+      name: 'Hemoglobin',
+      value: 15.2,
+      unit: 'g/dL',
+      referenceRange: referenceRangeModel,
+      measuredAt: DateTime(2023, 3, 1),
+    );
+    final glucoseBiomarker = BiomarkerModel(
+      id: 'bio-3',
+      name: 'Glucose',
+      value: 95.0,
+      unit: 'mg/dL',
+      referenceRange: ReferenceRangeModel(min: 70.0, max: 100.0),
+      measuredAt: DateTime(2023, 1, 1),
+    );
+
+    final reportModel1 = ReportModel(
+      id: 'report-1',
+      date: DateTime(2023, 1, 1),
+      labName: 'Lab A',
+      biomarkers: [hemoglobinBiomarker, glucoseBiomarker],
+      originalFilePath: '/tmp/report1.pdf',
+      createdAt: DateTime(2023, 1, 1),
+      updatedAt: DateTime(2023, 1, 1),
+    );
+
+    final reportModel2 = ReportModel(
+      id: 'report-2',
+      date: DateTime(2023, 3, 1),
+      labName: 'Lab B',
+      biomarkers: [hemoglobinBiomarkerLater],
+      originalFilePath: '/tmp/report2.pdf',
+      createdAt: DateTime(2023, 3, 1),
+      updatedAt: DateTime(2023, 3, 1),
+    );
+
+    test('should aggregate biomarker data across reports', () async {
+      when(() => mockLocalDataSource.getAllReports())
+          .thenAnswer((_) async => [reportModel1, reportModel2]);
+
+      final result = await repository.getBiomarkerTrend('Hemoglobin');
+
+      result.fold(
+        (failure) => fail('expected success, got failure'),
+        (dataPoints) {
+          expect(dataPoints, hasLength(2));
+          expect(
+            dataPoints.first,
+            isA<TrendDataPoint>()
+                .having((dp) => dp.reportId, 'reportId', 'report-1')
+                .having((dp) => dp.value, 'value', 14.5),
+          );
+          expect(
+            dataPoints.last.reportId,
+            'report-2',
+          );
+        },
+      );
+      verify(() => mockLocalDataSource.getAllReports()).called(1);
+    });
+
+    test('should filter by date range when start and end provided', () async {
+      when(() => mockLocalDataSource.getAllReports())
+          .thenAnswer((_) async => [reportModel1, reportModel2]);
+
+      final result = await repository.getBiomarkerTrend(
+        'Hemoglobin',
+        startDate: DateTime(2023, 2, 1),
+        endDate: DateTime(2023, 4, 1),
+      );
+
+      result.fold(
+        (failure) => fail('expected success, got failure'),
+        (dataPoints) {
+          expect(dataPoints, hasLength(1));
+          expect(dataPoints.single.reportId, 'report-2');
+        },
+      );
+    });
+
+    test('should return empty list when biomarker not found', () async {
+      when(() => mockLocalDataSource.getAllReports())
+          .thenAnswer((_) async => [reportModel1, reportModel2]);
+
+      final result = await repository.getBiomarkerTrend('Vitamin D');
+
+      result.fold(
+        (failure) => fail('expected success, got failure'),
+        (dataPoints) => expect(dataPoints, isEmpty),
+      );
+    });
+
+    test('should handle case-insensitive biomarker names', () async {
+      when(() => mockLocalDataSource.getAllReports())
+          .thenAnswer((_) async => [reportModel1]);
+
+      final result = await repository.getBiomarkerTrend('hemoglobin');
+
+      result.fold(
+        (failure) => fail('expected success, got failure'),
+        (dataPoints) {
+          expect(dataPoints, hasLength(1));
+          expect(dataPoints.single.reportId, 'report-1');
+        },
+      );
+    });
+
+    test('should return CacheFailure when data source throws', () async {
+      when(() => mockLocalDataSource.getAllReports())
+          .thenThrow(CacheException());
+
+      final result = await repository.getBiomarkerTrend('Hemoglobin');
+
+      expect(result, Left(CacheFailure()));
+    });
   });
 
   group('saveReport', () {

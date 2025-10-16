@@ -2,11 +2,11 @@
 
 **Phase Goal:** Enable consistent biomarker tracking across reports and provide visual trend analysis over time.
 
-**Status:** Not Started
+**Status:** Completed
 
-**Start Date:** TBD
+**Start Date:** 2025-02-18
 
-**Completion Date:** TBD
+**Completion Date:** 2025-02-21
 
 ---
 
@@ -15,23 +15,23 @@
 ### Tasks
 
 #### 1.1 Extended Normalization Dictionary
-- [ ] **TEST:** Write tests for additional biomarker variations
-- [ ] **CODE:** Expand normalization map in NormalizeBiomarkerName
-- [ ] **TEST:** Write test for lipid panel variations
-- [ ] **CODE:** Add lipid panel mappings
-- [ ] **TEST:** Write test for liver function variations
-- [ ] **CODE:** Add liver function mappings
-- [ ] **TEST:** Write test for kidney function variations
-- [ ] **CODE:** Add kidney function mappings
-- [ ] **TEST:** Write test for diabetes markers
-- [ ] **CODE:** Add diabetes marker mappings
-- [ ] **TEST:** Write test for thyroid markers
-- [ ] **CODE:** Add thyroid marker mappings
-- [ ] **TEST:** Write test for vitamin mappings
-- [ ] **CODE:** Add vitamin mappings
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for extended biomarker normalization`
-- [ ] **COMMIT:** `feat: expand biomarker normalization dictionary`
+- [x] **TEST:** Write tests for additional biomarker variations
+- [x] **CODE:** Expand normalization map in NormalizeBiomarkerName
+- [x] **TEST:** Write test for lipid panel variations
+- [x] **CODE:** Add lipid panel mappings
+- [x] **TEST:** Write test for liver function variations
+- [x] **CODE:** Add liver function mappings
+- [x] **TEST:** Write test for kidney function variations
+- [x] **CODE:** Add kidney function mappings
+- [x] **TEST:** Write test for diabetes markers
+- [x] **CODE:** Add diabetes marker mappings
+- [x] **TEST:** Write test for thyroid markers
+- [x] **CODE:** Add thyroid marker mappings
+- [x] **TEST:** Write test for vitamin mappings
+- [x] **CODE:** Add vitamin mappings
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for extended biomarker normalization`
+- [x] **COMMIT:** `feat: expand biomarker normalization dictionary`
 
 **Location:** `lib/domain/usecases/normalize_biomarker_name.dart` (updated)
 
@@ -47,21 +47,21 @@
 ### Tasks
 
 #### 2.1 GetBiomarkerTrend UseCase
-- [ ] **TEST:** Write test for getting trend data for a biomarker
-- [ ] **CODE:** Create GetBiomarkerTrend usecase
-- [ ] **TEST:** Write test for filtering by date range
-- [ ] **CODE:** Implement date range filtering
-- [ ] **TEST:** Write test for sorting by date (chronological)
-- [ ] **CODE:** Implement sorting
-- [ ] **TEST:** Write test for normalizing biomarker name before query
-- [ ] **CODE:** Apply normalization before searching
-- [ ] **TEST:** Write test for empty result handling
-- [ ] **CODE:** Handle case when biomarker not found
-- [ ] **TEST:** Write test for failure propagation
-- [ ] **CODE:** Add error handling
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for GetBiomarkerTrend usecase`
-- [ ] **COMMIT:** `feat: implement biomarker trend retrieval`
+- [x] **TEST:** Write test for getting trend data for a biomarker
+- [x] **CODE:** Create GetBiomarkerTrend usecase
+- [x] **TEST:** Write test for filtering by date range
+- [x] **CODE:** Implement date range filtering
+- [x] **TEST:** Write test for sorting by date (chronological)
+- [x] **CODE:** Implement sorting
+- [x] **TEST:** Write test for normalizing biomarker name before query
+- [x] **CODE:** Apply normalization before searching
+- [x] **TEST:** Write test for empty result handling
+- [x] **CODE:** Handle case when biomarker not found
+- [x] **TEST:** Write test for failure propagation
+- [x] **CODE:** Add error handling
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for GetBiomarkerTrend usecase`
+- [x] **COMMIT:** `feat: implement biomarker trend retrieval`
 
 **Location:** `lib/domain/usecases/get_biomarker_trend.dart`
 
@@ -71,17 +71,17 @@
 - (empty)
 
 #### 2.2 Repository Support for Trends
-- [ ] **TEST:** Write test for getBiomarkerTrend in ReportRepository
-- [ ] **CODE:** Add getBiomarkerTrend method to ReportRepository interface
-- [ ] **TEST:** Write test for implementation in ReportRepositoryImpl
-- [ ] **CODE:** Implement getBiomarkerTrend in ReportRepositoryImpl
-- [ ] **TEST:** Write test for querying across multiple reports
-- [ ] **CODE:** Implement cross-report querying
-- [ ] **TEST:** Write test for error handling
-- [ ] **CODE:** Add error handling
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for repository trend support`
-- [ ] **COMMIT:** `feat: add trend querying to ReportRepository`
+- [x] **TEST:** Write test for getBiomarkerTrend in ReportRepository
+- [x] **CODE:** Add getBiomarkerTrend method to ReportRepository interface
+- [x] **TEST:** Write test for implementation in ReportRepositoryImpl
+- [x] **CODE:** Implement getBiomarkerTrend in ReportRepositoryImpl
+- [x] **TEST:** Write test for querying across multiple reports
+- [x] **CODE:** Implement cross-report querying
+- [x] **TEST:** Write test for error handling
+- [x] **CODE:** Add error handling
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add tests for repository trend support`
+- [x] **COMMIT:** `feat: add trend querying to ReportRepository`
 
 **Location:** `lib/domain/repositories/report_repository.dart` (updated)
 `lib/data/repositories/report_repository_impl.dart` (updated)
@@ -98,23 +98,23 @@
 ### Tasks
 
 #### 3.1 TrendsPage Widget
-- [ ] **TEST:** Write widget test for TrendsPage rendering
-- [ ] **CODE:** Create TrendsPage widget
-- [ ] **TEST:** Write test for biomarker selector
-- [ ] **CODE:** Implement biomarker dropdown/selector
-- [ ] **TEST:** Write test for time range selector
-- [ ] **CODE:** Implement time range buttons (3M, 6M, 1Y, All)
-- [ ] **TEST:** Write test for chart rendering
-- [ ] **CODE:** Implement chart container
-- [ ] **TEST:** Write test for loading state
-- [ ] **CODE:** Implement loading indicator
-- [ ] **TEST:** Write test for empty state (no data)
-- [ ] **CODE:** Implement empty state message
-- [ ] **TEST:** Write test for error state
-- [ ] **CODE:** Implement error display
-- [ ] **VERIFY:** Run widget tests, ensure coverage >= 85%
-- [ ] **COMMIT:** `test: add widget tests for TrendsPage`
-- [ ] **COMMIT:** `feat: implement TrendsPage structure`
+- [x] **TEST:** Write widget test for TrendsPage rendering
+- [x] **CODE:** Create TrendsPage widget
+- [x] **TEST:** Write test for biomarker selector
+- [x] **CODE:** Implement biomarker dropdown/selector
+- [x] **TEST:** Write test for time range selector
+- [x] **CODE:** Implement time range buttons (3M, 6M, 1Y, All)
+- [x] **TEST:** Write test for chart rendering
+- [x] **CODE:** Implement chart container
+- [x] **TEST:** Write test for loading state
+- [x] **CODE:** Implement loading indicator
+- [x] **TEST:** Write test for empty state (no data)
+- [x] **CODE:** Implement empty state message
+- [x] **TEST:** Write test for error state
+- [x] **CODE:** Implement error display
+- [x] **VERIFY:** Run widget tests, ensure coverage >= 85%
+- [x] **COMMIT:** `test: add widget tests for TrendsPage`
+- [x] **COMMIT:** `feat: implement TrendsPage structure`
 
 **Location:** `lib/presentation/pages/trends/trends_page.dart`
 
@@ -124,16 +124,16 @@
 - (empty)
 
 #### 3.2 BiomarkerSelector Widget
-- [ ] **TEST:** Write widget test for BiomarkerSelector
-- [ ] **CODE:** Create BiomarkerSelector dropdown widget
-- [ ] **TEST:** Write test for displaying all available biomarkers
-- [ ] **CODE:** Implement biomarker list generation
-- [ ] **TEST:** Write test for selection callback
-- [ ] **CODE:** Implement onChanged callback
+- [x] **TEST:** Write widget test for BiomarkerSelector
+- [x] **CODE:** Create BiomarkerSelector dropdown widget
+- [x] **TEST:** Write test for displaying all available biomarkers
+- [x] **CODE:** Implement biomarker list generation
+- [x] **TEST:** Write test for selection callback
+- [x] **CODE:** Implement onChanged callback
 - [ ] **TEST:** Write test for grouping by category (optional)
 - [ ] **CODE:** Implement category grouping
-- [ ] **COMMIT:** `test: add widget tests for BiomarkerSelector`
-- [ ] **COMMIT:** `feat: implement BiomarkerSelector dropdown`
+- [x] **COMMIT:** `test: add widget tests for BiomarkerSelector`
+- [x] **COMMIT:** `feat: implement BiomarkerSelector dropdown`
 
 **Location:** `lib/presentation/pages/trends/widgets/biomarker_selector.dart`
 
@@ -143,20 +143,20 @@
 - (empty)
 
 #### 3.3 TimeRangeSelector Widget
-- [ ] **TEST:** Write widget test for TimeRangeSelector
-- [ ] **CODE:** Create TimeRangeSelector with button chips
-- [ ] **TEST:** Write test for 3M button
-- [ ] **CODE:** Implement 3 months button
-- [ ] **TEST:** Write test for 6M button
-- [ ] **CODE:** Implement 6 months button
-- [ ] **TEST:** Write test for 1Y button
-- [ ] **CODE:** Implement 1 year button
-- [ ] **TEST:** Write test for All button
-- [ ] **CODE:** Implement all time button
-- [ ] **TEST:** Write test for selection state
-- [ ] **CODE:** Highlight selected range
-- [ ] **COMMIT:** `test: add widget tests for TimeRangeSelector`
-- [ ] **COMMIT:** `feat: implement TimeRangeSelector widget`
+- [x] **TEST:** Write widget test for TimeRangeSelector
+- [x] **CODE:** Create TimeRangeSelector with button chips
+- [x] **TEST:** Write test for 3M button
+- [x] **CODE:** Implement 3 months button
+- [x] **TEST:** Write test for 6M button
+- [x] **CODE:** Implement 6 months button
+- [x] **TEST:** Write test for 1Y button
+- [x] **CODE:** Implement 1 year button
+- [x] **TEST:** Write test for All button
+- [x] **CODE:** Implement all time button
+- [x] **TEST:** Write test for selection state
+- [x] **CODE:** Highlight selected range
+- [x] **COMMIT:** `test: add widget tests for TimeRangeSelector`
+- [x] **COMMIT:** `feat: implement TimeRangeSelector widget`
 
 **Location:** `lib/presentation/pages/trends/widgets/time_range_selector.dart`
 
@@ -172,23 +172,23 @@
 ### Tasks
 
 #### 4.1 TrendChart Widget with fl_chart
-- [ ] **TEST:** Write widget test for TrendChart rendering
-- [ ] **CODE:** Create TrendChart widget using fl_chart
-- [ ] **TEST:** Write test for line chart data points
-- [ ] **CODE:** Implement LineChart with biomarker data
-- [ ] **TEST:** Write test for reference range bands
-- [ ] **CODE:** Add background shaded area for reference range
-- [ ] **TEST:** Write test for x-axis (dates)
-- [ ] **CODE:** Implement date formatting on x-axis
-- [ ] **TEST:** Write test for y-axis (values)
-- [ ] **CODE:** Implement value scaling on y-axis
-- [ ] **TEST:** Write test for tooltips on data points
-- [ ] **CODE:** Implement interactive tooltips
-- [ ] **TEST:** Write test for color coding (out of range points highlighted)
-- [ ] **CODE:** Apply different colors to out-of-range points
-- [ ] **VERIFY:** Run widget tests, ensure coverage >= 85%
-- [ ] **COMMIT:** `test: add widget tests for TrendChart`
-- [ ] **COMMIT:** `feat: implement TrendChart with fl_chart`
+- [x] **TEST:** Write widget test for TrendChart rendering
+- [x] **CODE:** Create TrendChart widget using fl_chart
+- [x] **TEST:** Write test for line chart data points
+- [x] **CODE:** Implement LineChart with biomarker data
+- [x] **TEST:** Write test for reference range bands
+- [x] **CODE:** Add background shaded area for reference range
+- [x] **TEST:** Write test for x-axis (dates)
+- [x] **CODE:** Implement date formatting on x-axis
+- [x] **TEST:** Write test for y-axis (values)
+- [x] **CODE:** Implement value scaling on y-axis
+- [x] **TEST:** Write test for tooltips on data points
+- [x] **CODE:** Implement interactive tooltips
+- [x] **TEST:** Write test for color coding (out of range points highlighted)
+- [x] **CODE:** Apply different colors to out-of-range points
+- [x] **VERIFY:** Run widget tests, ensure coverage >= 85%
+- [x] **COMMIT:** `test: add widget tests for TrendChart`
+- [x] **COMMIT:** `feat: implement TrendChart with fl_chart`
 
 **Location:** `lib/presentation/pages/trends/widgets/trend_chart.dart`
 

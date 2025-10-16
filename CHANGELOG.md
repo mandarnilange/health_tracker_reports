@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Phase 3: Biomarker Trends & Normalization (2025-02-21)
+
+- Extended biomarker normalization map and comprehensive unit tests covering electrolytes, lipids, liver, kidney, diabetes, thyroid, vitamin, iron, and inflammation markers (`lib/domain/usecases/normalize_biomarker_name.dart`, `test/unit/domain/usecases/normalize_biomarker_name_test.dart`).
+- Introduced `TrendDataPoint` entity and `GetBiomarkerTrend` use case for cross-report biomarker trend queries with date filtering, sorting, and normalization integration (`lib/domain/entities/trend_data_point.dart`, `lib/domain/usecases/get_biomarker_trend.dart`, `test/unit/domain/entities/trend_data_point_test.dart`, `test/unit/domain/usecases/get_biomarker_trend_test.dart`).
+- Added repository trend support with Hive-backed aggregation and exhaustive tests (`lib/domain/repositories/report_repository.dart`, `lib/data/repositories/report_repository_impl.dart`, `test/unit/data/repositories/report_repository_impl_test.dart`).
+- Built Trends page experience with Riverpod providers, async loading/error handling, selectors, and test coverage (`lib/presentation/pages/trends`, `lib/presentation/providers/trend_provider.dart`, `test/unit/presentation/providers/trend_provider_test.dart`, `test/widget/pages/trends`).
+- Implemented `TrendChart` widget powered by fl_chart with reference bands, tooltips, and status-aware styling plus widget tests (`lib/presentation/pages/trends/widgets/trend_chart.dart`, `test/widget/pages/trends/widgets/trend_chart_test.dart`).
+- Expanded upload workflow tests with robust provider overrides and deterministic behaviors to avoid race conditions (`test/widget/pages/upload/upload_page_test.dart`).
+
+### Changed
+
+- Refactored trend-related providers to expose async state (`lib/presentation/providers/trend_provider.dart`) and updated TrendsPage to consume `AsyncValue<List<TrendDataPoint>>` safely (`lib/presentation/pages/trends/trends_page.dart`).
+- Hardened upload page tests by introducing deterministic provider overrides and utility pump helpers, eliminating race conditions seen during full-suite execution (`test/widget/pages/upload/upload_page_test.dart`).
+
 ### Added - Phase 1: Presentation Upload Flow (2025-10-15)
 
 - Upload flow UI with Riverpod integration, including file selection, extraction progress, error handling, and navigation to review (`lib/presentation/pages/upload/upload_page.dart`).
