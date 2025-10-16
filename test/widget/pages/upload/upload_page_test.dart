@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
@@ -280,6 +281,31 @@ void main() {
 
       verify(() => mockNavigatorObserver.didPush(any(), any())).called(2);
       expect(find.byType(ReviewPage), findsOneWidget);
+    });
+
+    testWidgets('does not show error when user cancels file picker',
+        (tester) async {
+      final mockUsecase = MockExtractReportFromFile();
+      when(() => mockFilePicker.pickReportPath()).thenThrow(
+        PlatformException(code: 'aborted', message: 'User cancelled'),
+      );
+
+      await tester.pumpWidget(
+        createWidgetUnderTest(
+          extractReportUsecase: mockUsecase,
+          initialExtractionState: const AsyncValue.data(null),
+          withRouter: false,
+        ),
+      );
+      await tester.pump();
+      await pumpUntilFound(tester, find.text('Select Blood Report'));
+
+      await tester.tap(find.text('Select Blood Report'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      verifyNever(() => mockUsecase(any()));
+      expect(find.byType(SnackBar), findsNothing);
     });
   });
 }

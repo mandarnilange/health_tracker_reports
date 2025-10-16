@@ -13,7 +13,8 @@ class HiveDatabase {
   static const String configBoxName = 'config';
 
   Future<void> init() async {
-    hive.init('health_tracker_reports');
+    // Hive is already initialized with initFlutter() in main.dart
+    // Just register adapters here
     hive.registerAdapter(ReportModelAdapter());
     hive.registerAdapter(AppConfigModelAdapter());
     hive.registerAdapter(BiomarkerModelAdapter());

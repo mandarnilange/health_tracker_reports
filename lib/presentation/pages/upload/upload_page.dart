@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
@@ -164,14 +165,35 @@ class UploadPage extends ConsumerWidget {
       if (filePath != null) {
         await ref.read(extractionProvider.notifier).extractFromFile(filePath);
       }
-    } catch (e) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to pick file: $e'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
+    } on PlatformException catch (e) {
+      if (_isUserCancelled(e)) {
+        return;
+      }
+      _showFilePickerError(
+        context,
+        e.message != null ? 'Failed to pick file: ${e.message}' : 'Failed to pick file.',
       );
+    } catch (e) {
+      _showFilePickerError(context, 'Failed to pick file: $e');
     }
+  }
+
+  bool _isUserCancelled(PlatformException exception) {
+    final code = exception.code.toLowerCase();
+    if (code == 'aborted' || code == 'cancelled' || code == 'canceled') {
+      return true;
+    }
+    final message = exception.message?.toLowerCase() ?? '';
+    return message.contains('cancel');
+  }
+
+  void _showFilePickerError(BuildContext context, String message) {
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Theme.of(context).colorScheme.error,
+      ),
+    );
   }
 }

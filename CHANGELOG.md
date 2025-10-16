@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Refactored trend-related providers to expose async state (`lib/presentation/providers/trend_provider.dart`) and updated TrendsPage to consume `AsyncValue<List<TrendDataPoint>>` safely (`lib/presentation/pages/trends/trends_page.dart`).
 - Hardened upload page tests by introducing deterministic provider overrides and utility pump helpers, eliminating race conditions seen during full-suite execution (`test/widget/pages/upload/upload_page_test.dart`).
+- Updated app theme configuration to respect the system preference when dark mode is not explicitly enabled (`lib/app.dart`, `test/widget/app_test.dart`).
+
+### Fixed
+
+- Treated platform file picker cancellations as non-errors so the upload flow no longer surfaces spurious snackbars and extraction attempts when the dialog is dismissed (`lib/presentation/pages/upload/upload_page.dart`, `test/widget/pages/upload/upload_page_test.dart`).
 
 ### Added - Phase 1: Presentation Upload Flow (2025-10-15)
 

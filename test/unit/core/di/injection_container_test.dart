@@ -8,11 +8,13 @@ import 'package:health_tracker_reports/domain/usecases/extract_report_from_file.
 import 'package:health_tracker_reports/domain/usecases/get_all_reports.dart';
 import 'package:health_tracker_reports/domain/usecases/normalize_biomarker_name.dart';
 import 'package:health_tracker_reports/domain/usecases/save_report.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 void main() {
   group('Dependency Injection', () {
     test('should register all dependencies', () async {
-      // Arrange
+      // Arrange - Initialize Hive for testing
+      await Hive.initFlutter();
       await configureDependencies();
 
       // Assert

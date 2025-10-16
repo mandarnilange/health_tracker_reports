@@ -55,7 +55,7 @@ class _ReportsListPageState extends ConsumerState<ReportsListPage> {
           IconButton(
             icon: const Icon(Icons.show_chart),
             tooltip: 'View Trends',
-            onPressed: () => context.go(RouteNames.trends),
+            onPressed: () => context.push(RouteNames.trends),
           ),
           PopupMenuButton<ReportSortOption>(
             icon: const Icon(Icons.sort),
@@ -152,7 +152,7 @@ class _ReportsListPageState extends ConsumerState<ReportsListPage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => context.go(RouteNames.upload),
+        onPressed: () => context.push(RouteNames.upload),
         tooltip: 'Upload New Report',
         child: const Icon(Icons.add),
       ),
@@ -193,7 +193,7 @@ class _ReportListItem extends ConsumerWidget {
           elevation: 2,
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
-            onTap: () => context.go(RouteNames.reportDetailWithId(report.id)),
+            onTap: () => context.push(RouteNames.reportDetailWithId(report.id)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
