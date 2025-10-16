@@ -7,8 +7,6 @@ import 'package:health_tracker_reports/presentation/pages/trends/widgets/compari
 import 'package:health_tracker_reports/presentation/providers/comparison_provider.dart';
 import 'package:health_tracker_reports/presentation/providers/reports_provider.dart';
 import 'package:health_tracker_reports/presentation/providers/trend_provider.dart';
-import 'package:health_tracker_reports/presentation/widgets/trend_indicator.dart';
-import 'package:health_tracker_reports/domain/entities/trend_analysis.dart';
 
 /// Page for comparing a specific biomarker across multiple reports.
 ///
@@ -277,36 +275,31 @@ class ComparisonView extends ConsumerWidget {
   }
 
   Widget _buildTrendChip(BuildContext context, TrendDirection trendDirection) {
-    String label;
-    IconData icon;
-    Color color;
+    final String label;
+    final IconData icon;
+    final Color color;
 
     switch (trendDirection) {
       case TrendDirection.increasing:
         label = 'Increasing';
         icon = Icons.trending_up;
         color = Colors.red;
-        break;
       case TrendDirection.decreasing:
         label = 'Decreasing';
         icon = Icons.trending_down;
         color = Colors.green;
-        break;
       case TrendDirection.stable:
         label = 'Stable';
         icon = Icons.trending_flat;
         color = Colors.blue;
-        break;
       case TrendDirection.fluctuating:
         label = 'Fluctuating';
         icon = Icons.show_chart;
         color = Colors.orange;
-        break;
       case TrendDirection.insufficient:
         label = 'Insufficient data';
         icon = Icons.remove;
         color = Colors.grey;
-        break;
     }
 
     return Chip(

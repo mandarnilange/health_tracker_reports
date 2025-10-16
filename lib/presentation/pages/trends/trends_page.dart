@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/domain/entities/trend_data_point.dart';
 import 'package:health_tracker_reports/presentation/pages/trends/widgets/biomarker_selector.dart';
@@ -7,6 +8,7 @@ import 'package:health_tracker_reports/presentation/pages/trends/widgets/time_ra
 import 'package:health_tracker_reports/presentation/pages/trends/widgets/trend_chart.dart';
 import 'package:health_tracker_reports/presentation/providers/reports_provider.dart';
 import 'package:health_tracker_reports/presentation/providers/trend_provider.dart';
+import 'package:health_tracker_reports/presentation/router/route_names.dart';
 import 'package:health_tracker_reports/presentation/widgets/trend_indicator.dart';
 import 'package:intl/intl.dart';
 
@@ -29,6 +31,15 @@ class TrendsPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Trends'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.compare_arrows),
+            tooltip: 'Compare Reports',
+            onPressed: () {
+              context.push(RouteNames.comparison);
+            },
+          ),
+        ],
       ),
       body: reportsAsync.when(
         data: (reports) {

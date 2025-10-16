@@ -18,6 +18,9 @@ class RouteNames {
   /// Use with report ID parameter: /report/:id
   static const String reportDetail = '/report/:id';
 
+  /// Comparison route - allows users to compare biomarkers across multiple reports
+  static const String comparison = '/comparison';
+
   /// Helper method to generate report detail route with ID
   static String reportDetailWithId(String id) => '/report/$id';
 }
