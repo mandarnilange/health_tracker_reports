@@ -127,7 +127,7 @@ void main() {
           expect(comparison.comparisons[0].percentageChangeFromPrevious, null);
           expect(comparison.comparisons[1].reportId, 'r2');
           expect(comparison.comparisons[1].value, 15.2);
-          expect(comparison.comparisons[1].deltaFromPrevious, 0.7);
+          expect(comparison.comparisons[1].deltaFromPrevious, closeTo(0.7, 0.01));
           expect(comparison.comparisons[1].percentageChangeFromPrevious,
               closeTo(4.83, 0.01));
         },
@@ -195,7 +195,7 @@ void main() {
           expect(comparison.comparisons[2].reportDate, date3);
           // Deltas should be calculated in sorted order
           expect(comparison.comparisons[0].deltaFromPrevious, null);
-          expect(comparison.comparisons[1].deltaFromPrevious, 0.7);
+          expect(comparison.comparisons[1].deltaFromPrevious, closeTo(0.7, 0.01));
           expect(
               comparison.comparisons[2].deltaFromPrevious, closeTo(-0.4, 0.01));
         },
@@ -290,7 +290,7 @@ void main() {
           expect(comparison.comparisons[0].percentageChangeFromPrevious, null);
 
           // Second report: 15.2 - 14.5 = 0.7
-          expect(comparison.comparisons[1].deltaFromPrevious, 0.7);
+          expect(comparison.comparisons[1].deltaFromPrevious, closeTo(0.7, 0.01));
           // (0.7 / 14.5) * 100 = 4.83%
           expect(comparison.comparisons[1].percentageChangeFromPrevious,
               closeTo(4.83, 0.01));

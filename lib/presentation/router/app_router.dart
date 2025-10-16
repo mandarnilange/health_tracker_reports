@@ -24,8 +24,8 @@ class AppRouter {
   // Private constructor to prevent instantiation
   AppRouter._();
 
-  /// Router configuration
-  static final router = GoRouter(
+  /// Create a new instance of the application router.
+  static GoRouter createRouter() => GoRouter(
     debugLogDiagnostics: true,
     initialLocation: RouteNames.home,
     errorBuilder: (context, state) => ErrorPage(
@@ -99,4 +99,7 @@ class AppRouter {
       ),
     ],
   );
+
+  /// Shared router instance used by the application.
+  static final router = createRouter();
 }

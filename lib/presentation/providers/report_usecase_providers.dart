@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_tracker_reports/core/di/injection_container.dart';
+import 'package:health_tracker_reports/domain/usecases/calculate_trend.dart';
 import 'package:health_tracker_reports/domain/usecases/delete_report.dart';
 import 'package:health_tracker_reports/domain/usecases/get_all_reports.dart';
 import 'package:health_tracker_reports/domain/usecases/get_biomarker_trend.dart';
@@ -23,4 +24,9 @@ final saveReportUseCaseProvider = Provider<SaveReport>(
 /// Provider exposing [DeleteReport] use case.
 final deleteReportProvider = Provider<DeleteReport>(
   (ref) => getIt<DeleteReport>(),
+);
+
+/// Provider exposing [CalculateTrend] use case.
+final calculateTrendProvider = Provider<CalculateTrend>(
+  (ref) => getIt<CalculateTrend>(),
 );

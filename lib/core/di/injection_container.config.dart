@@ -38,12 +38,18 @@ import 'package:health_tracker_reports/domain/repositories/config_repository.dar
     as _i649;
 import 'package:health_tracker_reports/domain/repositories/report_repository.dart'
     as _i767;
+import 'package:health_tracker_reports/domain/usecases/calculate_trend.dart'
+    as _i680;
+import 'package:health_tracker_reports/domain/usecases/compare_biomarker_across_reports.dart'
+    as _i889;
 import 'package:health_tracker_reports/domain/usecases/delete_report.dart'
     as _i248;
 import 'package:health_tracker_reports/domain/usecases/extract_report_from_file.dart'
     as _i839;
 import 'package:health_tracker_reports/domain/usecases/get_all_reports.dart'
     as _i657;
+import 'package:health_tracker_reports/domain/usecases/get_biomarker_trend.dart'
+    as _i926;
 import 'package:health_tracker_reports/domain/usecases/normalize_biomarker_name.dart'
     as _i197;
 import 'package:health_tracker_reports/domain/usecases/save_report.dart'
@@ -82,6 +88,7 @@ extension GetItInjectableX on _i174.GetIt {
         () => appModule.configLocalDataSource);
     gh.lazySingleton<_i197.NormalizeBiomarkerName>(
         () => _i197.NormalizeBiomarkerName());
+    gh.lazySingleton<_i680.CalculateTrend>(() => _i680.CalculateTrend());
     gh.lazySingleton<_i273.ReportLocalDataSource>(() =>
         _i273.ReportLocalDataSourceImpl(
             box: gh<_i979.Box<_i936.ReportModel>>()));
@@ -108,6 +115,15 @@ extension GetItInjectableX on _i174.GetIt {
               llmService: gh<_i212.LlmExtractionService>(),
               normalizeBiomarker: gh<_i197.NormalizeBiomarkerName>(),
             ));
+    gh.lazySingleton<_i889.CompareBiomarkerAcrossReports>(
+        () => _i889.CompareBiomarkerAcrossReports(
+              repository: gh<_i767.ReportRepository>(),
+              normalizeBiomarkerName: gh<_i197.NormalizeBiomarkerName>(),
+            ));
+    gh.lazySingleton<_i926.GetBiomarkerTrend>(() => _i926.GetBiomarkerTrend(
+          repository: gh<_i767.ReportRepository>(),
+          normalizeBiomarkerName: gh<_i197.NormalizeBiomarkerName>(),
+        ));
     return this;
   }
 }
