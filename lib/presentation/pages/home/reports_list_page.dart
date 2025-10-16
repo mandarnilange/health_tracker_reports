@@ -11,7 +11,8 @@ import 'package:go_router/go_router.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/presentation/providers/report_usecase_providers.dart';
-import 'package:health_tracker_reports/presentation/providers/reports_provider.dart';
+import 'package:health_tracker_reports/presentation/providers/reports_provider.dart'
+    show reportsProvider, ReportSortOption;
 import 'package:health_tracker_reports/presentation/router/route_names.dart';
 import 'package:intl/intl.dart';
 
@@ -45,10 +46,82 @@ class _ReportsListPageState extends ConsumerState<ReportsListPage> {
   @override
   Widget build(BuildContext context) {
     final reportsState = ref.watch(reportsProvider);
+    final currentSort = ref.watch(reportsProvider.notifier).currentSortOption;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Health Reports'),
+        actions: [
+          PopupMenuButton<ReportSortOption>(
+            icon: const Icon(Icons.sort),
+            tooltip: 'Sort reports',
+            onSelected: (option) {
+              ref.read(reportsProvider.notifier).setSortOption(option);
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: ReportSortOption.newestFirst,
+                child: Row(
+                  children: [
+                    Icon(
+                      currentSort == ReportSortOption.newestFirst
+                          ? Icons.check
+                          : null,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    const Text('Newest First'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: ReportSortOption.oldestFirst,
+                child: Row(
+                  children: [
+                    Icon(
+                      currentSort == ReportSortOption.oldestFirst
+                          ? Icons.check
+                          : null,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    const Text('Oldest First'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: ReportSortOption.mostOutOfRange,
+                child: Row(
+                  children: [
+                    Icon(
+                      currentSort == ReportSortOption.mostOutOfRange
+                          ? Icons.check
+                          : null,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    const Text('Most Out of Range'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: ReportSortOption.labName,
+                child: Row(
+                  children: [
+                    Icon(
+                      currentSort == ReportSortOption.labName
+                          ? Icons.check
+                          : null,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    const Text('Lab Name (A-Z)'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: reportsState.when(
         loading: () => const Center(child: CircularProgressIndicator()),
