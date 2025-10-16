@@ -1,143 +1,164 @@
-import 'dart:io';
-import 'dart:typed_data';
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:health_tracker_reports/core/error/exceptions.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
-import 'package:health_tracker_reports/data/datasources/external/llm_extraction_service.dart';
-import 'package:health_tracker_reports/data/datasources/external/ocr_service.dart';
-import 'package:health_tracker_reports/data/datasources/external/pdf_service.dart';
-import 'package:health_tracker_reports/data/models/report_model.dart';
+import 'package:health_tracker_reports/data/datasources/external/report_scan_service.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/domain/usecases/extract_report_from_file.dart';
 import 'package:health_tracker_reports/domain/usecases/normalize_biomarker_name.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockPdfService extends Mock implements PdfService {}
-
-class MockOcrService extends Mock implements OcrService {}
-
-class MockLlmExtractionService extends Mock implements LlmExtractionService {}
+class MockReportScanService extends Mock implements ReportScanService {}
 
 class MockNormalizeBiomarkerName extends Mock
     implements NormalizeBiomarkerName {}
 
 void main() {
   late ExtractReportFromFile usecase;
-  late MockPdfService mockPdfService;
-  late MockOcrService mockOcrService;
-  late MockLlmExtractionService mockLlmExtractionService;
+  late MockReportScanService mockReportScanService;
   late MockNormalizeBiomarkerName mockNormalizeBiomarkerName;
+  late DateTime fixedNow;
+  late Iterator<String> idIterator;
 
   setUp(() {
-    mockPdfService = MockPdfService();
-    mockOcrService = MockOcrService();
-    mockLlmExtractionService = MockLlmExtractionService();
+    mockReportScanService = MockReportScanService();
     mockNormalizeBiomarkerName = MockNormalizeBiomarkerName();
-    usecase = ExtractReportFromFile(
-      pdfService: mockPdfService,
-      ocrService: mockOcrService,
-      llmService: mockLlmExtractionService,
+    fixedNow = DateTime(2025, 1, 1, 12);
+    final ids = ['bio-1', 'bio-2'].iterator;
+    idIterator = ids;
+    registerFallbackValue(const ReportScanRequest(
+      source: ScanSource.pdf,
+      uri: '',
+      imageUris: [],
+    ));
+    usecase = ExtractReportFromFile.test(
+      reportScanService: mockReportScanService,
       normalizeBiomarker: mockNormalizeBiomarkerName,
+      idGenerator: () {
+        if (!idIterator.moveNext()) {
+          throw StateError('No more ids');
+        }
+        return idIterator.current;
+      },
+      now: () => fixedNow,
     );
-    registerFallbackValue(ReportModel.fromEntity(Report(
-      id: '1',
-      date: DateTime.now(),
-      labName: 'Test Lab',
-      biomarkers: [],
-      originalFilePath: '/path/to/file',
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    )));
   });
 
-  final tPdfPath = 'test.pdf';
-  final tImagePath = 'test.png';
-  final tImageBytes = Uint8List(0);
-  final tOcrText = 'Sample OCR text';
-  final tReportModel = ReportModel(
-    id: '1',
-    date: DateTime.now(),
-    labName: 'Test Lab',
-    biomarkers: [],
-    originalFilePath: tPdfPath,
-    createdAt: DateTime.now(),
-    updatedAt: DateTime.now(),
-  );
-  final tReport = tReportModel.toEntity();
+  ReportScanEventStructured createStructuredEvent() {
+    return ReportScanEventStructured(
+      page: 1,
+      totalPages: 1,
+      payload: ReportScanPayload(
+        rawText: 'Hemoglobin 13.5 g/dL',
+        biomarkers: const [
+          StructuredBiomarker(
+            name: 'Hb',
+            value: '13.5',
+            unit: 'g/dL',
+            referenceMin: '12.0',
+            referenceMax: '17.0',
+          ),
+        ],
+      ),
+    );
+  }
 
-  test('should extract text from PDF and return a report', () async {
-    // Arrange
-    when(() => mockPdfService.convertToImages(any()))
-        .thenAnswer((_) async => [tImageBytes]);
-    when(() => mockOcrService.extractText(any()))
-        .thenAnswer((_) async => tOcrText);
-    when(() => mockLlmExtractionService.extractBiomarkers(any()))
-        .thenAnswer((_) async => tReportModel);
-    when(() => mockNormalizeBiomarkerName(any())).thenReturn('Normalized Name');
+  test('returns Report when structured data emitted for PDF', () async {
+    final controller = StreamController<ReportScanEvent>();
+    late ReportScanRequest capturedRequest;
 
-    // Act
-    final result = await usecase(tPdfPath);
+    when(() => mockNormalizeBiomarkerName(any())).thenReturn('Hemoglobin');
+    when(() => mockReportScanService.scanReport(any()))
+        .thenAnswer((invocation) {
+      capturedRequest =
+          invocation.positionalArguments.first as ReportScanRequest;
+      return controller.stream;
+    });
 
-    // Assert
-    expect(result, Right(tReport));
-    verify(() => mockPdfService.convertToImages(tPdfPath)).called(1);
-    verify(() => mockOcrService.extractText([tImageBytes])).called(1);
-    verify(() => mockLlmExtractionService.extractBiomarkers(tOcrText))
-        .called(1);
+    final resultFuture = usecase('/path/to/report.pdf');
+
+    controller.add(const ReportScanEventProgress(page: 1, totalPages: 1));
+    controller.add(createStructuredEvent());
+    controller.add(const ReportScanEventComplete());
+    await controller.close();
+
+    final result = await resultFuture;
+
+    expect(result, isA<Right<Failure, Report>>());
+    final report = result.getOrElse(() => throw StateError('Expected report'));
+    expect(report.date, fixedNow);
+    expect(report.originalFilePath, '/path/to/report.pdf');
+    expect(report.biomarkers, hasLength(1));
+    final biomarker = report.biomarkers.first;
+    expect(biomarker.name, 'Hemoglobin');
+    expect(biomarker.value, 13.5);
+    expect(biomarker.unit, 'g/dL');
+    expect(biomarker.referenceRange.min, 12.0);
+    expect(biomarker.referenceRange.max, 17.0);
+    expect(report.notes, 'Hemoglobin 13.5 g/dL');
+    expect(capturedRequest.source, ScanSource.pdf);
+    expect(capturedRequest.uri, Uri.file('/path/to/report.pdf').toString());
+    verify(() => mockNormalizeBiomarkerName('Hb')).called(1);
   });
 
-  test('should extract text from image and return a report', () async {
-    // Arrange
-    final file = File(tImagePath);
-    await file.writeAsBytes(tImageBytes);
-    when(() => mockOcrService.extractText(any()))
-        .thenAnswer((_) async => tOcrText);
-    when(() => mockLlmExtractionService.extractBiomarkers(any()))
-        .thenAnswer((_) async => tReportModel);
-    when(() => mockNormalizeBiomarkerName(any())).thenReturn('Normalized Name');
+  test('uses image scan when non-pdf file provided', () async {
+    late ReportScanRequest capturedRequest;
 
-    // Act
-    final result = await usecase(tImagePath);
+    when(() => mockNormalizeBiomarkerName(any())).thenReturn('Hemoglobin');
+    when(() => mockReportScanService.scanReport(any()))
+        .thenAnswer((invocation) {
+      capturedRequest =
+          invocation.positionalArguments.first as ReportScanRequest;
+      return Stream.fromIterable([
+        createStructuredEvent(),
+        const ReportScanEventComplete(),
+      ]);
+    });
 
-    // Assert
-    expect(result, Right(tReport));
-    verifyNever(() => mockPdfService.convertToImages(any()));
-    verify(() => mockOcrService.extractText(any())).called(1);
-    verify(() => mockLlmExtractionService.extractBiomarkers(tOcrText))
-        .called(1);
+    final result = await usecase('/path/to/photo.png');
 
-    // Clean up
-    await file.delete();
+    expect(result, isA<Right<Failure, Report>>());
+    expect(capturedRequest.source, ScanSource.images);
+    expect(capturedRequest.imageUris, [
+      Uri.file('/path/to/photo.png').toString(),
+    ]);
   });
 
-  test('should return OcrFailure when OCR fails', () async {
-    // Arrange
-    when(() => mockPdfService.convertToImages(any()))
-        .thenAnswer((_) async => [tImageBytes]);
-    when(() => mockOcrService.extractText(any()))
-        .thenThrow(OcrException('OCR failed'));
+  test('returns OcrFailure when scan emits error', () async {
+    when(() => mockReportScanService.scanReport(any())).thenAnswer(
+      (_) => Stream.fromIterable([
+        const ReportScanEventError(
+            code: 'scan_failed', message: 'Unable to scan'),
+      ]),
+    );
 
-    // Act
-    final result = await usecase(tPdfPath);
+    final result = await usecase('/path/to/report.pdf');
 
-    // Assert
-    expect(result, Left(OcrFailure(message: 'OCR failed')));
+    expect(result, isA<Left<Failure, Report>>());
+    result.fold(
+      (failure) => expect(failure, const OcrFailure(message: 'Unable to scan')),
+      (_) => fail('Expected failure'),
+    );
   });
 
-  test('should return LlmFailure when LLM extraction fails', () async {
-    // Arrange
-    when(() => mockPdfService.convertToImages(any()))
-        .thenAnswer((_) async => [tImageBytes]);
-    when(() => mockOcrService.extractText(any()))
-        .thenAnswer((_) async => tOcrText);
-    when(() => mockLlmExtractionService.extractBiomarkers(any()))
-        .thenThrow(LlmException('LLM failed'));
+  test('returns ValidationFailure when no biomarkers extracted', () async {
+    when(() => mockReportScanService.scanReport(any())).thenAnswer(
+      (_) => Stream.fromIterable([
+        const ReportScanEventProgress(page: 1, totalPages: 1),
+        const ReportScanEventComplete(),
+      ]),
+    );
 
-    // Act
-    final result = await usecase(tPdfPath);
+    final result = await usecase('/empty.pdf');
 
-    // Assert
-    expect(result, Left(LlmFailure(message: 'LLM failed')));
+    expect(result, isA<Left<Failure, Report>>());
+    result.fold(
+      (failure) => expect(
+        failure,
+        const ValidationFailure(message: 'No biomarkers detected'),
+      ),
+      (_) => fail('Expected failure'),
+    );
   });
 }

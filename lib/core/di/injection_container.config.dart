@@ -21,6 +21,8 @@ import 'package:health_tracker_reports/data/datasources/external/pdf_document_wr
     as _i435;
 import 'package:health_tracker_reports/data/datasources/external/pdf_service.dart'
     as _i760;
+import 'package:health_tracker_reports/data/datasources/external/report_scan_service.dart'
+    as _i506;
 import 'package:health_tracker_reports/data/datasources/local/config_local_datasource.dart'
     as _i537;
 import 'package:health_tracker_reports/data/datasources/local/hive_database.dart'
@@ -86,14 +88,16 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i612.TextRecognizer>(() => appModule.textRecognizer);
     gh.lazySingleton<_i537.ConfigLocalDataSource>(
         () => appModule.configLocalDataSource);
+    gh.lazySingleton<_i680.CalculateTrend>(() => _i680.CalculateTrend());
     gh.lazySingleton<_i197.NormalizeBiomarkerName>(
         () => _i197.NormalizeBiomarkerName());
-    gh.lazySingleton<_i680.CalculateTrend>(() => _i680.CalculateTrend());
     gh.lazySingleton<_i273.ReportLocalDataSource>(() =>
         _i273.ReportLocalDataSourceImpl(
             box: gh<_i979.Box<_i936.ReportModel>>()));
     gh.lazySingleton<_i212.LlmExtractionService>(() =>
         _i212.LlmExtractionServiceImpl(appConfig: gh<_i386.AppConfigModel>()));
+    gh.lazySingleton<_i506.ReportScanService>(
+        () => _i506.ReportScanServiceImpl());
     gh.lazySingleton<_i767.ReportRepository>(() => _i508.ReportRepositoryImpl(
         localDataSource: gh<_i273.ReportLocalDataSource>()));
     gh.lazySingleton<_i760.PdfService>(() =>
@@ -104,17 +108,15 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i657.GetAllReports(repository: gh<_i767.ReportRepository>()));
     gh.lazySingleton<_i248.DeleteReport>(
         () => _i248.DeleteReport(repository: gh<_i767.ReportRepository>()));
+    gh.lazySingleton<_i839.ExtractReportFromFile>(
+        () => _i839.ExtractReportFromFile(
+              reportScanService: gh<_i506.ReportScanService>(),
+              normalizeBiomarker: gh<_i197.NormalizeBiomarkerName>(),
+            ));
     gh.lazySingleton<_i829.OcrService>(
         () => _i829.OcrService(textRecognizer: gh<_i612.TextRecognizer>()));
     gh.lazySingleton<_i649.ConfigRepository>(() => _i616.ConfigRepositoryImpl(
         localDataSource: gh<_i537.ConfigLocalDataSource>()));
-    gh.lazySingleton<_i839.ExtractReportFromFile>(
-        () => _i839.ExtractReportFromFile(
-              pdfService: gh<_i760.PdfService>(),
-              ocrService: gh<_i829.OcrService>(),
-              llmService: gh<_i212.LlmExtractionService>(),
-              normalizeBiomarker: gh<_i197.NormalizeBiomarkerName>(),
-            ));
     gh.lazySingleton<_i889.CompareBiomarkerAcrossReports>(
         () => _i889.CompareBiomarkerAcrossReports(
               repository: gh<_i767.ReportRepository>(),

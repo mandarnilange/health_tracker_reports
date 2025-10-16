@@ -15,12 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Built Trends page experience with Riverpod providers, async loading/error handling, selectors, and test coverage (`lib/presentation/pages/trends`, `lib/presentation/providers/trend_provider.dart`, `test/unit/presentation/providers/trend_provider_test.dart`, `test/widget/pages/trends`).
 - Implemented `TrendChart` widget powered by fl_chart with reference bands, tooltips, and status-aware styling plus widget tests (`lib/presentation/pages/trends/widgets/trend_chart.dart`, `test/widget/pages/trends/widgets/trend_chart_test.dart`).
 - Expanded upload workflow tests with robust provider overrides and deterministic behaviors to avoid race conditions (`test/widget/pages/upload/upload_page_test.dart`).
+- Scaffolded native-backed report scanning bridge with method/event channels and Dart-side wrappers to support structured OCR payloads (`lib/data/datasources/external/report_scan_service.dart`, `android/app/src/main/kotlin/.../MainActivity.kt`, `ios/Runner/AppDelegate.swift`, `test/unit/data/datasources/external/report_scan_service_test.dart`).
 
 ### Changed
 
 - Refactored trend-related providers to expose async state (`lib/presentation/providers/trend_provider.dart`) and updated TrendsPage to consume `AsyncValue<List<TrendDataPoint>>` safely (`lib/presentation/pages/trends/trends_page.dart`).
 - Hardened upload page tests by introducing deterministic provider overrides and utility pump helpers, eliminating race conditions seen during full-suite execution (`test/widget/pages/upload/upload_page_test.dart`).
 - Updated app theme configuration to respect the system preference when dark mode is not explicitly enabled (`lib/app.dart`, `test/widget/app_test.dart`).
+- Reworked `ExtractReportFromFile` to consume the native scan service, normalize structured biomarker payloads, and fall back with meaningful failures while keeping business logic in Dart (`lib/domain/usecases/extract_report_from_file.dart`, `test/unit/domain/usecases/extract_report_from_file_test.dart`).
 
 ### Fixed
 
