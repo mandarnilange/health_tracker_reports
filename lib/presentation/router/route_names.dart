@@ -18,6 +18,9 @@ class RouteNames {
   /// Use with report ID parameter: /report/:id
   static const String reportDetail = '/report/:id';
 
+  /// Trends route - displays biomarker trends over time
+  static const String trends = '/trends';
+
   /// Comparison route - allows users to compare biomarkers across multiple reports
   static const String comparison = '/comparison';
 

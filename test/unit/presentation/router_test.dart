@@ -10,7 +10,7 @@ void main() {
     group('Route Configuration', () {
       test('has correct number of routes', () {
         final router = AppRouter.router;
-        expect(router.configuration.routes.length, equals(4));
+        expect(router.configuration.routes.length, equals(6));
       });
     });
 
@@ -35,6 +35,8 @@ void main() {
         expect(RouteNames.upload, equals('/upload'));
         expect(RouteNames.review, equals('/review'));
         expect(RouteNames.reportDetail, equals('/report/:id'));
+        expect(RouteNames.trends, equals('/trends'));
+        expect(RouteNames.comparison, equals('/comparison'));
       });
     });
 

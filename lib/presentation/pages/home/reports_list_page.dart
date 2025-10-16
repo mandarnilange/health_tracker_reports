@@ -52,6 +52,11 @@ class _ReportsListPageState extends ConsumerState<ReportsListPage> {
       appBar: AppBar(
         title: const Text('Health Reports'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.show_chart),
+            tooltip: 'View Trends',
+            onPressed: () => context.go(RouteNames.trends),
+          ),
           PopupMenuButton<ReportSortOption>(
             icon: const Icon(Icons.sort),
             tooltip: 'Sort reports',

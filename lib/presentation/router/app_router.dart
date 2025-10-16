@@ -5,6 +5,7 @@ import 'package:health_tracker_reports/presentation/pages/home/reports_list_page
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/presentation/pages/report_detail/report_detail_page.dart';
 import 'package:health_tracker_reports/presentation/pages/trends/comparison_view.dart';
+import 'package:health_tracker_reports/presentation/pages/trends/trends_page.dart';
 import 'package:health_tracker_reports/presentation/pages/upload/upload_page.dart';
 import 'package:health_tracker_reports/presentation/pages/upload/review_page.dart';
 import 'package:health_tracker_reports/presentation/router/route_names.dart';
@@ -97,6 +98,16 @@ class AppRouter {
                 child: ReportDetailPage(reportId: id),
               );
             },
+          ),
+
+          // Trends Route - View biomarker trends
+          GoRoute(
+            path: RouteNames.trends,
+            name: 'trends',
+            pageBuilder: (context, state) => MaterialPage<void>(
+              key: state.pageKey,
+              child: const TrendsPage(),
+            ),
           ),
 
           // Comparison Route - Compare biomarkers across reports
