@@ -56,3 +56,9 @@ class NetworkFailure extends Failure {
   /// Creates a [NetworkFailure] with an optional custom message
   const NetworkFailure([super.message = 'Network connection failed']);
 }
+
+/// Failure that occurs when a requested resource is not found
+class NotFoundFailure extends Failure {
+  /// Creates a [NotFoundFailure] with a required error message
+  const NotFoundFailure({required String message}) : super(message);
+}
