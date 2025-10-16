@@ -125,8 +125,8 @@ void main() {
 
       // Toggle to outOfRangeOnly
       notifier.toggleFilter();
-      expect(
-          container.read(filterProvider), equals(BiomarkerFilter.outOfRangeOnly));
+      expect(container.read(filterProvider),
+          equals(BiomarkerFilter.outOfRangeOnly));
 
       // Toggle back to showAll
       notifier.toggleFilter();
@@ -134,8 +134,8 @@ void main() {
 
       // Toggle to outOfRangeOnly
       notifier.toggleFilter();
-      expect(
-          container.read(filterProvider), equals(BiomarkerFilter.outOfRangeOnly));
+      expect(container.read(filterProvider),
+          equals(BiomarkerFilter.outOfRangeOnly));
     });
   });
 
@@ -151,7 +151,8 @@ void main() {
       expect(filteredBiomarkers, equals(testReport.biomarkers));
     });
 
-    test('should return only out-of-range biomarkers when filter is outOfRangeOnly',
+    test(
+        'should return only out-of-range biomarkers when filter is outOfRangeOnly',
         () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
@@ -170,7 +171,8 @@ void main() {
       expect(filteredBiomarkers[1].status, equals(BiomarkerStatus.low));
     });
 
-    test('should return empty list when all biomarkers are normal and filter is outOfRangeOnly',
+    test(
+        'should return empty list when all biomarkers are normal and filter is outOfRangeOnly',
         () {
       final container = ProviderContainer();
       addTearDown(container.dispose);

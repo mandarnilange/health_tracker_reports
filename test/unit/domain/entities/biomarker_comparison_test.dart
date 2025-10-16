@@ -114,13 +114,15 @@ void main() {
 
   group('TrendDirection', () {
     test('should have all expected trend directions', () {
-      expect(TrendDirection.values, containsAll([
-        TrendDirection.increasing,
-        TrendDirection.decreasing,
-        TrendDirection.stable,
-        TrendDirection.fluctuating,
-        TrendDirection.insufficient,
-      ]));
+      expect(
+          TrendDirection.values,
+          containsAll([
+            TrendDirection.increasing,
+            TrendDirection.decreasing,
+            TrendDirection.stable,
+            TrendDirection.fluctuating,
+            TrendDirection.insufficient,
+          ]));
     });
   });
 

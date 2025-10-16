@@ -63,7 +63,8 @@ class ReportsNotifier extends StateNotifier<AsyncValue<List<Report>>> {
         sortedReports.sort((a, b) => a.date.compareTo(b.date));
         break;
       case ReportSortOption.mostOutOfRange:
-        sortedReports.sort((a, b) => b.outOfRangeCount.compareTo(a.outOfRangeCount));
+        sortedReports
+            .sort((a, b) => b.outOfRangeCount.compareTo(a.outOfRangeCount));
         break;
       case ReportSortOption.labName:
         sortedReports.sort((a, b) => a.labName.compareTo(b.labName));

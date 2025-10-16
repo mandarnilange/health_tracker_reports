@@ -79,9 +79,12 @@ class ReportDetailPage extends ConsumerWidget {
                     children: [
                       Text(
                         'Lab',
-                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -110,9 +113,10 @@ class ReportDetailPage extends ConsumerWidget {
                         Expanded(
                           child: Text(
                             '${report.outOfRangeCount} out of ${report.totalBiomarkerCount} biomarkers out of range',
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                ),
+                            style:
+                                Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                    ),
                           ),
                         ),
                       ],
@@ -134,9 +138,10 @@ class ReportDetailPage extends ConsumerWidget {
                         Expanded(
                           child: Text(
                             'All biomarkers within normal range',
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                ),
+                            style:
+                                Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                    ),
                           ),
                         ),
                       ],
@@ -160,8 +165,8 @@ class ReportDetailPage extends ConsumerWidget {
                           ? 'Show All'
                           : 'Out of Range Only',
                     ),
-                    selected:
-                        ref.watch(filterProvider) == BiomarkerFilter.outOfRangeOnly,
+                    selected: ref.watch(filterProvider) ==
+                        BiomarkerFilter.outOfRangeOnly,
                     onSelected: (_) {
                       ref.read(filterProvider.notifier).toggleFilter();
                     },
@@ -196,7 +201,9 @@ class ReportDetailPage extends ConsumerWidget {
               const SizedBox(height: 16),
 
               // Biomarker cards with search and filter applied
-              ...ref.watch(searchedAndFilteredBiomarkersProvider(report)).isEmpty
+              ...ref
+                      .watch(searchedAndFilteredBiomarkersProvider(report))
+                      .isEmpty
                   ? [
                       Center(
                         child: Padding(
@@ -206,7 +213,9 @@ class ReportDetailPage extends ConsumerWidget {
                               Icon(
                                 Icons.search_off,
                                 size: 64,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
                               ),
                               const SizedBox(height: 16),
                               Text(
@@ -216,7 +225,10 @@ class ReportDetailPage extends ConsumerWidget {
                               const SizedBox(height: 8),
                               Text(
                                 'Try adjusting your search or filter',
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
                                       color: Theme.of(context)
                                           .colorScheme
                                           .onSurfaceVariant,
@@ -227,9 +239,11 @@ class ReportDetailPage extends ConsumerWidget {
                         ),
                       ),
                     ]
-                  : ref.watch(searchedAndFilteredBiomarkersProvider(report)).map(
-                      (biomarker) => BiomarkerCard(biomarker: biomarker),
-                    ),
+                  : ref
+                      .watch(searchedAndFilteredBiomarkersProvider(report))
+                      .map(
+                        (biomarker) => BiomarkerCard(biomarker: biomarker),
+                      ),
 
               // Notes section
               if (report.notes != null && report.notes!.isNotEmpty) ...[

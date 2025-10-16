@@ -274,7 +274,8 @@ class _ReportListItem extends ConsumerWidget {
                                     const SizedBox(width: 4),
                                     Text(
                                       '$outOfRangeCount',
-                                      style: theme.textTheme.labelSmall?.copyWith(
+                                      style:
+                                          theme.textTheme.labelSmall?.copyWith(
                                         color: colorScheme.onErrorContainer,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -303,7 +304,8 @@ class _ReportListItem extends ConsumerWidget {
                                     const SizedBox(width: 4),
                                     Text(
                                       'All Normal',
-                                      style: theme.textTheme.labelSmall?.copyWith(
+                                      style:
+                                          theme.textTheme.labelSmall?.copyWith(
                                         color: colorScheme.onTertiaryContainer,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -328,7 +330,8 @@ class _ReportListItem extends ConsumerWidget {
                           color: colorScheme.error,
                         ),
                         onPressed: () async {
-                          final confirmed = await _showDeleteConfirmation(context);
+                          final confirmed =
+                              await _showDeleteConfirmation(context);
                           if (confirmed && context.mounted) {
                             await _deleteReport(context, ref, report.id);
                           }
@@ -352,25 +355,26 @@ class _ReportListItem extends ConsumerWidget {
 
   Future<bool> _showDeleteConfirmation(BuildContext context) async {
     return await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Report'),
-        content: Text('Are you sure you want to delete ${report.labName}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Delete Report'),
+            content: Text('Are you sure you want to delete ${report.labName}?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                ),
+                child: const Text('Delete'),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    ) ?? false;
+        ) ??
+        false;
   }
 
   Future<bool> _deleteReport(

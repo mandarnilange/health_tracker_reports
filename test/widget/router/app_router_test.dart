@@ -25,23 +25,28 @@ import 'package:health_tracker_reports/presentation/router/app_router.dart';
 import 'package:health_tracker_reports/presentation/router/route_names.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockExtractReportFromFile extends Mock implements ExtractReportFromFile {}
+class _MockExtractReportFromFile extends Mock
+    implements ExtractReportFromFile {}
 
 class _DummyReportRepository implements ReportRepository {
   @override
-  Future<Either<Failure, Report>> saveReport(Report report) async => Right(report);
+  Future<Either<Failure, Report>> saveReport(Report report) async =>
+      Right(report);
 
   @override
-  Future<Either<Failure, List<Report>>> getAllReports() async => Right(<Report>[]);
+  Future<Either<Failure, List<Report>>> getAllReports() async =>
+      Right(<Report>[]);
 
   @override
-  Future<Either<Failure, Report>> getReportById(String id) async => Left(const CacheFailure());
+  Future<Either<Failure, Report>> getReportById(String id) async =>
+      Left(const CacheFailure());
 
   @override
   Future<Either<Failure, void>> deleteReport(String id) async => Right(null);
 
   @override
-  Future<Either<Failure, void>> updateReport(Report report) async => Right(null);
+  Future<Either<Failure, void>> updateReport(Report report) async =>
+      Right(null);
 
   @override
   Future<Either<Failure, List<TrendDataPoint>>> getBiomarkerTrend(
@@ -80,7 +85,8 @@ class _FakeReportsNotifier extends ReportsNotifier {
   }
 
   @override
-  Future<Either<Failure, Report>> saveReport(Report report) async => Right(report);
+  Future<Either<Failure, Report>> saveReport(Report report) async =>
+      Right(report);
 }
 
 class _FakeReportFilePicker extends ReportFilePicker {
@@ -114,7 +120,8 @@ void main() {
     updatedAt: DateTime(2024, 1, 1),
   );
 
-  Widget buildRouterApp(GoRouter router, {List<Override> overrides = const []}) {
+  Widget buildRouterApp(GoRouter router,
+      {List<Override> overrides = const []}) {
     return ProviderScope(
       overrides: overrides,
       child: MaterialApp.router(routerConfig: router),
@@ -150,15 +157,18 @@ void main() {
       addTearDown(router.dispose);
 
       final mockUsecase = _MockExtractReportFromFile();
-      when(() => mockUsecase(any())).thenAnswer((_) async => const Left(CacheFailure()));
+      when(() => mockUsecase(any()))
+          .thenAnswer((_) async => const Left(CacheFailure()));
 
       await tester.pumpWidget(
         buildRouterApp(
           router,
           overrides: [
             reportsProvider.overrideWith((ref) => _FakeReportsNotifier()),
-            extractionProvider.overrideWith((ref) => ExtractionNotifier(mockUsecase)),
-            reportFilePickerProvider.overrideWithValue(const _FakeReportFilePicker()),
+            extractionProvider
+                .overrideWith((ref) => ExtractionNotifier(mockUsecase)),
+            reportFilePickerProvider
+                .overrideWithValue(const _FakeReportFilePicker()),
           ],
         ),
       );
@@ -169,7 +179,8 @@ void main() {
       expect(find.byType(UploadPage), findsOneWidget);
     });
 
-    testWidgets('review route without report extra shows ErrorPage', (tester) async {
+    testWidgets('review route without report extra shows ErrorPage',
+        (tester) async {
       final router = AppRouter.createRouter();
       addTearDown(router.dispose);
 
@@ -189,7 +200,8 @@ void main() {
       expect(find.textContaining('Report data is required'), findsOneWidget);
     });
 
-    testWidgets('review route with report extra shows ReviewPage', (tester) async {
+    testWidgets('review route with report extra shows ReviewPage',
+        (tester) async {
       final router = AppRouter.createRouter();
       addTearDown(router.dispose);
 
@@ -197,7 +209,8 @@ void main() {
         buildRouterApp(
           router,
           overrides: [
-            reportsProvider.overrideWith((ref) => _FakeReportsNotifier(initialReports: [sampleReport])),
+            reportsProvider.overrideWith(
+                (ref) => _FakeReportsNotifier(initialReports: [sampleReport])),
           ],
         ),
       );
@@ -208,7 +221,8 @@ void main() {
       expect(find.byType(ReviewPage), findsOneWidget);
     });
 
-    testWidgets('report detail route with id shows ReportDetailPage', (tester) async {
+    testWidgets('report detail route with id shows ReportDetailPage',
+        (tester) async {
       final router = AppRouter.createRouter();
       addTearDown(router.dispose);
 
@@ -216,7 +230,8 @@ void main() {
         buildRouterApp(
           router,
           overrides: [
-            reportsProvider.overrideWith((ref) => _FakeReportsNotifier(initialReports: [sampleReport])),
+            reportsProvider.overrideWith(
+                (ref) => _FakeReportsNotifier(initialReports: [sampleReport])),
           ],
         ),
       );

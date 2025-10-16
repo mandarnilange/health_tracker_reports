@@ -7,6 +7,7 @@ import 'package:health_tracker_reports/presentation/pages/trends/widgets/time_ra
 import 'package:health_tracker_reports/presentation/pages/trends/widgets/trend_chart.dart';
 import 'package:health_tracker_reports/presentation/providers/reports_provider.dart';
 import 'package:health_tracker_reports/presentation/providers/trend_provider.dart';
+import 'package:health_tracker_reports/presentation/widgets/trend_indicator.dart';
 import 'package:intl/intl.dart';
 
 /// Trends page that displays biomarker trends over time.
@@ -208,9 +209,19 @@ class TrendsPage extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            trendState.selectedBiomarkerName!,
-                            style: Theme.of(context).textTheme.titleLarge,
+                          Row(
+                            children: [
+                              Text(
+                                trendState.selectedBiomarkerName!,
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              if (trendState.trendAnalysis != null) ...[
+                                const SizedBox(width: 12),
+                                TrendIndicator(
+                                  trendAnalysis: trendState.trendAnalysis!,
+                                ),
+                              ],
+                            ],
                           ),
                           const SizedBox(height: 4),
                           Text(

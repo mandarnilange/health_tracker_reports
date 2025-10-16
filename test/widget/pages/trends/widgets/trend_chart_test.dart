@@ -185,8 +185,7 @@ void main() {
 
       // Check that left titles are configured
       expect(lineChartData.titlesData.leftTitles.sideTitles.showTitles, true);
-      expect(
-          lineChartData.titlesData.leftTitles.sideTitles.getTitlesWidget,
+      expect(lineChartData.titlesData.leftTitles.sideTitles.getTitlesWidget,
           isNotNull);
     });
 
@@ -225,8 +224,7 @@ void main() {
       // Check that touch data is configured
       expect(lineChartData.lineTouchData.enabled, true);
       expect(lineChartData.lineTouchData.touchTooltipData, isNotNull);
-      expect(
-          lineChartData.lineTouchData.touchTooltipData!.getTooltipItems,
+      expect(lineChartData.lineTouchData.touchTooltipData!.getTooltipItems,
           isNotNull);
     });
 

@@ -149,8 +149,7 @@ void main() {
       expect(find.text('+2.5%'), findsOneWidget);
     });
 
-    testWidgets('displays 0.0% for zero change',
-        (WidgetTester tester) async {
+    testWidgets('displays 0.0% for zero change', (WidgetTester tester) async {
       // Arrange
       const trendAnalysis = TrendAnalysis(
         direction: TrendDirection.stable,
@@ -362,8 +361,7 @@ void main() {
       expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
     });
 
-    testWidgets('uses FontWeight.bold for text',
-        (WidgetTester tester) async {
+    testWidgets('uses FontWeight.bold for text', (WidgetTester tester) async {
       // Arrange
       const trendAnalysis = TrendAnalysis(
         direction: TrendDirection.increasing,

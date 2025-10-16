@@ -492,7 +492,8 @@ void main() {
       });
 
       testWidgets('FAB has tooltip', (WidgetTester tester) async {
-        when(() => mockGetAllReports()).thenAnswer((_) async => const Right([]));
+        when(() => mockGetAllReports())
+            .thenAnswer((_) async => const Right([]));
 
         await tester.pumpWidget(
           ProviderScope(

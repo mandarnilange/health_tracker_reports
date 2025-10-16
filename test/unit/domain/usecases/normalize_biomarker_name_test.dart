@@ -50,7 +50,8 @@ void main() {
     });
 
     group('Lipid Panel', () {
-      test('should normalize cholesterol variations to "Total Cholesterol"', () {
+      test('should normalize cholesterol variations to "Total Cholesterol"',
+          () {
         // Act & Assert
         expect(usecase('CHOL'), 'Total Cholesterol');
         expect(usecase('chol'), 'Total Cholesterol');

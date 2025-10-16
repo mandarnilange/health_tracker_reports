@@ -38,8 +38,7 @@ void main() {
 
       return ProviderScope(
         overrides: [
-          reportsProvider.overrideWith((ref) =>
-              ReportsNotifier(
+          reportsProvider.overrideWith((ref) => ReportsNotifier(
                 getAllReports: mockGetAllReports,
                 saveReportProvider: () => mockSaveReport,
               )..loadReports()),
@@ -163,7 +162,8 @@ void main() {
       when(() => mockGetAllReports()).thenAnswer(
           (_) async => const Left(CacheFailure('Failed to load reports')));
 
-      await tester.pumpWidget(createTestWidget('test-report-1', shouldLoadReports: false));
+      await tester.pumpWidget(
+          createTestWidget('test-report-1', shouldLoadReports: false));
       await tester.pumpAndSettle();
 
       expect(find.textContaining('Failed to load reports'), findsOneWidget);

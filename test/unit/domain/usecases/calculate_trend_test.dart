@@ -165,7 +165,8 @@ void main() {
       );
     });
 
-    test('should return increasing when percentage change is exactly 5.01%', () {
+    test('should return increasing when percentage change is exactly 5.01%',
+        () {
       // Arrange
       final dataPoints = [
         tTrendPoint1.copyWith(value: 100.0),
@@ -387,7 +388,8 @@ void main() {
       );
     });
 
-    test('should calculate based on first and last values, not intermediate ones',
+    test(
+        'should calculate based on first and last values, not intermediate ones',
         () {
       // Arrange - values fluctuate but end up higher
       final dataPoints = [

@@ -26,79 +26,79 @@ class AppRouter {
 
   /// Create a new instance of the application router.
   static GoRouter createRouter() => GoRouter(
-    debugLogDiagnostics: true,
-    initialLocation: RouteNames.home,
-    errorBuilder: (context, state) => ErrorPage(
-      errorMessage: state.error?.toString(),
-    ),
-    routes: [
-      // Home Route - Reports List
-      GoRoute(
-        path: RouteNames.home,
-        name: 'home',
-        pageBuilder: (context, state) => MaterialPage<void>(
-          key: state.pageKey,
-          child: const ReportsListPage(),
+        debugLogDiagnostics: true,
+        initialLocation: RouteNames.home,
+        errorBuilder: (context, state) => ErrorPage(
+          errorMessage: state.error?.toString(),
         ),
-      ),
-
-      // Upload Route - Upload new report
-      GoRoute(
-        path: RouteNames.upload,
-        name: 'upload',
-        pageBuilder: (context, state) => MaterialPage<void>(
-          key: state.pageKey,
-          child: const UploadPage(),
-        ),
-      ),
-
-      // Review Route - Review extracted report
-      GoRoute(
-        path: RouteNames.review,
-        name: 'review',
-        pageBuilder: (context, state) {
-          final extra = state.extra;
-          if (extra is! Report) {
-            return MaterialPage<void>(
+        routes: [
+          // Home Route - Reports List
+          GoRoute(
+            path: RouteNames.home,
+            name: 'home',
+            pageBuilder: (context, state) => MaterialPage<void>(
               key: state.pageKey,
-              child: const ErrorPage(
-                errorMessage: 'Report data is required',
-              ),
-            );
-          }
+              child: const ReportsListPage(),
+            ),
+          ),
 
-          return MaterialPage<void>(
-            key: state.pageKey,
-            child: ReviewPage(initialReport: extra),
-          );
-        },
-      ),
-
-      // Report Detail Route - View specific report
-      GoRoute(
-        path: RouteNames.reportDetail,
-        name: 'reportDetail',
-        pageBuilder: (context, state) {
-          final id = state.pathParameters['id'];
-
-          // Validate that ID exists
-          if (id == null || id.isEmpty) {
-            return MaterialPage<void>(
+          // Upload Route - Upload new report
+          GoRoute(
+            path: RouteNames.upload,
+            name: 'upload',
+            pageBuilder: (context, state) => MaterialPage<void>(
               key: state.pageKey,
-              child: const ErrorPage(
-                errorMessage: 'Report ID is required',
-              ),
-            );
-          }
+              child: const UploadPage(),
+            ),
+          ),
 
-          return MaterialPage<void>(
-            key: state.pageKey,
-            child: ReportDetailPage(reportId: id),
-          );
-        },
-      ),
-    ],
-  );
+          // Review Route - Review extracted report
+          GoRoute(
+            path: RouteNames.review,
+            name: 'review',
+            pageBuilder: (context, state) {
+              final extra = state.extra;
+              if (extra is! Report) {
+                return MaterialPage<void>(
+                  key: state.pageKey,
+                  child: const ErrorPage(
+                    errorMessage: 'Report data is required',
+                  ),
+                );
+              }
+
+              return MaterialPage<void>(
+                key: state.pageKey,
+                child: ReviewPage(initialReport: extra),
+              );
+            },
+          ),
+
+          // Report Detail Route - View specific report
+          GoRoute(
+            path: RouteNames.reportDetail,
+            name: 'reportDetail',
+            pageBuilder: (context, state) {
+              final id = state.pathParameters['id'];
+
+              // Validate that ID exists
+              if (id == null || id.isEmpty) {
+                return MaterialPage<void>(
+                  key: state.pageKey,
+                  child: const ErrorPage(
+                    errorMessage: 'Report ID is required',
+                  ),
+                );
+              }
+
+              return MaterialPage<void>(
+                key: state.pageKey,
+                child: ReportDetailPage(reportId: id),
+              );
+            },
+          ),
+        ],
+      );
 
   /// Shared router instance used by the application.
   static final router = createRouter();

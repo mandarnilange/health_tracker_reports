@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/domain/entities/biomarker.dart';
 import 'package:health_tracker_reports/domain/entities/reference_range.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
+import 'package:health_tracker_reports/domain/entities/trend_analysis.dart';
+import 'package:health_tracker_reports/domain/usecases/calculate_trend.dart';
 import 'package:health_tracker_reports/domain/usecases/get_all_reports.dart';
 import 'package:health_tracker_reports/domain/usecases/get_biomarker_trend.dart';
 import 'package:health_tracker_reports/domain/usecases/save_report.dart';
@@ -22,11 +24,14 @@ class MockSaveReport extends Mock implements SaveReport {}
 
 class MockGetBiomarkerTrend extends Mock implements GetBiomarkerTrend {}
 
+class MockCalculateTrend extends Mock implements CalculateTrend {}
+
 void main() {
   group('TrendsPage', () {
     late MockGetAllReports mockGetAllReports;
     late MockSaveReport mockSaveReport;
     late MockGetBiomarkerTrend mockGetBiomarkerTrend;
+    late MockCalculateTrend mockCalculateTrend;
     late List<Report> testReports;
 
     /// Helper to create ProviderScope with proper overrides
@@ -35,12 +40,14 @@ void main() {
         when(() => mockGetAllReports())
             .thenAnswer((_) async => Right(testReports));
       } else {
-        when(() => mockGetAllReports()).thenAnswer((_) async => const Right([]));
+        when(() => mockGetAllReports())
+            .thenAnswer((_) async => const Right([]));
       }
 
       return ProviderScope(
         overrides: [
           getBiomarkerTrendProvider.overrideWithValue(mockGetBiomarkerTrend),
+          calculateTrendProvider.overrideWithValue(mockCalculateTrend),
           reportsProvider.overrideWith((ref) => ReportsNotifier(
                 getAllReports: mockGetAllReports,
                 saveReportProvider: () => mockSaveReport,
@@ -56,6 +63,20 @@ void main() {
       mockGetAllReports = MockGetAllReports();
       mockSaveReport = MockSaveReport();
       mockGetBiomarkerTrend = MockGetBiomarkerTrend();
+      mockCalculateTrend = MockCalculateTrend();
+
+      // Default behavior for calculateTrend
+      when(() => mockCalculateTrend(any())).thenReturn(
+        const Right(
+          TrendAnalysis(
+            direction: TrendDirection.increasing,
+            percentageChange: 10.0,
+            firstValue: 100.0,
+            lastValue: 110.0,
+            dataPointsCount: 2,
+          ),
+        ),
+      );
 
       final now = DateTime(2024, 1, 15, 10, 30);
       final threeMonthsAgo = DateTime(2023, 10, 15, 10, 30);
@@ -198,8 +219,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Should show empty state message
-      expect(
-          find.textContaining('No data available'), findsOneWidget);
+      expect(find.textContaining('No data available'), findsOneWidget);
       expect(find.byIcon(Icons.show_chart), findsOneWidget);
     });
 

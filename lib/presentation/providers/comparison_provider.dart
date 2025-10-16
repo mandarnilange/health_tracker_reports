@@ -78,9 +78,7 @@ class ComparisonNotifier extends StateNotifier<ComparisonState> {
     final reportIds = state.selectedReportIds.toList();
 
     // Don't load if no biomarker or no reports selected
-    if (biomarkerName == null ||
-        biomarkerName.isEmpty ||
-        reportIds.isEmpty) {
+    if (biomarkerName == null || biomarkerName.isEmpty || reportIds.isEmpty) {
       return;
     }
 

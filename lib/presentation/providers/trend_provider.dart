@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
+import 'package:health_tracker_reports/domain/entities/trend_analysis.dart';
 import 'package:health_tracker_reports/domain/entities/trend_data_point.dart';
+import 'package:health_tracker_reports/domain/usecases/calculate_trend.dart';
 import 'package:health_tracker_reports/domain/usecases/get_biomarker_trend.dart';
 import 'package:health_tracker_reports/presentation/providers/report_usecase_providers.dart';
 import 'package:health_tracker_reports/presentation/providers/reports_provider.dart';
@@ -59,33 +61,42 @@ class TrendState {
   final String? selectedBiomarkerName;
   final TimeRange selectedTimeRange;
   final AsyncValue<List<TrendDataPoint>> trendData;
+  final TrendAnalysis? trendAnalysis;
 
   const TrendState({
     this.selectedBiomarkerName,
     this.selectedTimeRange = TimeRange.all,
     this.trendData = const AsyncValue.data([]),
+    this.trendAnalysis,
   });
 
   TrendState copyWith({
     String? selectedBiomarkerName,
     TimeRange? selectedTimeRange,
     AsyncValue<List<TrendDataPoint>>? trendData,
+    TrendAnalysis? trendAnalysis,
   }) {
     return TrendState(
       selectedBiomarkerName:
           selectedBiomarkerName ?? this.selectedBiomarkerName,
       selectedTimeRange: selectedTimeRange ?? this.selectedTimeRange,
       trendData: trendData ?? this.trendData,
+      trendAnalysis: trendAnalysis ?? this.trendAnalysis,
     );
   }
 }
 
 /// StateNotifier for managing trend state and orchestrating data loading.
 class TrendNotifier extends StateNotifier<TrendState> {
-  TrendNotifier(this._ref, this._getBiomarkerTrend) : super(const TrendState());
+  TrendNotifier(
+    this._ref,
+    this._getBiomarkerTrend,
+    this._calculateTrend,
+  ) : super(const TrendState());
 
   final Ref _ref;
   final GetBiomarkerTrend _getBiomarkerTrend;
+  final CalculateTrend _calculateTrend;
 
   /// Selects a biomarker to display trends for and triggers loading.
   Future<void> selectBiomarker(String? biomarkerName) async {
@@ -153,7 +164,27 @@ class TrendNotifier extends StateNotifier<TrendState> {
     state = result.fold(
       (failure) => state.copyWith(
           trendData: AsyncValue.error(failure, StackTrace.current)),
-      (dataPoints) => state.copyWith(trendData: AsyncValue.data(dataPoints)),
+      (dataPoints) {
+        // Calculate trend analysis if we have enough data points
+        TrendAnalysis? analysis;
+        if (dataPoints.length >= 2) {
+          final trendResult = _calculateTrend(dataPoints);
+          trendResult.fold(
+            (failure) {
+              // If trend calculation fails, just don't show analysis
+              analysis = null;
+            },
+            (trendAnalysis) {
+              analysis = trendAnalysis;
+            },
+          );
+        }
+
+        return state.copyWith(
+          trendData: AsyncValue.data(dataPoints),
+          trendAnalysis: analysis,
+        );
+      },
     );
   }
 }
@@ -163,6 +194,7 @@ final trendProvider = StateNotifierProvider<TrendNotifier, TrendState>((ref) {
   return TrendNotifier(
     ref,
     ref.watch(getBiomarkerTrendProvider),
+    ref.watch(calculateTrendProvider),
   );
 });
 

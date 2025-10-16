@@ -61,7 +61,8 @@ class TimeRangeSelector extends StatelessWidget {
                     color: isSelected
                         ? Theme.of(context).colorScheme.onPrimaryContainer
                         : Theme.of(context).colorScheme.onSurface,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    fontWeight:
+                        isSelected ? FontWeight.w600 : FontWeight.normal,
                   ),
                   tooltip: _getTooltip(timeRange),
                 );

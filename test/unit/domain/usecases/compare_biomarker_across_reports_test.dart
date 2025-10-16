@@ -12,7 +12,8 @@ import 'package:mocktail/mocktail.dart';
 
 class MockReportRepository extends Mock implements ReportRepository {}
 
-class MockNormalizeBiomarkerName extends Mock implements NormalizeBiomarkerName {}
+class MockNormalizeBiomarkerName extends Mock
+    implements NormalizeBiomarkerName {}
 
 void main() {
   late CompareBiomarkerAcrossReports usecase;
@@ -127,7 +128,8 @@ void main() {
           expect(comparison.comparisons[0].percentageChangeFromPrevious, null);
           expect(comparison.comparisons[1].reportId, 'r2');
           expect(comparison.comparisons[1].value, 15.2);
-          expect(comparison.comparisons[1].deltaFromPrevious, closeTo(0.7, 0.01));
+          expect(
+              comparison.comparisons[1].deltaFromPrevious, closeTo(0.7, 0.01));
           expect(comparison.comparisons[1].percentageChangeFromPrevious,
               closeTo(4.83, 0.01));
         },
@@ -161,8 +163,8 @@ void main() {
           expect(comparison.comparisons.length, 3);
           expect(comparison.comparisons[2].reportId, 'r3');
           expect(comparison.comparisons[2].value, 14.8);
-          expect(comparison.comparisons[2].deltaFromPrevious,
-              closeTo(-0.4, 0.01));
+          expect(
+              comparison.comparisons[2].deltaFromPrevious, closeTo(-0.4, 0.01));
           expect(comparison.comparisons[2].percentageChangeFromPrevious,
               closeTo(-2.63, 0.01));
         },
@@ -195,7 +197,8 @@ void main() {
           expect(comparison.comparisons[2].reportDate, date3);
           // Deltas should be calculated in sorted order
           expect(comparison.comparisons[0].deltaFromPrevious, null);
-          expect(comparison.comparisons[1].deltaFromPrevious, closeTo(0.7, 0.01));
+          expect(
+              comparison.comparisons[1].deltaFromPrevious, closeTo(0.7, 0.01));
           expect(
               comparison.comparisons[2].deltaFromPrevious, closeTo(-0.4, 0.01));
         },
@@ -231,8 +234,8 @@ void main() {
           expect(comparison.comparisons[0].reportId, 'r1');
           expect(comparison.comparisons[1].reportId, 'r3');
           // Delta should be from r1 to r3, not r2 to r3
-          expect(comparison.comparisons[1].deltaFromPrevious,
-              closeTo(0.3, 0.01));
+          expect(
+              comparison.comparisons[1].deltaFromPrevious, closeTo(0.3, 0.01));
         },
       );
     });
@@ -290,7 +293,8 @@ void main() {
           expect(comparison.comparisons[0].percentageChangeFromPrevious, null);
 
           // Second report: 15.2 - 14.5 = 0.7
-          expect(comparison.comparisons[1].deltaFromPrevious, closeTo(0.7, 0.01));
+          expect(
+              comparison.comparisons[1].deltaFromPrevious, closeTo(0.7, 0.01));
           // (0.7 / 14.5) * 100 = 4.83%
           expect(comparison.comparisons[1].percentageChangeFromPrevious,
               closeTo(4.83, 0.01));
@@ -470,8 +474,7 @@ void main() {
       );
     });
 
-    test('should determine insufficient trend for single data point',
-        () async {
+    test('should determine insufficient trend for single data point', () async {
       // Arrange
       const biomarkerName = 'Hemoglobin';
       final reportIds = ['r1'];

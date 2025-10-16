@@ -3,7 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/domain/entities/biomarker.dart';
 import 'package:health_tracker_reports/domain/entities/reference_range.dart';
+import 'package:health_tracker_reports/domain/entities/trend_analysis.dart';
 import 'package:health_tracker_reports/domain/entities/trend_data_point.dart';
+import 'package:health_tracker_reports/domain/usecases/calculate_trend.dart';
 import 'package:health_tracker_reports/domain/usecases/get_biomarker_trend.dart';
 import 'package:health_tracker_reports/presentation/providers/trend_provider.dart';
 import 'package:health_tracker_reports/presentation/providers/report_usecase_providers.dart';
@@ -12,9 +14,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MockGetBiomarkerTrend extends Mock implements GetBiomarkerTrend {}
 
+class MockCalculateTrend extends Mock implements CalculateTrend {}
+
 void main() {
   late ProviderContainer container;
   late MockGetBiomarkerTrend mockGetBiomarkerTrend;
+  late MockCalculateTrend mockCalculateTrend;
   final fixedNow = DateTime(2024, 6, 15);
 
   final hemoglobinPoint = TrendDataPoint(
@@ -26,11 +31,25 @@ void main() {
     status: BiomarkerStatus.normal,
   );
 
+  final trendAnalysis = const TrendAnalysis(
+    direction: TrendDirection.increasing,
+    percentageChange: 15.5,
+    firstValue: 100.0,
+    lastValue: 115.5,
+    dataPointsCount: 2,
+  );
+
   setUp(() {
     mockGetBiomarkerTrend = MockGetBiomarkerTrend();
+    mockCalculateTrend = MockCalculateTrend();
+
+    // Default behavior for calculateTrend
+    when(() => mockCalculateTrend(any())).thenReturn(Right(trendAnalysis));
+
     container = ProviderContainer(
       overrides: [
         getBiomarkerTrendProvider.overrideWithValue(mockGetBiomarkerTrend),
+        calculateTrendProvider.overrideWithValue(mockCalculateTrend),
         nowProvider.overrideWithValue(fixedNow),
       ],
     );

@@ -59,7 +59,8 @@ void main() {
 
       expect(state.selectedReportIds, isEmpty);
       expect(state.selectedBiomarkerName, isNull);
-      expect(state.comparisonData, const AsyncValue<BiomarkerComparison?>.data(null));
+      expect(state.comparisonData,
+          const AsyncValue<BiomarkerComparison?>.data(null));
     });
 
     test('toggleReportSelection adds report when not selected', () {
@@ -166,8 +167,7 @@ void main() {
     });
 
     test('loadComparison sets loading state during execution', () async {
-      when(() => mockCompareUsecase('Hemoglobin', any()))
-          .thenAnswer((_) async {
+      when(() => mockCompareUsecase('Hemoglobin', any())).thenAnswer((_) async {
         // Simulate delay
         await Future.delayed(const Duration(milliseconds: 10));
         return Right(comparison);

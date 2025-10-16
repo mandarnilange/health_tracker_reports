@@ -10,7 +10,8 @@ import 'package:mocktail/mocktail.dart';
 
 class MockReportRepository extends Mock implements ReportRepository {}
 
-class MockNormalizeBiomarkerName extends Mock implements NormalizeBiomarkerName {}
+class MockNormalizeBiomarkerName extends Mock
+    implements NormalizeBiomarkerName {}
 
 void main() {
   late GetBiomarkerTrend usecase;
@@ -195,7 +196,8 @@ void main() {
       ).called(1);
     });
 
-    test('should filter by date range when both start and end dates are provided',
+    test(
+        'should filter by date range when both start and end dates are provided',
         () async {
       // Arrange
       const tBiomarkerName = 'Hemoglobin';
@@ -291,8 +293,7 @@ void main() {
             tBiomarkerName,
             startDate: null,
             endDate: null,
-          ))
-          .thenAnswer((_) async => Left(CacheFailure()));
+          )).thenAnswer((_) async => Left(CacheFailure()));
 
       // Act
       final result = await usecase(tBiomarkerName);

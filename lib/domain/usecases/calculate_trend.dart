@@ -46,7 +46,8 @@ class CalculateTrend {
     if (firstValue == 0.0) {
       return const Left(
         ValidationFailure(
-          message: 'Cannot calculate percentage change when first value is zero',
+          message:
+              'Cannot calculate percentage change when first value is zero',
         ),
       );
     }

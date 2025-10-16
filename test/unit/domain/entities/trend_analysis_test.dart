@@ -177,7 +177,8 @@ void main() {
     });
 
     group('absoluteChange getter', () {
-      test('should return absolute difference between last and first values', () {
+      test('should return absolute difference between last and first values',
+          () {
         // Arrange
         const analysis = TrendAnalysis(
           direction: TrendDirection.increasing,
@@ -263,7 +264,8 @@ void main() {
         expect(analysis.isSignificantChange, true);
       });
 
-      test('should return false when percentage change is between -5% and 5%', () {
+      test('should return false when percentage change is between -5% and 5%',
+          () {
         // Arrange
         const analysis = TrendAnalysis(
           direction: TrendDirection.stable,
