@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:health_tracker_reports/domain/services/report_scan_service.dart';
 import 'package:health_tracker_reports/data/datasources/external/report_scan_service.dart';
 
 void main() {
@@ -81,9 +82,16 @@ void main() {
           'page': 1,
           'totalPages': 2,
           'payload': {
-            'rawText': 'Hemoglobin 13.5 g/dL',
-            'biomarkers': [
-              {'name': 'Hemoglobin', 'value': '13.5', 'unit': 'g/dL'},
+            'rawText': 'Patient Name : Alice Example\nHemoglobin 13.5 g/dL',
+            'lines': [
+              {
+                'text': 'Patient Name : Alice Example',
+                'boundingBox': {'x': 0.1, 'y': 0.9, 'width': 0.8, 'height': 0.05},
+              },
+              {
+                'text': 'Hemoglobin 13.5 g/dL 12-17',
+                'boundingBox': {'x': 0.2, 'y': 0.6, 'width': 0.7, 'height': 0.05},
+              },
             ],
           },
         },
@@ -100,12 +108,12 @@ void main() {
           predicate<ReportScanEventStructured>((event) {
             expect(event.page, equals(1));
             expect(event.totalPages, equals(2));
-            expect(event.payload.rawText, 'Hemoglobin 13.5 g/dL');
-            expect(event.payload.biomarkers, hasLength(1));
-            final biomarker = event.payload.biomarkers.first;
-            expect(biomarker.name, 'Hemoglobin');
-            expect(biomarker.value, '13.5');
-            expect(biomarker.unit, 'g/dL');
+            expect(event.payload.rawText,
+                'Patient Name : Alice Example\nHemoglobin 13.5 g/dL');
+            expect(event.payload.lines, hasLength(2));
+            final firstLine = event.payload.lines.first;
+            expect(firstLine.text, 'Patient Name : Alice Example');
+            expect(firstLine.boundingBox.x, closeTo(0.1, 1e-6));
             return true;
           }),
           isA<ReportScanEventComplete>(),
