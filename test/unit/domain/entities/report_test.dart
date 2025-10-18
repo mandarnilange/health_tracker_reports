@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/domain/entities/biomarker.dart';
+import 'package:health_tracker_reports/domain/entities/health_entry.dart';
 import 'package:health_tracker_reports/domain/entities/reference_range.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 
@@ -506,6 +507,69 @@ void main() {
           tUpdatedAt,
         ],
       );
+    });
+
+    group('HealthEntry interface', () {
+      final report = Report(
+        id: tId,
+        date: tDate,
+        labName: tLabName,
+        biomarkers: tBiomarkers,
+        originalFilePath: tOriginalFilePath,
+        notes: tNotes,
+        createdAt: tCreatedAt,
+        updatedAt: tUpdatedAt,
+      );
+
+      test('should implement HealthEntry', () {
+        // Assert
+        expect(report, isA<HealthEntry>());
+      });
+
+      test('should return HealthEntryType.labReport for entryType getter', () {
+        // Assert
+        expect(report.entryType, HealthEntryType.labReport);
+      });
+
+      test('should return date field for timestamp getter', () {
+        // Assert
+        expect(report.timestamp, tDate);
+      });
+
+      test('should return "Lab Report" for displayTitle getter', () {
+        // Assert
+        expect(report.displayTitle, 'Lab Report');
+      });
+
+      test('should return correct format for displaySubtitle getter', () {
+        // Assert
+        expect(report.displaySubtitle, '$tLabName • ${tBiomarkers.length} biomarkers');
+        expect(report.displaySubtitle, 'City Lab • 4 biomarkers');
+      });
+
+      test('should return same as hasOutOfRangeBiomarkers for hasWarnings getter', () {
+        // Assert
+        expect(report.hasWarnings, report.hasOutOfRangeBiomarkers);
+        expect(report.hasWarnings, true); // tBiomarkers has 2 out of range
+      });
+
+      test('should return false for hasWarnings when all biomarkers are in range', () {
+        // Arrange
+        final normalBiomarkers = [tBiomarker1, tBiomarker3];
+        final normalReport = Report(
+          id: tId,
+          date: tDate,
+          labName: tLabName,
+          biomarkers: normalBiomarkers,
+          originalFilePath: tOriginalFilePath,
+          createdAt: tCreatedAt,
+          updatedAt: tUpdatedAt,
+        );
+
+        // Assert
+        expect(normalReport.hasWarnings, false);
+        expect(normalReport.hasOutOfRangeBiomarkers, false);
+      });
     });
   });
 }

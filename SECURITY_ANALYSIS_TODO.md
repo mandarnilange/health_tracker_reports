@@ -1,6 +1,82 @@
-- [x] Fix missing @override annotations in model files.
-- [x] Fix type mismatches in test/unit/data/models/biomarker_model_test.dart.
-- [x] Fix undefined name 'tReferenceRange' in test/unit/data/models/biomarker_model_test.dart.
-- [x] Fix invalid_implementation_override errors in test/unit/data/datasources/external/pdf_service_test.dart.
-- [x] Fix unused_local_variable warning in test/unit/data/datasources/external/llm_extraction_service_test.dart.
-- [ ] Review new and modified files for bugs, security, performance, and clarity.
+- [x] Define the audit scope.
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/entities/health_log.dart
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/entities/vital_reference_defaults.dart
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/entities/vital_measurement.dart
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/entities/report.dart
+  - [ ] Investigate data flow from `originalFilePath` on line 23.
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/entities/health_entry.dart
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/widgets/biomarker_card.dart
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/pages/report_detail/report_detail_page.dart
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/pages/upload/review_page.dart
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/core/di/injection_container.dart
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/repositories/config_repository_impl.dart
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/datasources/local/secure_config_storage.dart
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/datasources/external/gemini_llm_service.dart
+  - [ ] Investigate data flow from `apiKey` on line 25.
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/usecases/extract_report_from_file_llm.dart
+  - [ ] Investigate data flow from `filePath` on line 25.
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/datasources/local/hive_database.dart
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/entities/llm_extraction.dart
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/providers/extraction_provider.dart
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/providers/config_provider.dart
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/pages/settings/settings_page.dart
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/usecases/update_config.dart
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/repositories/llm_extraction_repository_impl.dart
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/repositories/report_repository_impl.dart
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/repositories/llm_extraction_repository.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/datasources/external/openai_llm_service.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/datasources/external/claude_llm_service.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/datasources/external/llm_provider_service.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/repositories/report_repository.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/datasources/local/config_local_datasource.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/models/app_config_model.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/datasources/external/image_processing_service.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/entities/app_config.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/core/error/failures.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/app.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/core/constants/model_config.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/core/error/exceptions.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/datasources/local/report_local_datasource.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/models/biomarker_model.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/models/reference_range_model.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/models/report_model.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/entities/biomarker_comparison.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/entities/biomarker.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/entities/download_progress.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/entities/extracted_entity.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/entities/reference_range.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/entities/trend_analysis.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/entities/trend_data_point.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/repositories/config_repository.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/usecases/calculate_trend.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/usecases/compare_biomarker_across_reports.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/usecases/delete_report.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/usecases/get_all_reports.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/usecases/get_biomarker_trend.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/usecases/normalize_biomarker_name.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/usecases/save_report.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/usecases/search_biomarkers.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/main.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/pages/error/error_page.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/pages/home/reports_list_page.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/pages/trends/comparison_view.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/pages/trends/trends_page.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/pages/trends/widgets/biomarker_selector.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/pages/trends/widgets/comparison_table.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/pages/trends/widgets/time_range_selector.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/pages/trends/widgets/trend_chart.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/pages/upload/upload_page.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/providers/comparison_provider.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/providers/file_picker_provider.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/providers/filter_provider.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/providers/report_usecase_providers.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/providers/reports_provider.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/providers/search_provider.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/providers/trend_provider.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/router/app_router.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/router/route_names.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/screens/home/home_screen.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/theme/app_colors.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/theme/app_theme.dart
+- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/presentation/widgets/trend_indicator.dart
+- [ ] Conduct the final review of all findings as per your **Minimizing False Positives** operating principle and generate the final report.

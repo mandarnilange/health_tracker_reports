@@ -1077,34 +1077,36 @@ final vitalStatisticsProvider = FutureProvider.family<VitalStatistics, VitalType
 - [ ] CODE: HealthLog entity
 - [ ] TEST: VitalMeasurement entity tests
 - [ ] CODE: VitalMeasurement entity
-- [ ] TEST: VitalType enum tests
-- [ ] CODE: VitalType enum + extensions
-- [ ] CODE: VitalReferenceDefaults utility
-- [ ] CODE: Update Report to implement HealthEntry
+- [x] TEST: VitalType enum tests
+- [x] CODE: VitalType enum + extensions
+- [x] CODE: VitalReferenceDefaults utility
+- [x] CODE: Update Report to implement HealthEntry
 - [ ] COMMIT: Domain entities complete
 
 **Day 3: Repository Interfaces**
-- [ ] CODE: HealthLogRepository interface
-- [ ] CODE: TimelineRepository interface
+- [x] CODE: HealthLogRepository interface
+- [x] CODE: TimelineRepository interface
 - [ ] COMMIT: Repository interfaces
 
 **Day 4-5: Use Cases**
-- [ ] TEST: CreateHealthLog tests
-- [ ] CODE: CreateHealthLog
-- [ ] TEST: GetAllHealthLogs tests
-- [ ] CODE: GetAllHealthLogs
-- [ ] TEST: GetHealthLogById tests
-- [ ] CODE: GetHealthLogById
-- [ ] TEST: UpdateHealthLog tests
-- [ ] CODE: UpdateHealthLog
-- [ ] TEST: DeleteHealthLog tests
-- [ ] CODE: DeleteHealthLog
-- [ ] TEST: GetVitalTrend tests
-- [ ] CODE: GetVitalTrend
-- [ ] TEST: CalculateVitalStatistics tests
-- [ ] CODE: CalculateVitalStatistics
-- [ ] TEST: GetUnifiedTimeline tests
-- [ ] CODE: GetUnifiedTimeline
+- [x] TEST: ValidateVitalMeasurement tests
+- [x] CODE: ValidateVitalMeasurement
+- [x] TEST: CreateHealthLog tests
+- [x] CODE: CreateHealthLog
+- [x] TEST: GetAllHealthLogs tests
+- [x] CODE: GetAllHealthLogs
+- [x] TEST: GetHealthLogById tests
+- [x] CODE: GetHealthLogById
+- [x] TEST: UpdateHealthLog tests
+- [x] CODE: UpdateHealthLog
+- [x] TEST: DeleteHealthLog tests
+- [x] CODE: DeleteHealthLog
+- [x] TEST: GetVitalTrend tests
+- [x] CODE: GetVitalTrend
+- [x] TEST: CalculateVitalStatistics tests
+- [x] CODE: CalculateVitalStatistics
+- [x] TEST: GetUnifiedTimeline tests
+- [x] CODE: GetUnifiedTimeline
 - [ ] VERIFY: All tests pass, 90%+ coverage
 - [ ] COMMIT: Use cases complete
 

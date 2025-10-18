@@ -1,11 +1,12 @@
 import 'package:equatable/equatable.dart';
 import 'biomarker.dart';
+import 'health_entry.dart';
 
 /// Represents a complete blood test report containing multiple biomarkers.
 ///
 /// A report aggregates all biomarkers measured during a single lab visit,
 /// along with metadata about when and where the test was performed.
-class Report extends Equatable {
+class Report extends Equatable implements HealthEntry {
   /// Unique identifier for this report
   final String id;
 
@@ -66,6 +67,23 @@ class Report extends Equatable {
   int get totalBiomarkerCount {
     return biomarkers.length;
   }
+
+  // HealthEntry interface implementation
+
+  @override
+  HealthEntryType get entryType => HealthEntryType.labReport;
+
+  @override
+  DateTime get timestamp => date;
+
+  @override
+  String get displayTitle => 'Lab Report';
+
+  @override
+  String get displaySubtitle => '$labName • ${biomarkers.length} biomarkers';
+
+  @override
+  bool get hasWarnings => hasOutOfRangeBiomarkers;
 
   /// Creates a copy of this report with the given fields replaced with new values.
   Report copyWith({
