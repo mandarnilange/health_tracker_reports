@@ -8,7 +8,7 @@ This document reflects the **implemented** architecture, dependencies, and open 
 
 ## Product Vision
 
-A privacy-first Flutter app that lets people capture or upload their lab reports, extract biomarker values with high accuracy using cloud LLMs, review the data, track trends, and prepare shareable summaries.
+A privacy-first Flutter app that lets people capture or upload their lab reports, extract biomarker values with high accuracy using cloud LLMs, log daily vital signs, view unified health timeline, track trends across both lab results and vitals, and prepare shareable summaries.
 
 ---
 
@@ -24,10 +24,11 @@ A privacy-first Flutter app that lets people capture or upload their lab reports
   - Unit + widget test coverage for critical flows.
 
 - **Planned / Not Implemented**
-  - Doctor PDF generation, CSV export, Google Drive sync.
+  - **Phase 6**: Daily health tracking (vitals logging, unified timeline view).
+  - **Phase 5**: Doctor PDF generation, CSV export, Google Drive sync.
+  - **Phase 4 Hardening**: Image file loading in `ImageProcessingService._readImageBytes`.
+  - **Phase 4 Hardening**: Provider parity tests (OpenAI/Gemini services).
   - Local notifications, reminders, onboarding refinements.
-  - Secure storage of API keys (currently Hive, see Risks).
-  - Image file loading in `ImageProcessingService._readImageBytes`.
 
 ---
 
@@ -82,9 +83,9 @@ lib/
 │   ├── error/                   // Failures & Exceptions
 │   └── constants/model_config.dart (legacy ML config, unused)
 ├── domain/
-│   ├── entities/                // Report, Biomarker, AppConfig, LlmExtraction, Trend*
-│   ├── repositories/            // ReportRepository, ConfigRepository, LlmExtractionRepository
-│   └── usecases/                // ExtractReportFromFileLlm, SaveReport, GetAllReports, etc.
+│   ├── entities/                // Report, Biomarker, HealthLog, VitalMeasurement, AppConfig, LlmExtraction, Trend*
+│   ├── repositories/            // ReportRepository, HealthLogRepository, TimelineRepository, ConfigRepository, LlmExtractionRepository
+│   └── usecases/                // ExtractReportFromFileLlm, CreateHealthLog, GetUnifiedTimeline, SaveReport, etc.
 ├── data/
 │   ├── models/                  // Hive adapters for entities
 │   ├── datasources/
@@ -132,21 +133,24 @@ lib/
 ## Key Modules
 
 - **Domain**
-  - `Report`, `Biomarker`, `ReferenceRange`, `TrendDataPoint`, `AppConfig`, `LlmExtractionResult`.
-  - Use cases: `ExtractReportFromFileLlm`, `SaveReport`, `GetAllReports`, `DeleteReport`,
-    `GetBiomarkerTrend`, `CalculateTrend`, `CompareBiomarkerAcrossReports`,
-    `NormalizeBiomarkerName`, `SearchBiomarkers`, `UpdateConfig`.
+  - Entities: `Report`, `Biomarker`, `HealthLog`, `VitalMeasurement`, `ReferenceRange`, `TrendDataPoint`, `AppConfig`, `LlmExtractionResult`.
+  - Repositories: `ReportRepository`, `HealthLogRepository`, `TimelineRepository`, `ConfigRepository`, `LlmExtractionRepository`.
+  - Use cases: `ExtractReportFromFileLlm`, `CreateHealthLog`, `GetUnifiedTimeline`, `GetVitalTrend`,
+    `SaveReport`, `GetAllReports`, `DeleteReport`, `GetBiomarkerTrend`, `CalculateTrend`,
+    `CompareBiomarkerAcrossReports`, `NormalizeBiomarkerName`, `SearchBiomarkers`, `UpdateConfig`.
 
 - **Data**
-  - Local: `HiveDatabase`, `ReportLocalDataSource`, `ConfigLocalDataSource`.
+  - Local: `HiveDatabase`, `ReportLocalDataSource`, `HealthLogLocalDataSource`, `ConfigLocalDataSource`.
   - External: `ImageProcessingService`, `Claude/OpenAi/GeminiLlmService`.
-  - Repositories: `ReportRepositoryImpl`, `ConfigRepositoryImpl`, `LlmExtractionRepositoryImpl`.
+  - Repositories: `ReportRepositoryImpl`, `HealthLogRepositoryImpl`, `TimelineRepositoryImpl`,
+    `ConfigRepositoryImpl`, `LlmExtractionRepositoryImpl`.
 
 - **Presentation**
-  - Providers: `reports_provider.dart`, `extraction_provider.dart`, `config_provider.dart`,
-    `trend_provider.dart`, etc.
-  - Pages: Upload, Review, Trends, Settings (API key management), Report detail, Reminders (stub),
-    Export (placeholder), Onboarding (basic).
+  - Providers: `reports_provider.dart`, `health_log_provider.dart`, `timeline_provider.dart`,
+    `extraction_provider.dart`, `config_provider.dart`, `trend_provider.dart`, `vital_trend_provider.dart`.
+  - Pages: Upload, Review, Trends, Settings (API key management), Report detail, Health log entry (bottom sheet),
+    Health log detail, Reminders (stub), Export (placeholder), Onboarding (basic).
+  - Widgets: `HealthTimeline`, `HealthLogCard`, `BiomarkerCard`, `VitalInputField`, `VitalTrendChart`.
 
 ---
 
@@ -199,11 +203,19 @@ The pipeline currently lacks integration tests for OpenAI/Gemini parsing and rea
 
 | Phase | Focus | Status | Notes |
 |-------|-------|--------|-------|
-| Phase 1 – Upload & Extraction | LLM-based upload flow, Hive persistence, settings | ✅ Core flows implemented; image IO pending |
+| Phase 1 – Upload & Extraction | LLM-based upload flow, Hive persistence, settings | ✅ Core flows implemented |
 | Phase 2 – Viewing & Trends | Reports list, trends, search/filter | ✅ Implemented with Riverpod and charts |
-| Phase 3 – Enhancements | Export, reminders, secure storage | ⏳ Partially done (exports/reminders stubbed, security pending) |
+| Phase 3 – Enhancements | Reminders, onboarding | ⏳ Partially done (reminders stubbed) |
+| Phase 4 – LLM Extraction | Dynamic normalization, UI polish, secure storage | ✅ Complete (hardening tasks pending) |
+| **Phase 6 – Daily Health Tracking** | **Vitals logging, unified timeline, vital trends** | ⏸️ **Ready to start** |
+| Phase 5 – Export & Sharing | Doctor PDF, CSV export, Drive sync, sharing | ❌ Not started |
 
-Future roadmap items (PDF export, Drive sync, analytics) remain aspirational until scoped.
+**Phase 4 Hardening (Pending)**:
+- Image file loading (`_readImageBytes`)
+- Provider coverage tests (OpenAI/Gemini)
+- Regression fixtures (multi-page PDF + image tests)
+
+**Next Priority**: Phase 6 – Daily Health Tracking (spec file created: `spec/phase-6-daily-health-tracking.md`)
 
 ---
 

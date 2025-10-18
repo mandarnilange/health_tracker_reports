@@ -210,6 +210,125 @@ class Biomarker extends Equatable {
 enum BiomarkerStatus { low, normal, high }
 ```
 
+**Health Log Entity (Phase 6):**
+
+```dart
+// domain/entities/health_log.dart
+import 'package:equatable/equatable.dart';
+
+class HealthLog extends Equatable implements HealthEntry {
+  final String id;
+  final DateTime timestamp;
+  final List<VitalMeasurement> vitals;
+  final String? notes;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  const HealthLog({
+    required this.id,
+    required this.timestamp,
+    required this.vitals,
+    this.notes,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  @override
+  HealthEntryType get entryType => HealthEntryType.healthLog;
+
+  @override
+  String get displayTitle => 'Health Log';
+
+  @override
+  bool get hasWarnings {
+    return vitals.any((v) => v.status != VitalStatus.normal);
+  }
+
+  HealthLog copyWith({
+    String? id,
+    DateTime? timestamp,
+    List<VitalMeasurement>? vitals,
+    String? notes,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return HealthLog(
+      id: id ?? this.id,
+      timestamp: timestamp ?? this.timestamp,
+      vitals: vitals ?? this.vitals,
+      notes: notes ?? this.notes,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  List<Object?> get props => [id, timestamp, vitals, notes, createdAt, updatedAt];
+}
+
+// Unified timeline interface
+abstract class HealthEntry {
+  String get id;
+  DateTime get timestamp;
+  HealthEntryType get entryType;
+  String get displayTitle;
+  bool get hasWarnings;
+}
+
+enum HealthEntryType {
+  labReport,
+  healthLog,
+}
+```
+
+**Vital Measurement Entity:**
+
+```dart
+// domain/entities/vital_measurement.dart
+class VitalMeasurement extends Equatable {
+  final String id;
+  final VitalType type;
+  final double value;
+  final String unit;
+  final VitalStatus status;
+  final ReferenceRange? referenceRange;
+
+  const VitalMeasurement({
+    required this.id,
+    required this.type,
+    required this.value,
+    required this.unit,
+    required this.status,
+    this.referenceRange,
+  });
+
+  bool get isOutOfRange => status != VitalStatus.normal;
+
+  @override
+  List<Object?> get props => [id, type, value, unit, status, referenceRange];
+}
+
+enum VitalType {
+  bloodPressureSystolic,
+  bloodPressureDiastolic,
+  oxygenSaturation,      // SpO2
+  heartRate,
+  bodyTemperature,
+  weight,
+  bloodGlucose,
+  sleepHours,
+  medicationAdherence,
+  respiratoryRate,
+  energyLevel,           // 1-10 scale
+}
+
+enum VitalStatus {
+  normal,    // Within reference range
+  warning,   // Slightly outside range
+  critical,  // Significantly outside range
+}
+```
+
 ### 3. Repository Pattern (Domain + Data)
 
 **Domain Layer (Interface):**

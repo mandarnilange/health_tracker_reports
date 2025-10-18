@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Planned - Phase 6: Daily Health Tracking (2025-10-18)
+
+**Goal:** Enable users to log daily vital signs alongside lab reports in a unified timeline view.
+
+**Features:**
+- **Unified Timeline View**: Visual timeline with dots and connecting lines showing both lab reports and health logs chronologically
+- **Bottom Sheet Entry**: Modal bottom sheet (85% screen) for quick vital logging
+- **Default Vitals**: Blood Pressure (Systolic/Diastolic), SpO2, Heart Rate always visible
+- **Additional Vitals**: Temperature, Weight, Glucose, Sleep Hours, Medication, Respiratory Rate, Energy Level (via dropdown)
+- **Smart Reference Ranges**: Extract from medical reports for biomarkers, use medical defaults for vitals
+- **Vital Trends**: Line charts with reference range bands, dual-line for BP, statistics (avg, min, max, trend)
+- **Health Log Management**: Create, read, update, delete health logs with notes
+- **Filter Chips**: "All" | "Lab Reports" | "Health Logs"
+
+**Architecture:**
+- **Domain Layer**: `HealthLog`, `VitalMeasurement`, `VitalType` entities; `HealthLogRepository`, `TimelineRepository` interfaces
+- **Data Layer**: Hive models with TypeAdapters (typeId: 11, 12); `HealthLogLocalDataSource`
+- **Presentation Layer**: `HealthTimeline` widget, `HealthLogEntrySheet` (bottom sheet), `HealthLogCard`, `VitalTrendChart`
+- **Use Cases**: `CreateHealthLog`, `GetUnifiedTimeline`, `GetVitalTrend`, `CalculateVitalStatistics`
+
+**Specification:** `spec/phase-6-daily-health-tracking.md`
+
+**Status:** ⏸️ Ready to start (spec complete, awaiting implementation)
+
+---
+
 ### Added - Secure LLM Credential Storage (2025-10-21)
 
 - Introduced `SecureConfigStorage` backed by `flutter_secure_storage` to persist API keys outside Hive (`lib/data/datasources/local/secure_config_storage.dart`).
