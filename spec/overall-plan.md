@@ -1,6 +1,6 @@
 # Health Tracker Reports – Current Implementation Plan
 
-Last reviewed: 2025-10-21
+Last reviewed: 2025-10-18
 
 This document reflects the **implemented** architecture, dependencies, and open follow‑ups for the Health Tracker Reports application. Earlier drafts that referenced ML Kit pipelines, embedding matchers, or large local NER models have been archived.
 
@@ -24,7 +24,7 @@ A privacy-first Flutter app that lets people capture or upload their lab reports
   - Unit + widget test coverage for critical flows.
 
 - **Planned / Not Implemented**
-  - **Phase 6**: Daily health tracking (vitals logging, unified timeline view).
+- **Phase 6**: Daily health tracking (vitals logging, unified timeline view). _Domain entities & use cases in progress._
   - **Phase 5**: Doctor PDF generation, CSV export, Google Drive sync.
   - **Phase 4 Hardening**: Image file loading in `ImageProcessingService._readImageBytes`.
   - **Phase 4 Hardening**: Provider parity tests (OpenAI/Gemini services).
@@ -207,7 +207,7 @@ The pipeline currently lacks integration tests for OpenAI/Gemini parsing and rea
 | Phase 2 – Viewing & Trends | Reports list, trends, search/filter | ✅ Implemented with Riverpod and charts |
 | Phase 3 – Enhancements | Reminders, onboarding | ⏳ Partially done (reminders stubbed) |
 | Phase 4 – LLM Extraction | Dynamic normalization, UI polish, secure storage | ✅ Complete (hardening tasks pending) |
-| **Phase 6 – Daily Health Tracking** | **Vitals logging, unified timeline, vital trends** | ⏸️ **Ready to start** |
+| **Phase 6 – Daily Health Tracking** | **Vitals logging, unified timeline, vital trends** | 🚧 **In progress (domain foundations complete)** |
 | Phase 5 – Export & Sharing | Doctor PDF, CSV export, Drive sync, sharing | ❌ Not started |
 
 **Phase 4 Hardening (Pending)**:
