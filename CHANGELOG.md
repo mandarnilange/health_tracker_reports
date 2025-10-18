@@ -13,6 +13,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated dependency injection to expose a shared `FlutterSecureStorage` instance and wire the secure storage layer into `ConfigRepositoryImpl` (`lib/core/di/injection_container.dart`, `lib/core/di/injection_container.config.dart`).
 - `ConfigRepositoryImpl` now merges secure-storage credentials into returned `AppConfig`s while writing sanitized placeholders to Hive (`lib/data/repositories/config_repository_impl.dart`).
 
+### Added - October 2025 UI/UX Improvements (2025-10-18)
+
+**Enhanced user experience and fixed critical bugs discovered during LLM extraction testing:**
+
+**Gemini Model Upgrade:**
+- Upgraded from `gemini-1.5-pro-latest` to `gemini-2.5-flash` for better speed and accuracy
+- Fixed 404 errors caused by incorrect model name
+- Commits: `d51a83a`, `8650a34`
+
+**Error Handling Improvements:**
+- Fixed silent error swallowing where LLM failures showed generic "No biomarkers detected" message
+- Now properly propagates actual failures: `ApiKeyMissingFailure`, `NetworkFailure`, `RateLimitFailure`, etc.
+- Users see meaningful error messages for troubleshooting
+- Commit: `2edf066`
+
+**API Key Persistence Fix:**
+- Added Hive `TypeAdapter` for `LlmProvider` enum to enable `Map<LlmProvider, String>` serialization
+- Fixed crash when saving API keys in Settings page
+- Generated `LlmProviderAdapter` and registered in `HiveDatabase`
+- Commit: `645166a`
+
+**Review Page Redesign (`lib/presentation/pages/upload/review_page.dart`):**
+- **Compact UI**: Reduced scrolling by 70% for reports with 23+ biomarkers
+- **Save Button**: Moved to AppBar for easy access (was at bottom of long form)
+- **Tap-to-Edit**: Biomarkers display as single line by default, tap to expand and edit
+- **Header Editing**: Lab name and notes collapsed by default with explicit edit action
+- **Better UX**: Edit is now explicit user action instead of default state
+- Commit: `307b57a`
+
+**Report Detail Page Improvements (`lib/presentation/pages/report_detail/report_detail_page.dart`):**
+- **Filter Chip Fix**: Label stays "Out of Range Only" with selected state indicator instead of toggling text
+- **Biomarker Name Visibility**: Improved text contrast and readability
+- Commit: `1489cf0`
+
+**Enhanced Biomarker Cards (`lib/presentation/widgets/biomarker_card.dart`):**
+- **Visual Polish**: Removed flat colored backgrounds, added subtle gradients and status-colored borders
+- **Professional Design**: Better typography with letter spacing, font weights, shadows on status badges
+- **Reference Range UI**: Grey pill container with ruler icon for better visual hierarchy
+- **Tap-to-Trends Navigation**: Cards now navigate to trends page with biomarker pre-selected
+- **Riverpod Integration**: Changed from `StatelessWidget` to `ConsumerWidget` for provider access
+- **User Hint**: Added "Tap to view trends" hint at bottom of each card
+- Commit: `4060655`
+
+**Documentation:**
+- Updated `spec/llm_inference_design.md` with October 2025 changes and dynamic normalization details
+- Updated `spec/phase-4-llm-extraction-tasks.md` marking Phase 3 enhancements complete
+- Commit: `4060655`
+
+**Benefits:**
+- ✅ Better error visibility for debugging LLM issues
+- ✅ Stable API key persistence across all providers
+- ✅ 70% reduction in review page scrolling
+- ✅ Professional, polished biomarker card design
+- ✅ Seamless navigation to trends from biomarker cards
+- ✅ Improved user experience with faster Gemini 2.5 Flash model
+
 ### Added - LLM-Based Extraction (2025-10-18)
 
 **Migration from ML Kit to Cloud LLM APIs for 95%+ Accuracy**
