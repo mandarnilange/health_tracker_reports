@@ -9,7 +9,7 @@ import 'package:health_tracker_reports/domain/entities/biomarker.dart';
 import 'package:health_tracker_reports/domain/entities/reference_range.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/domain/entities/trend_data_point.dart';
-import 'package:health_tracker_reports/domain/usecases/extract_report_from_file.dart';
+import 'package:health_tracker_reports/domain/usecases/extract_report_from_file_llm.dart';
 import 'package:health_tracker_reports/domain/usecases/get_all_reports.dart';
 import 'package:health_tracker_reports/domain/usecases/save_report.dart';
 import 'package:health_tracker_reports/presentation/pages/upload/review_page.dart';
@@ -22,7 +22,7 @@ import 'package:health_tracker_reports/presentation/providers/report_usecase_pro
 import 'package:health_tracker_reports/presentation/providers/reports_provider.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockExtractReportFromFile extends Mock implements ExtractReportFromFile {}
+class MockExtractReportFromFileLlm extends Mock implements ExtractReportFromFileLlm {}
 
 class MockReportFilePicker extends Mock implements ReportFilePicker {}
 
@@ -56,6 +56,10 @@ class _DummyReportRepository implements ReportRepository {
           String biomarkerName,
           {DateTime? startDate,
           DateTime? endDate}) async =>
+      const Right([]);
+
+  @override
+  Future<Either<Failure, List<String>>> getDistinctBiomarkerNames() async =>
       const Right([]);
 }
 
@@ -140,12 +144,12 @@ void main() {
   });
 
   ProviderScope createWidgetUnderTest({
-    MockExtractReportFromFile? extractReportUsecase,
+    MockExtractReportFromFileLlm? extractReportUsecase,
     AsyncValue<Report?>? initialExtractionState,
     void Function(ExtractionNotifier notifier)? onNotifierReady,
     bool withRouter = false,
   }) {
-    final usecase = extractReportUsecase ?? MockExtractReportFromFile();
+    final usecase = extractReportUsecase ?? MockExtractReportFromFileLlm();
     final dummyGetAllReports = _DummyGetAllReports();
     final dummySaveReport = _DummySaveReport();
     GoRouter? router;
@@ -232,7 +236,7 @@ void main() {
     });
 
     testWidgets('invokes file picker when upload card tapped', (tester) async {
-      final mockUsecase = MockExtractReportFromFile();
+      final mockUsecase = MockExtractReportFromFileLlm();
       when(() => mockUsecase(any()))
           .thenAnswer((_) async => const Left(CacheFailure()));
 
@@ -258,7 +262,7 @@ void main() {
 
     testWidgets('navigates to ReviewPage when extraction succeeds',
         (tester) async {
-      final mockUsecase = MockExtractReportFromFile();
+      final mockUsecase = MockExtractReportFromFileLlm();
       when(() => mockUsecase(any())).thenAnswer((_) async => Right(testReport));
       when(() => mockFilePicker.pickReportPath())
           .thenAnswer((_) async => '/tmp/report.pdf');
@@ -285,7 +289,7 @@ void main() {
 
     testWidgets('does not show error when user cancels file picker',
         (tester) async {
-      final mockUsecase = MockExtractReportFromFile();
+      final mockUsecase = MockExtractReportFromFileLlm();
       when(() => mockFilePicker.pickReportPath()).thenThrow(
         PlatformException(code: 'aborted', message: 'User cancelled'),
       );

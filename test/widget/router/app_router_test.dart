@@ -9,7 +9,7 @@ import 'package:health_tracker_reports/domain/entities/reference_range.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/domain/entities/trend_data_point.dart';
 import 'package:health_tracker_reports/domain/repositories/report_repository.dart';
-import 'package:health_tracker_reports/domain/usecases/extract_report_from_file.dart';
+import 'package:health_tracker_reports/domain/usecases/extract_report_from_file_llm.dart';
 import 'package:health_tracker_reports/domain/usecases/get_all_reports.dart';
 import 'package:health_tracker_reports/domain/usecases/save_report.dart';
 import 'package:health_tracker_reports/presentation/pages/error/error_page.dart';
@@ -25,8 +25,8 @@ import 'package:health_tracker_reports/presentation/router/app_router.dart';
 import 'package:health_tracker_reports/presentation/router/route_names.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockExtractReportFromFile extends Mock
-    implements ExtractReportFromFile {}
+class _MockExtractReportFromFileLlm extends Mock
+    implements ExtractReportFromFileLlm {}
 
 class _DummyReportRepository implements ReportRepository {
   @override
@@ -54,6 +54,10 @@ class _DummyReportRepository implements ReportRepository {
           {DateTime? startDate,
           DateTime? endDate}) async =>
       Right(<TrendDataPoint>[]);
+
+  @override
+  Future<Either<Failure, List<String>>> getDistinctBiomarkerNames() async =>
+      Right(<String>[]);
 }
 
 class _DummyGetAllReports extends GetAllReports {
@@ -90,7 +94,7 @@ class _FakeReportsNotifier extends ReportsNotifier {
 }
 
 class _FakeReportFilePicker extends ReportFilePicker {
-  const _FakeReportFilePicker();
+  _FakeReportFilePicker();
 
   @override
   Future<String?> pickReportPath() async => null;
@@ -156,7 +160,7 @@ void main() {
       final router = AppRouter.createRouter();
       addTearDown(router.dispose);
 
-      final mockUsecase = _MockExtractReportFromFile();
+      final mockUsecase = _MockExtractReportFromFileLlm();
       when(() => mockUsecase(any()))
           .thenAnswer((_) async => const Left(CacheFailure()));
 
@@ -168,7 +172,7 @@ void main() {
             extractionProvider
                 .overrideWith((ref) => ExtractionNotifier(mockUsecase)),
             reportFilePickerProvider
-                .overrideWithValue(const _FakeReportFilePicker()),
+                .overrideWithValue(_FakeReportFilePicker()),
           ],
         ),
       );

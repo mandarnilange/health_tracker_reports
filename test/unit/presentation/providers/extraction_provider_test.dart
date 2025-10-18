@@ -5,14 +5,14 @@ import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/domain/entities/biomarker.dart';
 import 'package:health_tracker_reports/domain/entities/reference_range.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
-import 'package:health_tracker_reports/domain/usecases/extract_report_from_file.dart';
+import 'package:health_tracker_reports/domain/usecases/extract_report_from_file_llm.dart';
 import 'package:health_tracker_reports/presentation/providers/extraction_provider.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockExtractReportFromFile extends Mock implements ExtractReportFromFile {}
+class MockExtractReportFromFileLlm extends Mock implements ExtractReportFromFileLlm {}
 
 void main() {
-  late MockExtractReportFromFile mockExtractReportFromFile;
+  late MockExtractReportFromFileLlm mockExtractReportFromFileLlm;
   late ExtractionNotifier notifier;
 
   const filePath = '/tmp/report.pdf';
@@ -37,8 +37,8 @@ void main() {
   );
 
   setUp(() {
-    mockExtractReportFromFile = MockExtractReportFromFile();
-    notifier = ExtractionNotifier(mockExtractReportFromFile);
+    mockExtractReportFromFileLlm = MockExtractReportFromFileLlm();
+    notifier = ExtractionNotifier(mockExtractReportFromFileLlm);
   });
 
   test('initial state should be null data', () {
@@ -46,7 +46,7 @@ void main() {
   });
 
   test('extractFromFile should set loading before processing', () async {
-    when(() => mockExtractReportFromFile(filePath))
+    when(() => mockExtractReportFromFileLlm(filePath))
         .thenAnswer((_) async => Right(report));
 
     final future = notifier.extractFromFile(filePath);
@@ -57,7 +57,7 @@ void main() {
   });
 
   test('extractFromFile should emit data on success', () async {
-    when(() => mockExtractReportFromFile(filePath))
+    when(() => mockExtractReportFromFileLlm(filePath))
         .thenAnswer((_) async => Right(report));
 
     final result = await notifier.extractFromFile(filePath);
@@ -68,7 +68,7 @@ void main() {
 
   test('extractFromFile should emit error on failure', () async {
     const failure = OcrFailure(message: 'Failed');
-    when(() => mockExtractReportFromFile(filePath))
+    when(() => mockExtractReportFromFileLlm(filePath))
         .thenAnswer((_) async => const Left(failure));
 
     final result = await notifier.extractFromFile(filePath);

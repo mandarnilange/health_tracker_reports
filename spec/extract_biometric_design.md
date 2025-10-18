@@ -833,3 +833,22 @@ dependencies:
 - Settings UI for extraction modes
 
 All previous local extraction code will be removed in favor of the LLM-based approach documented above.
+
+### 2025-10-18: Dynamic Biomarker Normalization
+
+**Implementation**: Replaced hardcoded normalization logic with LLM-based dynamic normalization.
+
+**Approach**:
+- Added `getDistinctBiomarkerNames()` method to ReportRepository
+- Updated all LLM provider services to accept `existingBiomarkerNames` parameter
+- Modified prompts to include historical biomarker names from user's database
+- LLM performs context-aware normalization (e.g., "Hb" → "Hemoglobin" if that exists in history)
+- Removed dependency on hardcoded `NormalizeBiomarkerName` use case
+
+**Benefits**:
+- ✅ No maintenance: No hardcoded aliases to update
+- ✅ Learns from user data: Normalizes based on actual historical biomarkers
+- ✅ Context-aware: Handles lab-specific naming variations automatically
+- ✅ Ensures consistency: Critical for accurate trend analysis across reports
+
+**Status**: ✅ Complete (Commit 0846e6c)

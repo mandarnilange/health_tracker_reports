@@ -40,6 +40,15 @@ Completed full migration from local ML Kit OCR to cloud-based LLM vision APIs, p
 - Material 3 design with proper UX patterns
 - Settings route integrated in app_router.dart
 
+**Dynamic Biomarker Normalization (2025-10-18):**
+- Added `getDistinctBiomarkerNames()` to ReportRepository for fetching historical biomarker names
+- Updated all LLM services to accept `existingBiomarkerNames` parameter
+- Enhanced prompts with normalization guidance using historical data
+- LLM intelligently maps variations (e.g., "Hb" → "Hemoglobin") based on user's actual reports
+- Removed hardcoded `NormalizeBiomarkerName` logic - now fully dynamic
+- Updated `ExtractReportFromFileLlm` to fetch and pass existing names to LLM
+- Ensures consistent naming across reports for accurate trend analysis
+
 **Infrastructure:**
 - Removed ~1,500 lines of ML Kit code (native iOS/Android bridges)
 - Updated dependency injection: Dio HTTP client, removed ML Kit dependencies
@@ -72,6 +81,7 @@ Completed full migration from local ML Kit OCR to cloud-based LLM vision APIs, p
 - `ebe6174`: test: add tests for LLM extraction domain entities
 - `44eb1be`: feat: implement LLM-based biomarker extraction with multi-provider support
 - `acca63c`: feat: complete LLM extraction pipeline with Settings UI
+- `0846e6c`: refactor: implement dynamic biomarker normalization via LLM prompts
 
 **Benefits:**
 - ✅ Target accuracy: 95%+ (vs 88-93% with ML Kit)
