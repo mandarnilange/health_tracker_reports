@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Secure LLM Credential Storage (2025-10-21)
+
+- Introduced `SecureConfigStorage` backed by `flutter_secure_storage` to persist API keys outside Hive (`lib/data/datasources/local/secure_config_storage.dart`).
+- Updated dependency injection to expose a shared `FlutterSecureStorage` instance and wire the secure storage layer into `ConfigRepositoryImpl` (`lib/core/di/injection_container.dart`, `lib/core/di/injection_container.config.dart`).
+- `ConfigRepositoryImpl` now merges secure-storage credentials into returned `AppConfig`s while writing sanitized placeholders to Hive (`lib/data/repositories/config_repository_impl.dart`).
+
 ### Added - LLM-Based Extraction (2025-10-18)
 
 **Migration from ML Kit to Cloud LLM APIs for 95%+ Accuracy**
@@ -108,6 +114,7 @@ Completed full migration from local ML Kit OCR to cloud-based LLM vision APIs, p
 
 ### Changed
 
+- Harmonised widget/unit tests and Claude fixtures with the current LLM-first UX (review/report detail pages, router configuration, Claude service parsing).
 - Refactored trend-related providers to expose async state (`lib/presentation/providers/trend_provider.dart`) and updated TrendsPage to consume `AsyncValue<List<TrendDataPoint>>` safely (`lib/presentation/pages/trends/trends_page.dart`).
 - Hardened upload page tests by introducing deterministic provider overrides and utility pump helpers, eliminating race conditions seen during full-suite execution (`test/widget/pages/upload/upload_page_test.dart`).
 - Updated app theme configuration to respect the system preference when dark mode is not explicitly enabled (`lib/app.dart`, `test/widget/app_test.dart`).

@@ -83,21 +83,9 @@ void main() {
       expect(find.text('Test Lab'), findsOneWidget);
       expect(find.text('October 15, 2025'), findsOneWidget);
       expect(find.text('Hemoglobin'), findsOneWidget);
-      expect(
-        tester
-            .widget<TextFormField>(find.byKey(const Key('valueField-0')))
-            .controller
-            ?.text,
-        '14.5',
-      );
+      expect(find.text('14.5 g/dL'), findsOneWidget);
       expect(find.text('Glucose'), findsOneWidget);
-      expect(
-        tester
-            .widget<TextFormField>(find.byKey(const Key('valueField-1')))
-            .controller
-            ?.text,
-        '150.0',
-      );
+      expect(find.text('150.0 mg/dL'), findsOneWidget);
     });
 
     testWidgets('allows editing biomarker value and saves updated report',
@@ -111,11 +99,14 @@ void main() {
 
       await tester.pumpWidget(createWidgetUnderTest());
 
+      await tester.tap(find.text('Hemoglobin'));
+      await tester.pumpAndSettle();
+
       await tester.enterText(find.byKey(const Key('valueField-0')), '16.0');
       await tester.pump();
 
-      await tester.ensureVisible(find.text('Save Report'));
-      await tester.tap(find.text('Save Report'));
+      await tester.ensureVisible(find.text('Save'));
+      await tester.tap(find.text('Save'));
       await tester.pumpAndSettle();
 
       verify(() => mockReportsNotifier.saveReport(any())).called(1);
@@ -125,9 +116,12 @@ void main() {
         (tester) async {
       await tester.pumpWidget(createWidgetUnderTest());
 
+      await tester.tap(find.byKey(const Key('editHeaderButton')));
+      await tester.pumpAndSettle();
+
       await tester.enterText(find.byKey(const Key('labNameField')), '');
-      await tester.ensureVisible(find.text('Save Report'));
-      await tester.tap(find.text('Save Report'));
+      await tester.ensureVisible(find.text('Save'));
+      await tester.tap(find.text('Save'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -142,8 +136,8 @@ void main() {
 
       await tester.pumpWidget(createWidgetUnderTest());
 
-      await tester.ensureVisible(find.text('Save Report'));
-      await tester.tap(find.text('Save Report'));
+      await tester.ensureVisible(find.text('Save'));
+      await tester.tap(find.text('Save'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 

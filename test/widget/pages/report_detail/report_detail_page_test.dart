@@ -191,7 +191,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(FilterChip), findsOneWidget);
-      expect(find.text('Show All'), findsOneWidget);
+      expect(find.text('Out of Range Only'), findsOneWidget);
     });
   });
 }

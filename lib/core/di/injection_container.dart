@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:health_tracker_reports/data/datasources/local/hive_database.dart';
 import 'package:health_tracker_reports/data/models/app_config_model.dart';
@@ -36,4 +37,7 @@ abstract class AppModule {
 
   @lazySingleton
   Dio get dio => Dio();
+
+  @lazySingleton
+  FlutterSecureStorage get secureStorage => const FlutterSecureStorage();
 }

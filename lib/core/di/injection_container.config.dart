@@ -9,6 +9,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:dio/dio.dart' as _i361;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:health_tracker_reports/core/di/injection_container.dart'
     as _i838;
@@ -26,6 +27,8 @@ import 'package:health_tracker_reports/data/datasources/local/hive_database.dart
     as _i648;
 import 'package:health_tracker_reports/data/datasources/local/report_local_datasource.dart'
     as _i273;
+import 'package:health_tracker_reports/data/datasources/local/secure_config_storage.dart'
+    as _i848;
 import 'package:health_tracker_reports/data/models/app_config_model.dart'
     as _i386;
 import 'package:health_tracker_reports/data/models/report_model.dart' as _i936;
@@ -83,6 +86,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i979.Box<_i386.AppConfigModel>>(
         () => appModule.configBox);
     gh.lazySingleton<_i361.Dio>(() => appModule.dio);
+    gh.lazySingleton<_i558.FlutterSecureStorage>(() => appModule.secureStorage);
     gh.lazySingleton<_i46.ImageProcessingService>(
         () => _i46.ImageProcessingService());
     gh.lazySingleton<_i680.CalculateTrend>(() => _i680.CalculateTrend());
@@ -108,10 +112,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i657.GetAllReports(repository: gh<_i767.ReportRepository>()));
     gh.lazySingleton<_i248.DeleteReport>(
         () => _i248.DeleteReport(repository: gh<_i767.ReportRepository>()));
-    gh.lazySingleton<_i649.ConfigRepository>(() => _i616.ConfigRepositoryImpl(
-        localDataSource: gh<_i537.ConfigLocalDataSource>()));
-    gh.factory<_i1005.UpdateConfig>(
-        () => _i1005.UpdateConfig(gh<_i649.ConfigRepository>()));
+    gh.lazySingleton<_i848.SecureConfigStorage>(
+        () => _i848.SecureConfigStorageImpl(gh<_i558.FlutterSecureStorage>()));
     gh.lazySingleton<_i889.CompareBiomarkerAcrossReports>(
         () => _i889.CompareBiomarkerAcrossReports(
               repository: gh<_i767.ReportRepository>(),
@@ -121,6 +123,10 @@ extension GetItInjectableX on _i174.GetIt {
           repository: gh<_i767.ReportRepository>(),
           normalizeBiomarkerName: gh<_i197.NormalizeBiomarkerName>(),
         ));
+    gh.lazySingleton<_i649.ConfigRepository>(() => _i616.ConfigRepositoryImpl(
+          localDataSource: gh<_i537.ConfigLocalDataSource>(),
+          secureStorage: gh<_i848.SecureConfigStorage>(),
+        ));
     gh.lazySingleton<_i111.LlmExtractionRepository>(
         () => _i836.LlmExtractionRepositoryImpl(
               claudeService: gh<_i26.ClaudeLlmService>(),
@@ -128,6 +134,8 @@ extension GetItInjectableX on _i174.GetIt {
               geminiService: gh<_i48.GeminiLlmService>(),
               configRepository: gh<_i649.ConfigRepository>(),
             ));
+    gh.factory<_i1005.UpdateConfig>(
+        () => _i1005.UpdateConfig(gh<_i649.ConfigRepository>()));
     gh.factory<_i990.ExtractReportFromFileLlm>(
         () => _i990.ExtractReportFromFileLlm(
               llmRepository: gh<_i111.LlmExtractionRepository>(),

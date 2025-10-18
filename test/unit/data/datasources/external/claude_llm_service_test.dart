@@ -17,6 +17,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(Options());
+    registerFallbackValue(CancelToken());
   });
 
   group('ClaudeLlmService', () {
@@ -33,6 +34,7 @@ void main() {
         final responseData = {
           'content': [
             {
+              'type': 'text',
               'text': '''```json
 {
   "biomarkers": [
@@ -40,22 +42,23 @@ void main() {
       "name": "Hemoglobin",
       "value": "14.5",
       "unit": "g/dL",
-      "reference_range": "12.0-16.0",
+      "referenceRange": "12.0-16.0",
       "confidence": 0.95
     },
     {
       "name": "Glucose",
       "value": "95",
       "unit": "mg/dL",
-      "reference_range": "70-100",
+      "referenceRange": "70-100",
       "confidence": 0.92
     }
   ],
   "metadata": {
-    "patient_name": "John Doe",
-    "report_date": "2025-10-15",
-    "lab_name": "Quest Diagnostics"
-  }
+    "patientName": "John Doe",
+    "reportDate": "2025-10-15",
+    "labName": "Quest Diagnostics"
+  },
+  "confidence": 0.93
 }
 ```'''
             }
@@ -67,6 +70,7 @@ void main() {
               any(),
               options: any(named: 'options'),
               data: any(named: 'data'),
+              cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async => Response(
               data: responseData,
               statusCode: 200,
@@ -96,7 +100,7 @@ void main() {
         expect(result.metadata!.labName, 'Quest Diagnostics');
 
         expect(result.provider, LlmProvider.claude);
-        expect(result.confidence, greaterThan(0.9));
+        expect(result.confidence, closeTo(0.93, 0.001));
       });
 
       test('should extract biomarkers without metadata', () async {
@@ -104,6 +108,7 @@ void main() {
         final responseData = {
           'content': [
             {
+              'type': 'text',
               'text': '''```json
 {
   "biomarkers": [
@@ -111,7 +116,7 @@ void main() {
       "name": "Hemoglobin",
       "value": "14.5",
       "unit": "g/dL",
-      "reference_range": "12.0-16.0"
+      "referenceRange": "12.0-16.0"
     }
   ]
 }
@@ -124,6 +129,7 @@ void main() {
               any(),
               options: any(named: 'options'),
               data: any(named: 'data'),
+              cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async => Response(
               data: responseData,
               statusCode: 200,
@@ -147,6 +153,7 @@ void main() {
         final responseData = {
           'content': [
             {
+              'type': 'text',
               'text': '''{
   "biomarkers": [
     {
@@ -164,6 +171,7 @@ void main() {
               any(),
               options: any(named: 'options'),
               data: any(named: 'data'),
+              cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async => Response(
               data: responseData,
               statusCode: 200,
@@ -185,7 +193,7 @@ void main() {
         // Arrange
         final responseData = {
           'content': [
-            {'text': '{"biomarkers": []}'}
+            {'type': 'text', 'text': '{"biomarkers": []}'}
           ],
         };
 
@@ -193,6 +201,7 @@ void main() {
               any(),
               options: any(named: 'options'),
               data: any(named: 'data'),
+              cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async => Response(
               data: responseData,
               statusCode: 200,
@@ -223,6 +232,7 @@ void main() {
                       data['max_tokens'] == 4096;
                 }),
               ),
+              cancelToken: any(named: 'cancelToken'),
             )).called(1);
       });
 
@@ -232,6 +242,7 @@ void main() {
               any(),
               options: any(named: 'options'),
               data: any(named: 'data'),
+              cancelToken: any(named: 'cancelToken'),
             )).thenThrow(DioException(
               requestOptions: RequestOptions(path: ''),
               type: DioExceptionType.connectionTimeout,
@@ -251,7 +262,7 @@ void main() {
         // Arrange
         final responseData = {
           'content': [
-            {'text': 'This is not valid JSON'}
+            {'type': 'text', 'text': 'This is not valid JSON'}
           ],
         };
 
@@ -259,6 +270,7 @@ void main() {
               any(),
               options: any(named: 'options'),
               data: any(named: 'data'),
+              cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async => Response(
               data: responseData,
               statusCode: 200,
@@ -275,11 +287,11 @@ void main() {
         );
       });
 
-      test('should throw exception when biomarkers array is missing', () async {
+      test('should handle response when biomarkers array is missing', () async {
         // Arrange
         final responseData = {
           'content': [
-            {'text': '{"metadata": {}}'}
+            {'type': 'text', 'text': '{"metadata": {}}'}
           ],
         };
 
@@ -287,20 +299,21 @@ void main() {
               any(),
               options: any(named: 'options'),
               data: any(named: 'data'),
+              cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async => Response(
               data: responseData,
               statusCode: 200,
               requestOptions: RequestOptions(path: ''),
             ));
 
-        // Act & Assert
-        expect(
-          () => service.extractFromImage(
-            base64Image: testBase64Image,
-            apiKey: testApiKey,
-          ),
-          throwsA(isA<Exception>()),
+        final result = await service.extractFromImage(
+          base64Image: testBase64Image,
+          apiKey: testApiKey,
         );
+
+        expect(result.biomarkers, isEmpty);
+        expect(result.metadata, isNotNull);
+        expect(result.metadata!.patientName, isNull);
       });
 
       test('should handle API error response', () async {
@@ -309,6 +322,7 @@ void main() {
               any(),
               options: any(named: 'options'),
               data: any(named: 'data'),
+              cancelToken: any(named: 'cancelToken'),
             )).thenThrow(DioException(
               requestOptions: RequestOptions(path: ''),
               response: Response(
@@ -335,6 +349,7 @@ void main() {
               any(),
               options: any(named: 'options'),
               data: any(named: 'data'),
+              cancelToken: any(named: 'cancelToken'),
             )).thenThrow(DioException(
               requestOptions: RequestOptions(path: ''),
               response: Response(
@@ -360,6 +375,7 @@ void main() {
         final responseData = {
           'content': [
             {
+              'type': 'text',
               'text': '''```json
 {
   "biomarkers": [
@@ -378,6 +394,7 @@ void main() {
               any(),
               options: any(named: 'options'),
               data: any(named: 'data'),
+              cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async => Response(
               data: responseData,
               statusCode: 200,
@@ -399,11 +416,12 @@ void main() {
         expect(result.biomarkers[0].confidence, isNull);
       });
 
-      test('should calculate average confidence correctly', () async {
+      test('should use top-level confidence when present', () async {
         // Arrange
         final responseData = {
           'content': [
             {
+              'type': 'text',
               'text': '''```json
 {
   "biomarkers": [
@@ -422,7 +440,8 @@ void main() {
       "value": "3",
       "confidence": 1.0
     }
-  ]
+  ],
+  "confidence": 0.9
 }
 ```'''
             }
@@ -433,6 +452,7 @@ void main() {
               any(),
               options: any(named: 'options'),
               data: any(named: 'data'),
+              cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async => Response(
               data: responseData,
               statusCode: 200,
@@ -446,14 +466,15 @@ void main() {
         );
 
         // Assert
-        expect(result.confidence, closeTo(0.9, 0.01)); // (0.8 + 0.9 + 1.0) / 3 = 0.9
+        expect(result.confidence, closeTo(0.9, 0.001));
       });
 
-      test('should default confidence to 0.5 when no biomarker confidences', () async {
+      test('should default confidence to 0.8 when no biomarker confidences', () async {
         // Arrange
         final responseData = {
           'content': [
             {
+              'type': 'text',
               'text': '''```json
 {
   "biomarkers": [
@@ -472,6 +493,7 @@ void main() {
               any(),
               options: any(named: 'options'),
               data: any(named: 'data'),
+              cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async => Response(
               data: responseData,
               statusCode: 200,
@@ -485,7 +507,7 @@ void main() {
         );
 
         // Assert
-        expect(result.confidence, 0.5);
+        expect(result.confidence, 0.8);
       });
     });
 

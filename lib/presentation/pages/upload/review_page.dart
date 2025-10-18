@@ -167,6 +167,7 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
                             ),
                           ),
                           IconButton(
+                            key: const Key('editHeaderButton'),
                             icon: Icon(_isEditingHeader ? Icons.check : Icons.edit),
                             onPressed: () {
                               setState(() {

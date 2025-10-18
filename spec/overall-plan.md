@@ -1,788 +1,228 @@
-# Health Tracker Reports - Overall Implementation Plan
+# Health Tracker Reports – Current Implementation Plan
 
-## Project Vision
-A privacy-first Flutter application for tracking blood test reports with automated OCR/LLM extraction, trend analysis, and professional report generation for healthcare providers.
+Last reviewed: 2025-10-21
 
----
-
-## Core Requirements
-
-### Functional Requirements
-- Upload blood reports (PDF/images) with automated data extraction
-- View all reports with summary (x/y parameters out of range)
-- Filter biomarkers (all vs. out-of-range only)
-- Visualize biomarker trends over time
-- Add notes and reminders to reports
-- Generate doctor-friendly PDF summaries
-- Export data to CSV for backup
-- Google Drive integration for CSV sync
-
-### Non-Functional Requirements
-- TDD mandatory: 90% code coverage minimum
-- Clean Architecture with strict layer separation
-- Local-first: All data in Hive database
-- Cross-platform: iOS, Android, Web
-- Material Design 3 with dark mode
-- Privacy: No cloud storage except user-controlled exports
+This document reflects the **implemented** architecture, dependencies, and open follow‑ups for the Health Tracker Reports application. Earlier drafts that referenced ML Kit pipelines, embedding matchers, or large local NER models have been archived.
 
 ---
 
-## Technical Architecture
+## Product Vision
 
-### Technology Stack
+A privacy-first Flutter app that lets people capture or upload their lab reports, extract biomarker values with high accuracy using cloud LLMs, review the data, track trends, and prepare shareable summaries.
 
-```yaml
-# Core
-Flutter SDK: >=3.5.0
-Dart: >=3.5.0
+---
 
-# State Management & DI
-flutter_riverpod: ^2.5.1
-riverpod_annotation: ^2.3.5
-get_it: ^7.6.7
-injectable: ^2.3.2
+## Core Requirements (Delivered vs Pending)
 
-# Local Storage
-hive: ^2.2.3
-hive_flutter: ^1.1.0
+- **Implemented**
+  - Upload PDF/image reports and run a cloud LLM extraction pass.
+  - Persist reports locally in Hive.
+  - View, filter, and sort saved reports.
+  - Track biomarker trends across reports.
+  - Manage LLM provider selection and API keys in Settings.
+  - Riverpod-based state management, GetIt/Injectable DI.
+  - Unit + widget test coverage for critical flows.
 
-# Routing
-go_router: ^14.0.2
+- **Planned / Not Implemented**
+  - Doctor PDF generation, CSV export, Google Drive sync.
+  - Local notifications, reminders, onboarding refinements.
+  - Secure storage of API keys (currently Hive, see Risks).
+  - Image file loading in `ImageProcessingService._readImageBytes`.
 
-# File Handling & OCR
-file_picker: ^8.0.0
-pdf_render: ^1.4.3
-google_mlkit_text_recognition: ^0.11.0
-image: ^4.1.7
+---
 
-# Charts & PDF Generation
-fl_chart: ^0.68.0
-pdf: ^3.10.8
-printing: ^5.12.0
-
-# Utilities
-intl: ^0.19.0
-equatable: ^2.0.5
-dartz: ^0.10.1
-uuid: ^4.3.3
-
-# Testing
-mocktail: ^1.0.3
-build_runner: ^2.4.8
-injectable_generator: ^2.4.1
-riverpod_generator: ^2.4.0
-hive_generator: ^2.0.1
-```
-
-### Folder Structure
+## Technology Stack
 
 ```
-health_tracker_reports/
-├── lib/
-│   ├── main.dart
-│   ├── core/
-│   │   ├── di/
-│   │   │   ├── injection_container.dart
-│   │   │   └── injection_container.config.dart
-│   │   ├── error/
-│   │   │   ├── failures.dart
-│   │   │   └── exceptions.dart
-│   │   ├── utils/
-│   │   │   ├── constants.dart
-│   │   │   ├── validators.dart
-│   │   │   └── date_helpers.dart
-│   │   └── network/
-│   │       └── llm_client.dart
-│   │
-│   ├── domain/
-│   │   ├── entities/
-│   │   │   ├── biomarker.dart
-│   │   │   ├── report.dart
-│   │   │   ├── reference_range.dart
-│   │   │   └── app_config.dart
-│   │   ├── repositories/
-│   │   │   ├── report_repository.dart
-│   │   │   └── config_repository.dart
-│   │   └── usecases/
-│   │       ├── extract_report_from_file.dart
-│   │       ├── save_report.dart
-│   │       ├── get_all_reports.dart
-│   │       ├── get_report_by_id.dart
-│   │       ├── delete_report.dart
-│   │       ├── get_biomarker_trend.dart
-│   │       ├── normalize_biomarker_name.dart
-│   │       ├── add_note_to_report.dart
-│   │       ├── generate_doctor_pdf.dart
-│   │       ├── export_to_csv.dart
-│   │       └── update_config.dart
-│   │
-│   ├── data/
-│   │   ├── models/
-│   │   │   ├── biomarker_model.dart
-│   │   │   ├── report_model.dart
-│   │   │   ├── reference_range_model.dart
-│   │   │   └── app_config_model.dart
-│   │   ├── repositories/
-│   │   │   ├── report_repository_impl.dart
-│   │   │   └── config_repository_impl.dart
-│   │   └── datasources/
-│   │       ├── local/
-│   │       │   ├── hive_database.dart
-│   │       │   ├── report_local_datasource.dart
-│   │       │   └── config_local_datasource.dart
-│   │       └── external/
-│   │           ├── ocr_service.dart
-│   │           ├── pdf_service.dart
-│   │           ├── llm_extraction_service.dart
-│   │           └── drive_service.dart
-│   │
-│   └── presentation/
-│       ├── app.dart
-│       ├── router.dart
-│       ├── theme/
-│       │   ├── app_theme.dart
-│       │   └── app_colors.dart
-│       ├── providers/
-│       │   ├── report_providers.dart
-│       │   ├── config_providers.dart
-│       │   ├── theme_provider.dart
-│       │   └── filter_provider.dart
-│       ├── pages/
-│       │   ├── home/
-│       │   │   ├── home_page.dart
-│       │   │   └── widgets/
-│       │   │       ├── report_card.dart
-│       │   │       └── empty_state.dart
-│       │   ├── upload/
-│       │   │   ├── upload_page.dart
-│       │   │   ├── review_page.dart
-│       │   │   └── widgets/
-│       │   │       ├── biomarker_edit_form.dart
-│       │   │       └── extraction_loading.dart
-│       │   ├── report_detail/
-│       │   │   ├── report_detail_page.dart
-│       │   │   └── widgets/
-│       │   │       ├── biomarker_list_item.dart
-│       │   │       ├── out_of_range_indicator.dart
-│       │   │       └── notes_section.dart
-│       │   ├── trends/
-│       │   │   ├── trends_page.dart
-│       │   │   └── widgets/
-│       │   │       ├── trend_chart.dart
-│       │   │       ├── time_range_selector.dart
-│       │   │       └── biomarker_selector.dart
-│       │   └── settings/
-│       │       ├── settings_page.dart
-│       │       └── widgets/
-│       │           ├── api_key_input.dart
-│       │           └── theme_toggle.dart
-│       └── widgets/
-│           ├── custom_app_bar.dart
-│           ├── loading_indicator.dart
-│           └── error_display.dart
-│
-├── test/
-│   ├── unit/
-│   │   ├── domain/
-│   │   │   ├── entities/
-│   │   │   └── usecases/
-│   │   └── data/
-│   │       ├── models/
-│   │       ├── repositories/
-│   │       └── datasources/
-│   ├── widget/
-│   │   └── pages/
-│   └── integration/
-│       └── flows/
-│
-├── spec/
-│   ├── overall-plan.md (this file)
-│   ├── phase-1-ocr-upload-tasks.md
-│   ├── phase-2-viewing-tasks.md
-│   ├── phase-3-trends-tasks.md
-│   ├── phase-4-enhanced-ux-tasks.md
-│   └── phase-5-export-sharing-tasks.md
-│
-├── AGENTS.md
-├── .claude/
-│   └── claude.md
-├── pubspec.yaml
-└── README.md
+Flutter 3.5.x / Dart 3.5.x
+
+State & DI
+- flutter_riverpod: ^2.6.1
+- get_it: ^8.0.2
+- injectable: ^2.5.0
+
+Persistence
+- hive: ^2.2.3
+- hive_flutter: ^1.1.0
+
+Routing
+- go_router: ^16.2.4
+
+File handling & media
+- file_picker: ^8.1.6
+- pdfx: ^2.7.0
+- image: ^4.3.0
+
+HTTP / Security
+- dio: ^5.4.0
+- flutter_secure_storage: ^9.2.2 (declared, not yet wired)
+
+Charts & Export
+- fl_chart: ^1.1.1
+- pdf: ^3.11.1
+- printing: ^5.14.1
+- share_plus: ^12.0.0
+
+Other utilities
+- intl, equatable, dartz, uuid, path, path_provider
+
+Testing
+- flutter_test, mocktail, build_runner, hive_generator, injectable_generator
 ```
 
 ---
 
-## Implementation Phases
-
-### Phase 1: Foundation & OCR Upload (MVP)
-**Delivers:** Automated report upload with OCR extraction
-
-**Duration:** ~25-30 commits
-
-**Key Features:**
-- Flutter project scaffolding
-- Clean architecture setup with DI
-- Hive database configuration
-- File picker integration
-- PDF to image conversion
-- OCR with Google ML Kit
-- Basic LLM extraction (with optional API key)
-- Review/edit extracted data screen
-- Save to local database
-
-**Success Criteria:**
-- User can select PDF/image
-- Data is automatically extracted
-- User can review/edit before saving
-- Report is stored locally
-- 90%+ test coverage
-
-**Task File:** `phase-1-ocr-upload-tasks.md`
-
-**Status:** In Progress
-
----
-
-### Phase 2: Reports Viewing & Filtering
-**Delivers:** Browse reports and identify problematic biomarkers
-
-**Duration:** ~12-15 commits
-
-**Key Features:**
-- Home page with reports list
-- Report card UI (date, lab, x/y out of range summary)
-- Report detail page
-- Biomarker list with color coding (green/yellow/red)
-- Filter toggle: all vs. out-of-range only
-- Search within report
-- Navigation with go_router
-
-**Success Criteria:**
-- User can view all reports chronologically
-- Out-of-range biomarkers are visually distinct
-- Filtering works correctly
-- Navigation is smooth
-- 90%+ test coverage
-
-**Task File:** `phase-2-viewing-tasks.md`
-
-**Status:** Completed (2025-10-15)
-
----
-
-### Phase 3: Biomarker Normalization & Trends
-**Delivers:** Consistent tracking and visual trend analysis
-
-**Duration:** ~10-12 commits
-
-**Key Features:**
-- Biomarker normalization service (Na→Sodium, etc.)
-- Trend page with biomarker selector
-- Line chart with fl_chart
-- Reference range bands on chart
-- Time range filters (3M, 6M, 1Y, All)
-- Multi-report comparison view
-- Trend indicators (↑↓→ with %)
-
-**Success Criteria:**
-- Biomarker names are normalized across reports
-- Trends display correctly over time
-- Charts are interactive and readable
-- Time filters work accurately
-- 90%+ test coverage
-
-**Task File:** `phase-3-trends-tasks.md`
-
----
-
-### Phase 4: Enhanced UX Features
-**Delivers:** Improved usability and customization
-
-**Duration:** ~8-10 commits
-
-**Key Features:**
-- Add/edit notes on reports
-- Set reminders for next blood test
-- Delete reports with confirmation
-- Dark/light theme toggle
-- Settings page (API keys, preferences)
-- Onboarding flow for new users
-- Improved error handling UI
-
-**Success Criteria:**
-- Notes persist correctly
-- Reminders trigger notifications
-- Dark mode works seamlessly
-- Settings are saved and applied
-- 90%+ test coverage
-
-**Task File:** `phase-4-enhanced-ux-tasks.md`
-
----
-
-### Phase 5: Export, Backup & Sharing
-**Delivers:** Data portability and professional reporting
-
-**Duration:** ~10-12 commits
-
-**Key Features:**
-- Export all data to CSV
-- Google Drive integration for CSV backup
-- Doctor summary PDF generator:
-  - Multi-report comparison table
-  - Highlighted out-of-range values
-  - Trend indicators with comments
-  - Professional formatting
-- Native share functionality
-- Import CSV (restore from backup)
-
-**Success Criteria:**
-- CSV export contains all data
-- Google Drive sync works reliably
-- Doctor PDF is professional and readable
-- Share works on all platforms
-- 90%+ test coverage
-
-**Task File:** `phase-5-export-sharing-tasks.md`
-
----
-
-## Development Workflow
-
-### TDD Cycle (MANDATORY)
+## Clean Architecture Snapshot
 
 ```
-1. Write failing test (RED)
-2. Run test - should FAIL
-3. Write minimal code to pass (GREEN)
-4. Run test - should PASS
-5. Refactor if needed
-6. Commit with descriptive message
-7. Update task file with checkbox
-8. Update changelog below
+lib/
+├── main.dart / app.dart
+├── core/
+│   ├── di/                      // get_it + injectable wiring
+│   ├── error/                   // Failures & Exceptions
+│   └── constants/model_config.dart (legacy ML config, unused)
+├── domain/
+│   ├── entities/                // Report, Biomarker, AppConfig, LlmExtraction, Trend*
+│   ├── repositories/            // ReportRepository, ConfigRepository, LlmExtractionRepository
+│   └── usecases/                // ExtractReportFromFileLlm, SaveReport, GetAllReports, etc.
+├── data/
+│   ├── models/                  // Hive adapters for entities
+│   ├── datasources/
+│   │   ├── local/               // Hive database + data sources
+│   │   └── external/            // LLM provider services, image processing
+│   └── repositories/            // *RepositoryImpl classes
+└── presentation/
+    ├── providers/               // Riverpod notifiers/providers
+    ├── pages/                   // Upload, Review, Trends, Settings, etc.
+    ├── widgets/                 // Biomarker card, trend indicator
+    ├── router/                  // GoRouter routes
+    └── theme/                   // App themes & colors
 ```
 
-### Code Review Checklist
-
-Before each commit:
-- [ ] All tests pass
-- [ ] Coverage >= 90%
-- [ ] Code follows clean architecture
-- [ ] No business logic in presentation layer
-- [ ] Repository returns Either<Failure, T>
-- [ ] Entities are immutable and pure
-- [ ] Dependencies injected via constructor
-- [ ] Comments only where necessary
-- [ ] Task file updated
-- [ ] Changelog updated
+> **Note**: `core/constants/model_config.dart` and other ML-kit related artifacts remain for historical reasons but are not referenced by the runtime code. See Risks/TODOs.
 
 ---
 
-## Biomarker Normalization Dictionary
+## Extraction Pipeline (Implemented)
 
-```dart
-// Maintained in: lib/domain/usecases/normalize_biomarker_name.dart
+1. **Image preparation**
+   - PDFs rendered page-by-page to PNG via `pdfx`.
+   - Non-PDF images intended to be read by `ImageProcessingService.imageToBase64` (current stub).
+   - Optional compression keeps payloads <5 MB.
 
-const biomarkerNormalization = {
-  // Electrolytes
-  'NA': 'Sodium', 'Na': 'Sodium', 'Na+': 'Sodium', 'SODIUM': 'Sodium',
-  'K': 'Potassium', 'K+': 'Potassium', 'POTASSIUM': 'Potassium',
-  'CL': 'Chloride', 'Cl': 'Chloride', 'Cl-': 'Chloride', 'CHLORIDE': 'Chloride',
-  'CA': 'Calcium', 'Ca': 'Calcium', 'Ca++': 'Calcium', 'CALCIUM': 'Calcium',
-  'MG': 'Magnesium', 'Mg': 'Magnesium', 'Mg++': 'Magnesium',
+2. **LLM inference**
+   - `LlmExtractionRepositoryImpl` selects the configured provider (Claude, OpenAI, Gemini).
+   - Each provider service (Dio-based) receives a base64 image + normalization hints.
+   - Prompt instructs the model to return canonical biomarker JSON with metadata.
 
-  // Complete Blood Count
-  'HB': 'Hemoglobin', 'Hb': 'Hemoglobin', 'HEMOGLOBIN': 'Hemoglobin',
-  'WBC': 'White Blood Cells', 'TLC': 'White Blood Cells', 'WHITE BLOOD CELLS': 'White Blood Cells',
-  'RBC': 'Red Blood Cells', 'RED BLOOD CELLS': 'Red Blood Cells',
-  'PLT': 'Platelets', 'PLATELET': 'Platelets', 'PLATELET COUNT': 'Platelets',
-  'HCT': 'Hematocrit', 'HEMATOCRIT': 'Hematocrit',
-  'MCV': 'Mean Corpuscular Volume', 'MEAN CORPUSCULAR VOLUME': 'Mean Corpuscular Volume',
-  'MCH': 'Mean Corpuscular Hemoglobin',
-  'MCHC': 'Mean Corpuscular Hemoglobin Concentration',
+3. **Report synthesis**
+   - `ExtractReportFromFileLlm` converts LLM results into domain `Report`/`Biomarker` entities.
+   - Normalization relies on provider output plus any existing names fetched from Hive.
 
-  // Lipid Panel
-  'CHOL': 'Total Cholesterol', 'TC': 'Total Cholesterol', 'TOTAL CHOLESTEROL': 'Total Cholesterol',
-  'LDL': 'LDL Cholesterol', 'LDL-C': 'LDL Cholesterol', 'LDL CHOLESTEROL': 'LDL Cholesterol',
-  'HDL': 'HDL Cholesterol', 'HDL-C': 'HDL Cholesterol', 'HDL CHOLESTEROL': 'HDL Cholesterol',
-  'TG': 'Triglycerides', 'TRIGLYCERIDES': 'Triglycerides', 'TRIG': 'Triglycerides',
-  'VLDL': 'VLDL Cholesterol', 'VLDL-C': 'VLDL Cholesterol',
+4. **Persistence**
+   - `SaveReport` assigns IDs with `uuid` and persists via `ReportRepositoryImpl` (Hive).
+   - Config updates flow through `ConfigRepositoryImpl`.
 
-  // Liver Function
-  'SGOT': 'AST', 'AST': 'AST', 'ASPARTATE AMINOTRANSFERASE': 'AST',
-  'SGPT': 'ALT', 'ALT': 'ALT', 'ALANINE AMINOTRANSFERASE': 'ALT',
-  'ALP': 'Alkaline Phosphatase', 'ALK PHOS': 'Alkaline Phosphatase', 'ALKALINE PHOSPHATASE': 'Alkaline Phosphatase',
-  'BILI': 'Bilirubin', 'BILIRUBIN': 'Bilirubin', 'TOTAL BILIRUBIN': 'Total Bilirubin',
-  'ALBUMIN': 'Albumin', 'ALB': 'Albumin',
-  'TP': 'Total Protein', 'TOTAL PROTEIN': 'Total Protein',
-
-  // Kidney Function
-  'BUN': 'Blood Urea Nitrogen', 'BLOOD UREA NITROGEN': 'Blood Urea Nitrogen',
-  'CREAT': 'Creatinine', 'CR': 'Creatinine', 'CREATININE': 'Creatinine',
-  'UA': 'Uric Acid', 'URIC ACID': 'Uric Acid',
-  'EGFR': 'eGFR', 'eGFR': 'eGFR',
-
-  // Diabetes
-  'GLUC': 'Glucose', 'GLU': 'Glucose', 'GLUCOSE': 'Glucose', 'FBS': 'Fasting Glucose',
-  'HBA1C': 'HbA1c', 'HbA1c': 'HbA1c', 'A1C': 'HbA1c', 'HEMOGLOBIN A1C': 'HbA1c',
-
-  // Thyroid
-  'TSH': 'TSH', 'THYROID STIMULATING HORMONE': 'TSH',
-  'T3': 'T3', 'TRIIODOTHYRONINE': 'T3',
-  'T4': 'T4', 'THYROXINE': 'T4',
-  'FT3': 'Free T3', 'FREE T3': 'Free T3',
-  'FT4': 'Free T4', 'FREE T4': 'Free T4',
-
-  // Vitamins
-  'VIT D': 'Vitamin D', 'VITAMIN D': 'Vitamin D', '25-OH VIT D': 'Vitamin D',
-  'VIT B12': 'Vitamin B12', 'VITAMIN B12': 'Vitamin B12', 'B12': 'Vitamin B12',
-  'FOLATE': 'Folate', 'FOLIC ACID': 'Folate',
-
-  // Iron Studies
-  'FE': 'Iron', 'IRON': 'Iron', 'SERUM IRON': 'Serum Iron',
-  'FERRITIN': 'Ferritin', 'SERUM FERRITIN': 'Ferritin',
-  'TIBC': 'TIBC', 'TOTAL IRON BINDING CAPACITY': 'TIBC',
-
-  // Inflammation
-  'CRP': 'C-Reactive Protein', 'C-REACTIVE PROTEIN': 'C-Reactive Protein',
-  'ESR': 'ESR', 'ERYTHROCYTE SEDIMENTATION RATE': 'ESR',
-};
-```
+5. **Presentation**
+   - Upload and Review pages use Riverpod `ExtractionNotifier` + `ReportsNotifier`.
+   - Trends page consumes `GetBiomarkerTrend`, `CalculateTrend`, `CompareBiomarkerAcrossReports`.
 
 ---
 
-## Changelog
+## Key Modules
 
-For detailed changelog with all commits and changes, see [CHANGELOG.md](../CHANGELOG.md).
+- **Domain**
+  - `Report`, `Biomarker`, `ReferenceRange`, `TrendDataPoint`, `AppConfig`, `LlmExtractionResult`.
+  - Use cases: `ExtractReportFromFileLlm`, `SaveReport`, `GetAllReports`, `DeleteReport`,
+    `GetBiomarkerTrend`, `CalculateTrend`, `CompareBiomarkerAcrossReports`,
+    `NormalizeBiomarkerName`, `SearchBiomarkers`, `UpdateConfig`.
 
-The changelog follows [Keep a Changelog](https://keepachangelog.com/) format and includes:
-- All commits with descriptions and hashes
-- Package version updates
-- Feature additions and changes
-- Bug fixes and refactoring
-- Breaking changes
+- **Data**
+  - Local: `HiveDatabase`, `ReportLocalDataSource`, `ConfigLocalDataSource`.
+  - External: `ImageProcessingService`, `Claude/OpenAi/GeminiLlmService`.
+  - Repositories: `ReportRepositoryImpl`, `ConfigRepositoryImpl`, `LlmExtractionRepositoryImpl`.
 
-**Note:** Update CHANGELOG.md after each significant commit or group of related commits.
-
----
-
-### Phase 2 Changelog (2025-10-15)
-
-**Completion Status:** Phase 2 fully completed on 2025-10-15
-
-#### Features Implemented
-
-**Reports List Page:**
-- Material 3 design with responsive cards and elevation
-- Out-of-range summary badges on each report card
-- Color-coded visual indicators (green check / warning icon)
-- Pull-to-refresh functionality
-- Swipe-to-delete with confirmation dialog
-- Empty state with call-to-action
-- FloatingActionButton navigation to upload page
-
-**Report Detail Page:**
-- Comprehensive biomarker detail view with color coding
-- Status-based colors: Green (normal), Yellow (low), Red (high)
-- Reference range display for each biomarker
-- Lab name and report date display
-- Summary card showing out-of-range count
-
-**Biomarker Filtering:**
-- Filter toggle: "Show All" / "Out of Range Only"
-- Real-time list updates on filter changes
-- State persistence across navigation
-- FilterProvider with Riverpod (@riverpod)
-
-**Biomarker Search:**
-- Case-insensitive biomarker search
-- Partial string matching
-- Search TextField with clear button
-- Empty query returns all biomarkers
-- SearchBiomarkers usecase in domain layer
-
-**Navigation & Routing:**
-- go_router integration with type-safe routes
-- Route: /report/:id for report details
-- Programmatic navigation from report cards
-- Back navigation support
-
-#### Tests Added
-
-**Total Tests:** 329 (Phase 1 + Phase 2)
-**Phase 2 New Tests:** ~43 tests
-
-**Test Breakdown:**
-- FilterProvider: 9 unit tests
-  - Initial state verification
-  - Toggle filter functionality
-  - State persistence
-  - Filtered biomarkers provider logic
-
-- SearchBiomarkers usecase: 9 unit tests
-  - Case-insensitive search
-  - Partial matching
-  - Empty query handling
-  - Search accuracy
-
-- ReportDetailPage: 11 widget tests
-  - Report date display
-  - Lab name rendering
-  - Biomarker list rendering
-  - Filter toggle integration
-  - Search bar functionality
-  - Color coding verification
-
-- ReportsListPage: 10 widget tests
-  - Material 3 UI components
-  - Out-of-range indicators
-  - Pull-to-refresh
-  - Delete confirmation
-  - Navigation handling
-  - Empty state display
-
-- Router configuration: 5 tests
-  - Route parameter passing
-  - Navigation stack verification
-  - go_router configuration
-
-#### Commits (Most Recent First)
-
-- `ec31671` - test: add router configuration tests
-- `511eb84` - feat: enhance reports list with Material 3 design and go_router navigation
-- `14b25e7` - feat: implement comprehensive ReportDetailPage with filtering and search
-- `31b8edc` - feat: implement biomarker search functionality
-- `f9376a5` - feat: implement biomarker filtering with FilterProvider
-
-#### Architecture & Patterns
-
-**Clean Architecture:**
-- Strict layer separation maintained
-- Domain layer contains SearchBiomarkers usecase
-- Presentation layer contains FilterProvider and UI components
-- No domain layer imports from data/presentation layers
-
-**State Management:**
-- Riverpod with code generation (@riverpod)
-- FilterProvider for biomarker filtering state
-- Report providers for report data management
-- Proper state invalidation and refresh handling
-
-**Design System:**
-- Full Material 3 design implementation
-- Theme-aware color schemes
-- Accessibility compliance (WCAG 2.1 Level AA)
-- Responsive layouts for multiple screen sizes
-
-**TDD Workflow:**
-- Test-first development for all features
-- 85%+ widget test coverage for presentation layer
-- 90%+ unit test coverage for domain logic
-- Integration tests for user flows
-
-#### Test Coverage
-
-**Current Coverage:** 72.1% (883 of 1224 lines)
-
-**Notes:**
-- Presentation layer (Phase 2 focus): 85%+ coverage
-- Some Phase 1 infrastructure code not yet exercised
-- All Phase 2 features fully tested
-- Widget tests cover UI interactions and state changes
-- Unit tests cover business logic and usecases
-
-#### User Experience Improvements
-
-**Visual Clarity:**
-- Color-coded biomarkers for instant status recognition
-- Clear out-of-range indicators on list cards
-- Material 3 elevation and shadows for depth
-- Consistent typography and spacing
-
-**Usability:**
-- Pull-to-refresh for data updates
-- Swipe-to-delete with safety confirmation
-- Real-time search with instant results
-- Filter toggle for focused viewing
-- Smooth navigation transitions
-
-**Accessibility:**
-- Minimum 48x48 dp touch targets
-- 4.5:1 contrast ratio for text
-- Semantic labels for screen readers
-- Keyboard navigation support (Web)
-
-#### Known Limitations
-
-- Report sorting (Feature 6.2) not implemented - deferred to future enhancement
-- Test coverage below 90% target due to Phase 1 infrastructure code
-- Deep linking (Feature 5.2) marked as optional - not implemented
-
-#### Next Steps
-
-- Phase 3: Biomarker Normalization & Trends
-- Improve overall test coverage to 90%+
-- Consider implementing report sorting
-- Evaluate deep linking requirements
+- **Presentation**
+  - Providers: `reports_provider.dart`, `extraction_provider.dart`, `config_provider.dart`,
+    `trend_provider.dart`, etc.
+  - Pages: Upload, Review, Trends, Settings (API key management), Report detail, Reminders (stub),
+    Export (placeholder), Onboarding (basic).
 
 ---
 
-## Testing Standards
+## Testing Overview
 
-### Unit Test Template
+- Unit tests cover:
+  - Domain entities and trend calculations.
+  - Report/config repositories with Hive boxes (mocked).
+  - LLM provider service parsing (Claude).
+  - Providers and notifiers.
 
-```dart
-void main() {
-  late ClassName classUnderTest;
-  late MockDependency mockDependency;
+- Widget tests cover:
+  - Upload, Review, Trends, Report detail, Router, core widgets.
 
-  setUp(() {
-    mockDependency = MockDependency();
-    classUnderTest = ClassName(dependency: mockDependency);
-  });
-
-  group('ClassName', () {
-    test('should do something when condition is met', () async {
-      // Arrange
-      when(() => mockDependency.method()).thenAnswer((_) async => result);
-
-      // Act
-      final result = await classUnderTest.method();
-
-      // Assert
-      expect(result, expected);
-      verify(() => mockDependency.method()).called(1);
-    });
-  });
-}
-```
-
-### Coverage Requirements
-
-- **Overall:** 90% minimum
-- **Domain layer:** 95% minimum (pure business logic)
-- **Data layer:** 90% minimum
-- **Presentation layer:** 85% minimum (UI can be harder to test)
-
-Run coverage:
-```bash
-flutter test --coverage
-genhtml coverage/lcov.info -o coverage/html
-open coverage/html/index.html
-```
+The pipeline currently lacks integration tests for OpenAI/Gemini parsing and real image IO.
 
 ---
 
-## Git Commit Conventions
+## Known Gaps / TODO
 
-Follow Conventional Commits:
-
-```
-test: add unit tests for Biomarker entity
-feat: implement Biomarker entity with validation
-test: add tests for ExtractReportFromFile usecase
-feat: implement OCR extraction usecase
-refactor: extract normalization logic into separate class
-fix: resolve null reference in report parsing
-docs: update phase-1-ocr-upload-tasks.md progress
-chore: update dependencies to latest versions
-```
-
-**Commit frequency:** After each test-implementation pair (TDD cycle completion)
+| Area | Status | Notes |
+|------|--------|-------|
+| Image file loading | ❌ | `_readImageBytes` is unimplemented; local image uploads fail. |
+| API key security | ✅ | API keys persisted via `flutter_secure_storage`; Hive now stores sanitized placeholders only. |
+| Provider parity tests | ⚠️ | Only Claude service has unit tests; OpenAI/Gemini missing. |
+| Normalization strategy | ⚠️ | LLM prompts accept hints, but `NormalizeBiomarkerName` is still used in trend use cases. Decide whether to keep or remove. |
+| Legacy constants | ⚠️ | `core/constants/model_config.dart` references deprecated ML models. |
+| Export/Doctor PDF | ❌ | Not implemented; presentation/pages/export contains stubs. |
+| Notifications/Reminders | ⚠️ | Pages exist but functionality incomplete. |
 
 ---
 
-## Definition of Done
+## Risks & Mitigations
 
-A feature is considered complete when:
-- [ ] All tests written and passing
-- [ ] Code coverage >= 90%
-- [ ] Clean architecture principles followed
-- [ ] No linting errors
-- [ ] Documentation updated (AGENTS.md, task files)
-- [ ] Changelog updated
-- [ ] Code committed with conventional commit message
-- [ ] Peer review passed (if applicable)
-- [ ] Integration tests pass
-- [ ] UI tested on iOS, Android, Web
+- **API Keys in Hive**  
+  Keys are currently persisted in plain Hive boxes. Mitigation: implement secure storage (platform keychain/keystore) and document migration.
 
----
+- **Unimplemented Image IO**  
+  Image uploads from camera/gallery will throw at runtime. Mitigation: finish `_readImageBytes` and cover with widget/integration tests.
 
-## Risk Management
+- **LLM Error Handling Coverage**  
+  Only limited provider tests exist. Mitigation: add tests for OpenAI/Gemini parsing, error branches, and cancellation.
 
-### Technical Risks
-
-| Risk | Probability | Impact | Mitigation |
-|------|------------|--------|------------|
-| OCR accuracy low | Medium | High | Use LLM fallback, allow manual editing |
-| Biomarker normalization incomplete | High | Medium | Maintain extensible dictionary, allow custom names |
-| PDF parsing failures | Medium | Medium | Support image upload as alternative |
-| Platform-specific issues (Web) | Medium | Medium | Test early on all platforms |
-| Test coverage drops below 90% | Low | High | Enforce in CI/CD, frequent checks |
-
-### Process Risks
-
-| Risk | Probability | Impact | Mitigation |
-|------|------------|--------|------------|
-| Not following TDD | Low | High | Strict adherence, no exceptions |
-| Architecture violations | Low | High | Regular code reviews, clear guidelines |
-| Documentation drift | Medium | Medium | Update docs with each commit |
+- **Legacy Files**  
+  Old ML artifacts can mislead future updates. Mitigation: clean up unused constants or tag them clearly as deprecated.
 
 ---
 
-## Performance Targets
+## Phase Checklist (High-Level)
 
-- **App startup:** < 2 seconds
-- **OCR extraction:** < 5 seconds for 2-page PDF
-- **Database queries:** < 100ms for list views
-- **Chart rendering:** < 500ms
-- **PDF generation:** < 3 seconds for 10-report comparison
+| Phase | Focus | Status | Notes |
+|-------|-------|--------|-------|
+| Phase 1 – Upload & Extraction | LLM-based upload flow, Hive persistence, settings | ✅ Core flows implemented; image IO pending |
+| Phase 2 – Viewing & Trends | Reports list, trends, search/filter | ✅ Implemented with Riverpod and charts |
+| Phase 3 – Enhancements | Export, reminders, secure storage | ⏳ Partially done (exports/reminders stubbed, security pending) |
 
----
-
-## Accessibility Standards
-
-- WCAG 2.1 Level AA compliance
-- Screen reader support (Semantics widgets)
-- Minimum touch target: 48x48 dp
-- Color contrast: 4.5:1 for text, 3:1 for UI
-- Keyboard navigation (Web)
+Future roadmap items (PDF export, Drive sync, analytics) remain aspirational until scoped.
 
 ---
 
-## Future Enhancements (Post-MVP)
+## Working Agreements
 
-- Multi-user support (family profiles)
-- Cloud backup with end-to-end encryption
-- AI-powered health insights
-- Integration with fitness trackers
-- Medication tracking
-- Appointment scheduling
-- Multilingual support
-- Apple Health / Google Fit integration
-- Doctor portal (share access)
+- Maintain TDD cadence: write/extend tests before altering production logic.
+- Update `/spec` alongside feature changes; flag TODOs explicitly.
+- Keep changelog entries truthful to the repository history (instructions per user request).
+- Use conventional commits and update coverage metrics regularly (`flutter test --coverage`).
 
 ---
 
-## References
+## Appendix – Reference Paths
 
-- [AGENTS.md](../AGENTS.md) - Complete architecture context
-- [Flutter Documentation](https://docs.flutter.dev)
-- [Riverpod Documentation](https://riverpod.dev)
-- [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-- [Conventional Commits](https://www.conventionalcommits.org)
+- Extraction core: `lib/domain/usecases/extract_report_from_file_llm.dart`
+- LLM services: `lib/data/datasources/external/*.dart`
+- Persistence: `lib/data/repositories/*`, `lib/data/datasources/local/*`
+- Settings page: `lib/presentation/pages/settings/settings_page.dart`
+- Trend analytics: `lib/domain/usecases/get_biomarker_trend.dart`, `lib/presentation/providers/trend_provider.dart`
+- Tests: `test/unit/...`, `test/widget/...`
 
----
-
-**Document Version:** 1.1
-**Last Updated:** 2025-10-15
-**Status:** In Progress
-**Current Phase:** Phase 2 - Reports Viewing & Filtering (Completed)
-**Next Phase:** Phase 3 - Biomarker Normalization & Trends
-
-**Phase Completion Summary:**
-- Phase 1: Completed (Foundation & OCR Upload)
-- Phase 2: Completed (Reports Viewing & Filtering) - 2025-10-15
-- Phase 3: Not Started
-- Phase 4: Not Started
-- Phase 5: Not Started
+For historical context on the ML Kit pipeline, see prior versions of this document in Git history.
