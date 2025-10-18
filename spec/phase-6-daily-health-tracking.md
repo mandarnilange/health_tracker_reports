@@ -1112,12 +1112,12 @@ final vitalStatisticsProvider = FutureProvider.family<VitalStatistics, VitalType
 
 ### Week 2: Data Layer
 **Day 1-2: Hive Models**
-- [ ] TEST: HealthLogModel tests
-- [ ] CODE: HealthLogModel + TypeAdapter
-- [ ] TEST: VitalMeasurementModel tests
-- [ ] CODE: VitalMeasurementModel + TypeAdapter
-- [ ] CODE: Update HiveDatabase (register adapters, open box)
-- [ ] CODE: Run build_runner
+- [x] TEST: HealthLogModel tests
+- [x] CODE: HealthLogModel + TypeAdapter
+- [x] TEST: VitalMeasurementModel tests
+- [x] CODE: VitalMeasurementModel + TypeAdapter
+- [x] CODE: Update HiveDatabase (register adapters, open box)
+- [x] CODE: Run build_runner
 - [ ] COMMIT: Hive models complete
 
 **Day 3: Local Data Source**

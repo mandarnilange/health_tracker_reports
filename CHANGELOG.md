@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Phase 6 Hive Models (2025-10-18)
+
+- Added Hive-backed `VitalMeasurementModel` and `HealthLogModel` with JSON helpers and bidirectional entity mappers.
+- Registered the new adapters, introduced a dedicated `health_logs` box, and regenerated DI wiring/build artifacts.
+- Covered serialization logic with unit tests for both models (`test/unit/data/models/*_model_test.dart`).
+
+### Added - Phase 6 Domain Foundations (2025-10-18)
+
+- Introduced unified timeline domain interfaces: `HealthEntry`, `HealthLog`, `VitalMeasurement`, `VitalReferenceDefaults`, and `VitalStatistics` with comprehensive unit tests.
+- Added repository contracts `HealthLogRepository` and `TimelineRepository` to orchestrate health log persistence and timeline aggregation.
+- Implemented health log workflow use cases (`ValidateVitalMeasurement`, `CreateHealthLog`, `GetAllHealthLogs`, `GetHealthLogById`, `UpdateHealthLog`, `DeleteHealthLog`) including deterministic ID generation, validation, and thorough mocking tests.
+- Delivered analytics use cases (`GetVitalTrend`, `CalculateVitalStatistics`, `GetUnifiedTimeline`) providing sorted vitals, rich statistics, and combined report/log timeline results.
+
+---
+
 ### Planned - Phase 6: Daily Health Tracking (2025-10-18)
 
 **Goal:** Enable users to log daily vital signs alongside lab reports in a unified timeline view.
@@ -30,15 +45,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Specification:** `spec/phase-6-daily-health-tracking.md`
 
 **Status:** 🚧 In progress (domain foundations implemented via TDD)
-
-### Added - Phase 6 Domain Foundations (2025-10-18)
-
-- Introduced unified timeline domain interfaces: `HealthEntry`, `HealthLog`, `VitalMeasurement`, `VitalReferenceDefaults`, and `VitalStatistics` with comprehensive unit tests.
-- Added repository contracts `HealthLogRepository` and `TimelineRepository` to orchestrate health log persistence and timeline aggregation.
-- Implemented health log workflow use cases (`ValidateVitalMeasurement`, `CreateHealthLog`, `GetAllHealthLogs`, `GetHealthLogById`, `UpdateHealthLog`, `DeleteHealthLog`) including deterministic ID generation, validation, and thorough mocking tests.
-- Delivered analytics use cases (`GetVitalTrend`, `CalculateVitalStatistics`, `GetUnifiedTimeline`) providing sorted vitals, rich statistics, and combined report/log timeline results.
-
----
 
 ### Added - Secure LLM Credential Storage (2025-10-21)
 

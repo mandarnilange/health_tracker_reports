@@ -40,30 +40,53 @@ import 'package:health_tracker_reports/data/repositories/report_repository_impl.
     as _i508;
 import 'package:health_tracker_reports/domain/repositories/config_repository.dart'
     as _i649;
+import 'package:health_tracker_reports/domain/repositories/health_log_repository.dart'
+    as _i49;
 import 'package:health_tracker_reports/domain/repositories/llm_extraction_repository.dart'
     as _i111;
 import 'package:health_tracker_reports/domain/repositories/report_repository.dart'
     as _i767;
+import 'package:health_tracker_reports/domain/repositories/timeline_repository.dart'
+    as _i880;
 import 'package:health_tracker_reports/domain/usecases/calculate_trend.dart'
     as _i680;
+import 'package:health_tracker_reports/domain/usecases/calculate_vital_statistics.dart'
+    as _i116;
 import 'package:health_tracker_reports/domain/usecases/compare_biomarker_across_reports.dart'
     as _i889;
+import 'package:health_tracker_reports/domain/usecases/create_health_log.dart'
+    as _i466;
+import 'package:health_tracker_reports/domain/usecases/delete_health_log.dart'
+    as _i508;
 import 'package:health_tracker_reports/domain/usecases/delete_report.dart'
     as _i248;
 import 'package:health_tracker_reports/domain/usecases/extract_report_from_file_llm.dart'
     as _i990;
+import 'package:health_tracker_reports/domain/usecases/get_all_health_logs.dart'
+    as _i989;
 import 'package:health_tracker_reports/domain/usecases/get_all_reports.dart'
     as _i657;
 import 'package:health_tracker_reports/domain/usecases/get_biomarker_trend.dart'
     as _i926;
+import 'package:health_tracker_reports/domain/usecases/get_health_log_by_id.dart'
+    as _i673;
+import 'package:health_tracker_reports/domain/usecases/get_unified_timeline.dart'
+    as _i312;
+import 'package:health_tracker_reports/domain/usecases/get_vital_trend.dart'
+    as _i681;
 import 'package:health_tracker_reports/domain/usecases/normalize_biomarker_name.dart'
     as _i197;
 import 'package:health_tracker_reports/domain/usecases/save_report.dart'
     as _i567;
 import 'package:health_tracker_reports/domain/usecases/update_config.dart'
     as _i1005;
+import 'package:health_tracker_reports/domain/usecases/update_health_log.dart'
+    as _i374;
+import 'package:health_tracker_reports/domain/usecases/validate_vital_measurement.dart'
+    as _i542;
 import 'package:hive/hive.dart' as _i979;
 import 'package:injectable/injectable.dart' as _i526;
+import 'package:uuid/uuid.dart' as _i706;
 
 extension GetItInjectableX on _i174.GetIt {
 // initializes the registration of main-scope dependencies inside of GetIt
@@ -95,25 +118,50 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i273.ReportLocalDataSource>(() =>
         _i273.ReportLocalDataSourceImpl(
             box: gh<_i979.Box<_i936.ReportModel>>()));
+    gh.lazySingleton<_i466.CreateHealthLog>(() => _i466.CreateHealthLog(
+          repository: gh<_i49.HealthLogRepository>(),
+          validateVitalMeasurement: gh<_i542.ValidateVitalMeasurement>(),
+          uuid: gh<_i706.Uuid>(),
+          now: gh<_i466.DateTimeProvider>(),
+        ));
     gh.lazySingleton<_i26.ClaudeLlmService>(
         () => _i26.ClaudeLlmService(gh<_i361.Dio>()));
     gh.lazySingleton<_i549.OpenAiLlmService>(
         () => _i549.OpenAiLlmService(gh<_i361.Dio>()));
     gh.lazySingleton<_i48.GeminiLlmService>(
         () => _i48.GeminiLlmService(gh<_i361.Dio>()));
+    gh.lazySingleton<_i989.GetAllHealthLogs>(() =>
+        _i989.GetAllHealthLogs(repository: gh<_i49.HealthLogRepository>()));
+    gh.lazySingleton<_i681.GetVitalTrend>(
+        () => _i681.GetVitalTrend(repository: gh<_i49.HealthLogRepository>()));
+    gh.lazySingleton<_i673.GetHealthLogById>(() =>
+        _i673.GetHealthLogById(repository: gh<_i49.HealthLogRepository>()));
+    gh.lazySingleton<_i508.DeleteHealthLog>(() =>
+        _i508.DeleteHealthLog(repository: gh<_i49.HealthLogRepository>()));
     gh.lazySingleton<_i537.ConfigLocalDataSource>(() =>
         _i537.ConfigLocalDataSourceImpl(
             box: gh<_i979.Box<_i386.AppConfigModel>>()));
     gh.lazySingleton<_i767.ReportRepository>(() => _i508.ReportRepositoryImpl(
         localDataSource: gh<_i273.ReportLocalDataSource>()));
+    gh.lazySingleton<_i374.UpdateHealthLog>(() => _i374.UpdateHealthLog(
+          repository: gh<_i49.HealthLogRepository>(),
+          validateVitalMeasurement: gh<_i542.ValidateVitalMeasurement>(),
+          uuid: gh<_i706.Uuid>(),
+          now: gh<_i374.DateTimeProvider>(),
+        ));
     gh.lazySingleton<_i567.SaveReport>(
         () => _i567.SaveReport(repository: gh<_i767.ReportRepository>()));
     gh.lazySingleton<_i657.GetAllReports>(
         () => _i657.GetAllReports(repository: gh<_i767.ReportRepository>()));
     gh.lazySingleton<_i248.DeleteReport>(
         () => _i248.DeleteReport(repository: gh<_i767.ReportRepository>()));
+    gh.lazySingleton<_i116.CalculateVitalStatistics>(() =>
+        _i116.CalculateVitalStatistics(
+            getVitalTrend: gh<_i681.GetVitalTrend>()));
     gh.lazySingleton<_i848.SecureConfigStorage>(
         () => _i848.SecureConfigStorageImpl(gh<_i558.FlutterSecureStorage>()));
+    gh.lazySingleton<_i312.GetUnifiedTimeline>(() =>
+        _i312.GetUnifiedTimeline(repository: gh<_i880.TimelineRepository>()));
     gh.lazySingleton<_i889.CompareBiomarkerAcrossReports>(
         () => _i889.CompareBiomarkerAcrossReports(
               repository: gh<_i767.ReportRepository>(),
