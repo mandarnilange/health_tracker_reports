@@ -7,7 +7,7 @@ import 'package:health_tracker_reports/domain/entities/llm_extraction.dart';
 @LazySingleton()
 class GeminiLlmService implements LlmProviderService {
   static const _baseUrl = 'https://generativelanguage.googleapis.com/v1';
-  static const _model = 'gemini-2.5-flash-latest';
+  static const _model = 'gemini-2.5-flash';
 
   final Dio _dio;
   CancelToken? _cancelToken;
