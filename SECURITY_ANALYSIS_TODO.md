@@ -24,8 +24,8 @@
 - [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/repositories/llm_extraction_repository_impl.dart
 - [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/repositories/report_repository_impl.dart
 - [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/repositories/llm_extraction_repository.dart
-- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/datasources/external/openai_llm_service.dart
-- [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/datasources/external/claude_llm_service.dart
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/datasources/external/openai_llm_service.dart
+- [x] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/datasources/external/claude_llm_service.dart
 - [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/datasources/external/llm_provider_service.dart
 - [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/repositories/report_repository.dart
 - [ ] SAST Recon on /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/datasources/local/config_local_datasource.dart
