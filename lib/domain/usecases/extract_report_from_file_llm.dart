@@ -54,6 +54,7 @@ class ExtractReportFromFileLlm {
       String? patientName;
       DateTime? reportDate;
       String? labName;
+      Failure? lastFailure;
 
       for (final (index, base64Image) in base64Images.indexed) {
         // Compress if needed
@@ -67,7 +68,8 @@ class ExtractReportFromFileLlm {
 
         await result.fold(
           (failure) {
-            // Continue to next page on failure, don't abort entire extraction
+            // Store the failure to report it if no biomarkers are found
+            lastFailure = failure;
             return Future.value();
           },
           (extraction) async {
@@ -105,8 +107,12 @@ class ExtractReportFromFileLlm {
 
       // 3. Build Report entity
       if (allBiomarkers.isEmpty) {
+        // If we have a failure from LLM extraction, return that instead of generic message
+        if (lastFailure != null) {
+          return Left(lastFailure!);
+        }
         return const Left(
-          ValidationFailure(message: 'No biomarkers detected'),
+          ValidationFailure(message: 'No biomarkers detected in the report'),
         );
       }
 
