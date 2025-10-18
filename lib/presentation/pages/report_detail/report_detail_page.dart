@@ -162,8 +162,8 @@ class ReportDetailPage extends ConsumerWidget {
                   FilterChip(
                     label: Text(
                       ref.watch(filterProvider) == BiomarkerFilter.showAll
-                          ? 'Show All'
-                          : 'Out of Range Only',
+                          ? 'Out of Range Only'
+                          : 'Show All',
                     ),
                     selected: ref.watch(filterProvider) ==
                         BiomarkerFilter.outOfRangeOnly,

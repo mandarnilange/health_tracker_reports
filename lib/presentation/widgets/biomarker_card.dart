@@ -45,6 +45,7 @@ class BiomarkerCard extends StatelessWidget {
                       biomarker.name,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
+                            color: Colors.grey[900],
                           ),
                     ),
                   ),
@@ -95,7 +96,8 @@ class BiomarkerCard extends StatelessWidget {
               Text(
                 'Reference Range: ${biomarker.referenceRange.min.toStringAsFixed(1)} - ${biomarker.referenceRange.max.toStringAsFixed(1)} ${biomarker.unit}',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[700],
+                      color: Colors.grey[800],
+                      fontWeight: FontWeight.w500,
                     ),
               ),
             ],
