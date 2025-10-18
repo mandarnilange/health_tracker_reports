@@ -1,8 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:health_tracker_reports/data/datasources/external/pdf_document_wrapper.dart';
-import 'package:health_tracker_reports/data/datasources/local/config_local_datasource.dart';
 import 'package:health_tracker_reports/data/datasources/local/hive_database.dart';
 import 'package:health_tracker_reports/data/models/app_config_model.dart';
 import 'package:health_tracker_reports/data/models/report_model.dart';
@@ -38,19 +35,5 @@ abstract class AppModule {
       Hive.box<AppConfigModel>(HiveDatabase.configBoxName);
 
   @lazySingleton
-  PdfDocumentWrapper get pdfDocumentWrapper => PdfDocumentWrapper();
-
-  @lazySingleton
-  TextRecognizer get textRecognizer => TextRecognizer();
-
-  @lazySingleton
-  ConfigLocalDataSource get configLocalDataSource =>
-      ConfigLocalDataSourceImpl(box: configBox);
-
-  @lazySingleton
   Dio get dio => Dio();
-
-  @preResolve
-  Future<AppConfigModel> get appConfigModel =>
-      configLocalDataSource.getConfig();
 }

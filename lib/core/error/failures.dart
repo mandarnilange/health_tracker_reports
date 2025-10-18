@@ -86,3 +86,35 @@ class EmbeddingFailure extends Failure {
   /// Creates an [EmbeddingFailure] with a required error message
   const EmbeddingFailure({required String message}) : super(message);
 }
+
+/// Failure that occurs when LLM API key is missing or invalid
+class ApiKeyMissingFailure extends Failure {
+  /// The LLM provider that requires an API key
+  final String provider;
+
+  /// Creates an [ApiKeyMissingFailure] for a specific provider
+  const ApiKeyMissingFailure(this.provider)
+      : super('API key required for $provider');
+
+  @override
+  List<Object> get props => [message, provider];
+}
+
+/// Failure that occurs when API rate limit is exceeded
+class RateLimitFailure extends Failure {
+  /// When the request can be retried
+  final DateTime retryAfter;
+
+  /// Creates a [RateLimitFailure] with retry timestamp
+  const RateLimitFailure(this.retryAfter)
+      : super('Rate limit exceeded. Retry after $retryAfter');
+
+  @override
+  List<Object> get props => [message, retryAfter];
+}
+
+/// Failure that occurs when LLM response is invalid or malformed
+class InvalidResponseFailure extends Failure {
+  /// Creates an [InvalidResponseFailure] with a required error message
+  const InvalidResponseFailure({required String message}) : super(message);
+}

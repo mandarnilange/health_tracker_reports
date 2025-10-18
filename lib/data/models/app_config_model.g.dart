@@ -17,24 +17,21 @@ class AppConfigModelAdapter extends TypeAdapter<AppConfigModel> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return AppConfigModel(
-      llmApiKey: fields[0] as String?,
-      llmProvider: fields[1] as String?,
-      useLlmExtraction: fields[2] as bool,
-      darkModeEnabled: fields[3] as bool,
+      llmApiKeys: (fields[0] as Map).cast<LlmProvider, String>(),
+      llmProvider: fields[1] as LlmProvider,
+      darkModeEnabled: fields[2] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, AppConfigModel obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(3)
       ..writeByte(0)
-      ..write(obj.llmApiKey)
+      ..write(obj.llmApiKeys)
       ..writeByte(1)
       ..write(obj.llmProvider)
       ..writeByte(2)
-      ..write(obj.useLlmExtraction)
-      ..writeByte(3)
       ..write(obj.darkModeEnabled);
   }
 
