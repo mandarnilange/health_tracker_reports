@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Hardened upload page tests by introducing deterministic provider overrides and utility pump helpers, eliminating race conditions seen during full-suite execution (`test/widget/pages/upload/upload_page_test.dart`).
 - Updated app theme configuration to respect the system preference when dark mode is not explicitly enabled (`lib/app.dart`, `test/widget/app_test.dart`).
 - Reworked `ExtractReportFromFile` to consume the native scan service, normalize structured biomarker payloads, and fall back with meaningful failures while keeping business logic in Dart (`lib/domain/usecases/extract_report_from_file.dart`, `test/unit/domain/usecases/extract_report_from_file_test.dart`).
+- Enhanced iOS/Android native scanners to render pages, run Vision/ML Kit OCR, and stream raw line geometry back to Dart for layout-aware parsing (`ios/Runner/AppDelegate.swift`, `android/app/src/main/kotlin/com/healthtracker/health_tracker_reports/MainActivity.kt`, `lib/data/datasources/external/report_scan_service.dart`).
+- Rebuilt Dart extraction logic to cluster OCR lines into rows, sort tokens by X coordinate, infer metadata (patient name, report dates, lab name), and support numeric and qualitative biomarker values with improved reference range detection (`lib/domain/usecases/extract_report_from_file.dart`, `test/unit/domain/usecases/extract_report_from_file_test.dart`).
 
 ### Fixed
 

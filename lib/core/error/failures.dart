@@ -62,3 +62,27 @@ class NotFoundFailure extends Failure {
   /// Creates a [NotFoundFailure] with a required error message
   const NotFoundFailure({required String message}) : super(message);
 }
+
+/// Failure that occurs during model download operations
+class ModelDownloadFailure extends Failure {
+  /// Creates a [ModelDownloadFailure] with a required error message
+  const ModelDownloadFailure({required String message}) : super(message);
+}
+
+/// Failure that occurs during NER model initialization or extraction
+class NerFailure extends Failure {
+  /// Creates a [NerFailure] with a required error message
+  const NerFailure({required String message}) : super(message);
+}
+
+/// Failure that occurs during file system operations
+class FileSystemFailure extends Failure {
+  /// Creates a [FileSystemFailure] with a required error message
+  const FileSystemFailure({required String message}) : super(message);
+}
+
+/// Failure that occurs during embedding operations (loading, matching, etc.)
+class EmbeddingFailure extends Failure {
+  /// Creates an [EmbeddingFailure] with a required error message
+  const EmbeddingFailure({required String message}) : super(message);
+}

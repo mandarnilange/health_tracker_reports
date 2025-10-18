@@ -53,6 +53,11 @@ class _ReportsListPageState extends ConsumerState<ReportsListPage> {
         title: const Text('Health Reports'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: 'Settings',
+            onPressed: () => context.push(RouteNames.settings),
+          ),
+          IconButton(
             icon: const Icon(Icons.show_chart),
             tooltip: 'View Trends',
             onPressed: () => context.push(RouteNames.trends),

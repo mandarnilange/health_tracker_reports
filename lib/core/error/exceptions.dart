@@ -69,3 +69,21 @@ class ServerException extends AppException {
       ? 'ServerException ($statusCode): $message'
       : 'ServerException: $message';
 }
+
+/// Exception thrown during model download operations
+class ModelDownloadException extends AppException {
+  /// Creates a [ModelDownloadException] with a required error message
+  const ModelDownloadException(super.message);
+}
+
+/// Exception thrown during NER model initialization or extraction
+class NerException extends AppException {
+  /// Creates a [NerException] with a required error message
+  const NerException(super.message);
+}
+
+/// Exception thrown during file system operations
+class FileSystemException extends AppException {
+  /// Creates a [FileSystemException] with a required error message
+  const FileSystemException(super.message);
+}

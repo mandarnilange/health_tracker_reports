@@ -24,6 +24,9 @@ class RouteNames {
   /// Comparison route - allows users to compare biomarkers across multiple reports
   static const String comparison = '/comparison';
 
+  /// Settings route - allows users to configure app settings
+  static const String settings = '/settings';
+
   /// Helper method to generate report detail route with ID
   static String reportDetailWithId(String id) => '/report/$id';
 }

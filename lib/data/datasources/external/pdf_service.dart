@@ -14,7 +14,7 @@ class PdfService {
   Future<List<Uint8List>> convertToImages(String path) async {
     final file = File(path);
     if (!file.existsSync()) {
-      throw FileSystemException('File not found', path);
+      throw FileSystemException('File not found: $path');
     }
 
     try {

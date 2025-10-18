@@ -4,6 +4,7 @@ import 'package:health_tracker_reports/presentation/pages/error/error_page.dart'
 import 'package:health_tracker_reports/presentation/pages/home/reports_list_page.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/presentation/pages/report_detail/report_detail_page.dart';
+import 'package:health_tracker_reports/presentation/pages/settings/settings_page.dart';
 import 'package:health_tracker_reports/presentation/pages/trends/comparison_view.dart';
 import 'package:health_tracker_reports/presentation/pages/trends/trends_page.dart';
 import 'package:health_tracker_reports/presentation/pages/upload/upload_page.dart';
@@ -117,6 +118,16 @@ class AppRouter {
             pageBuilder: (context, state) => MaterialPage<void>(
               key: state.pageKey,
               child: const ComparisonView(),
+            ),
+          ),
+
+          // Settings Route - App settings
+          GoRoute(
+            path: RouteNames.settings,
+            name: 'settings',
+            pageBuilder: (context, state) => MaterialPage<void>(
+              key: state.pageKey,
+              child: const SettingsPage(),
             ),
           ),
         ],
