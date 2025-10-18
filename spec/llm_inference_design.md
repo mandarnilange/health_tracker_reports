@@ -1,6 +1,6 @@
 # Cloud LLM Extraction – Design Spec
 
-Last reviewed: 2025-10-21
+Last reviewed: 2025-10-18
 
 This spec captures the **production** extraction pipeline that relies on hosted LLM vision APIs. It supersedes earlier drafts describing ML Kit, embedding matchers, or on-device NER models.
 
@@ -66,8 +66,10 @@ Common responsibilities:
 - Handle provider-specific errors (timeouts, invalid JSON) by throwing exceptions consumed by the repository.
 
 Implementation status:
-- Claude: fully implemented and unit-tested (`test/unit/data/datasources/external/claude_llm_service_test.dart`).
-- OpenAI & Gemini: implemented but lack dedicated tests (TODO).
+- **Claude**: Fully implemented with Claude 3.5 Sonnet model (`claude-3-5-sonnet-latest`)
+- **OpenAI**: Fully implemented with GPT-4 Vision (`gpt-4-turbo`)
+- **Gemini**: Fully implemented with Gemini 2.5 Flash (`gemini-2.5-flash`) - Oct 2025 upgrade from 1.5-pro-latest
+- All providers tested with live API calls (integration tests TODO)
 
 ### ExtractReportFromFileLlm (`lib/domain/usecases/extract_report_from_file_llm.dart`)
 - Fetches distinct biomarker names from `ReportRepository` to guide normalization.
@@ -88,7 +90,27 @@ Implementation status:
 - `AppConfig` stores `Map<LlmProvider, String>` and the active provider.
 - `ConfigRepositoryImpl` persists `AppConfigModel` in Hive (box `config`).
 - Settings page (`lib/presentation/pages/settings/settings_page.dart`) allows key entry, provider selection, and shows a privacy notice.
-- API keys persisted securely via `flutter_secure_storage`; Hive stores sanitized placeholders for backwards compatibility.
+- **Secure Storage**: API keys persisted securely via `flutter_secure_storage`; Hive stores empty placeholders for backwards compatibility.
+  - `SecureConfigStorage` handles read/write of sensitive API keys
+  - ConfigRepository merges secure keys with Hive config on load
+  - Prevents accidental exposure of keys in backups/logs
+
+### Dynamic Biomarker Normalization (Oct 2025)
+**Problem**: Hardcoded biomarker aliases required maintenance and couldn't adapt to user-specific naming conventions.
+
+**Solution**: LLM-based dynamic normalization using historical data
+- `ReportRepository.getDistinctBiomarkerNames()` fetches all unique biomarker names from user's reports
+- `ExtractReportFromFileLlm` passes these names to LLM via `existingBiomarkerNames` parameter
+- LLM prompts include normalization guidance with historical names
+- LLM intelligently maps variations (e.g., "Hb" → "Hemoglobin", "WBC" → "White Blood Cell Count") based on context
+
+**Benefits**:
+- Zero maintenance - no hardcoded alias lists to update
+- Learns from actual user data - adapts to lab-specific naming
+- Context-aware matching - handles abbreviations, spaces, capitalization
+- Ensures consistency for accurate trend analysis across reports
+
+**Implementation**: All three provider services (Claude, OpenAI, Gemini) include normalization guidance in prompts when historical names are available.
 
 ---
 
@@ -134,13 +156,27 @@ Provider services strip markdown fences before parsing to guard against model ha
 
 ---
 
-## Open Work
+## Recent Updates (Oct 2025)
 
-- Finish `ImageProcessingService._readImageBytes` using `File(path).readAsBytes` with cross-platform handling (path_provider).
-- Add unit tests for `OpenAiLlmService` and `GeminiLlmService` mirroring the Claude coverage.
-- Consider adding resiliency features (retries with exponential backoff).
-- Evaluate whether to retire `NormalizeBiomarkerName` or keep for trend queries only.
-- Revisit prompt tuning once real-world reports highlight gaps.
+### ✅ Completed
+- **Dynamic Normalization**: Replaced hardcoded aliases with LLM-based normalization using historical data
+- **Gemini 2.5 Flash**: Upgraded from 1.5-pro-latest to 2.5-flash for better speed and accuracy
+- **Secure Storage**: Implemented API key encryption using flutter_secure_storage
+- **Error Propagation**: Fixed silent error swallowing - now shows actual LLM failures (ApiKeyMissing, NetworkFailure, etc.)
+- **Hive TypeAdapter**: Added LlmProvider enum adapter to fix API key serialization
+- **UI Improvements**:
+  - Compact review page with tap-to-edit (70% less scroll for 23 biomarkers)
+  - Save button moved to AppBar
+  - Enhanced biomarker cards with gradient backgrounds and tap-to-trends navigation
+  - Fixed filter chip to show selected state without changing text
+  - Improved text contrast and readability
+
+### 🔧 Open Work
+- Finish `ImageProcessingService._readImageBytes` for JPEG/PNG camera uploads
+- Add comprehensive unit tests for OpenAI and Gemini services
+- Consider adding resiliency features (retries with exponential backoff)
+- Add regression test fixtures (multi-page PDF + image)
+- Revisit prompt tuning based on real-world usage patterns
 
 ---
 
