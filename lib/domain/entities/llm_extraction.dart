@@ -1,14 +1,21 @@
 import 'package:equatable/equatable.dart';
+import 'package:hive/hive.dart';
+
+part 'llm_extraction.g.dart';
 
 /// Supported LLM providers for biomarker extraction
+@HiveType(typeId: 10)
 enum LlmProvider {
   /// Anthropic Claude 3.5 Sonnet
+  @HiveField(0)
   claude,
 
   /// OpenAI GPT-4 Vision
+  @HiveField(1)
   openai,
 
   /// Google Gemini Pro Vision
+  @HiveField(2)
   gemini,
 }
 
