@@ -1073,10 +1073,10 @@ final vitalStatisticsProvider = FutureProvider.family<VitalStatistics, VitalType
 
 ### Week 1: Foundation (Domain Layer)
 **Day 1-2: Entities**
-- [ ] TEST: HealthLog entity tests
-- [ ] CODE: HealthLog entity
-- [ ] TEST: VitalMeasurement entity tests
-- [ ] CODE: VitalMeasurement entity
+- [x] TEST: HealthLog entity tests
+- [x] CODE: HealthLog entity
+- [x] TEST: VitalMeasurement entity tests
+- [x] CODE: VitalMeasurement entity
 - [x] TEST: VitalType enum tests
 - [x] CODE: VitalType enum + extensions
 - [x] CODE: VitalReferenceDefaults utility
