@@ -54,25 +54,6 @@ class ConfigNotifier extends StateNotifier<AsyncValue<AppConfig>> {
     }
   }
 
-  /// Updates LLM configuration settings.
-  ///
-  /// All parameters are optional - only provided values will be updated.
-  /// After updating, saves the new config to the repository.
-  Future<void> updateLlmConfig({
-    String? apiKey,
-    String? provider,
-    bool? useLlmExtraction,
-  }) async {
-    final current = state;
-    if (current is AsyncData<AppConfig>) {
-      final updatedConfig = current.value.copyWith(
-        llmApiKey: apiKey ?? current.value.llmApiKey,
-        llmProvider: provider ?? current.value.llmProvider,
-        useLlmExtraction: useLlmExtraction ?? current.value.useLlmExtraction,
-      );
-      await saveConfig(updatedConfig);
-    }
-  }
 }
 
 /// Provider for application configuration state.

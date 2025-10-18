@@ -3,20 +3,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_tracker_reports/core/di/injection_container.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
-import 'package:health_tracker_reports/domain/usecases/extract_report_from_file.dart';
+import 'package:health_tracker_reports/domain/usecases/extract_report_from_file_llm.dart';
 
 /// StateNotifier for managing extraction workflow.
 class ExtractionNotifier extends StateNotifier<AsyncValue<Report?>> {
-  ExtractionNotifier(this._extractReportFromFile)
+  ExtractionNotifier(this._extractReportFromFileLlm)
       : super(const AsyncValue.data(null));
 
-  final ExtractReportFromFile _extractReportFromFile;
+  final ExtractReportFromFileLlm _extractReportFromFileLlm;
 
-  /// Extracts report data from the supplied file path.
+  /// Extracts report data from the supplied file path using LLM.
   Future<Either<Failure, Report>> extractFromFile(String filePath) async {
     state = const AsyncValue.loading();
 
-    final result = await _extractReportFromFile(filePath);
+    final result = await _extractReportFromFileLlm(filePath);
 
     state = result.fold(
       (failure) => AsyncValue.error(failure, StackTrace.current),
@@ -35,5 +35,5 @@ class ExtractionNotifier extends StateNotifier<AsyncValue<Report?>> {
 /// Provider for [ExtractionNotifier].
 final extractionProvider =
     StateNotifierProvider<ExtractionNotifier, AsyncValue<Report?>>(
-  (ref) => ExtractionNotifier(getIt<ExtractReportFromFile>()),
+  (ref) => ExtractionNotifier(getIt<ExtractReportFromFileLlm>()),
 );

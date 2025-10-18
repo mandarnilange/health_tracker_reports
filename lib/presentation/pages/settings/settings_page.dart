@@ -72,7 +72,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       llmProvider: _selectedProvider,
     );
 
-    await ref.read(configProvider.notifier).updateConfig(newConfig);
+    await ref.read(configProvider.notifier).saveConfig(newConfig);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

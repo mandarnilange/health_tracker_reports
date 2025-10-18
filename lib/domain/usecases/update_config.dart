@@ -12,6 +12,6 @@ class UpdateConfig {
   UpdateConfig(this.repository);
 
   Future<Either<Failure, void>> call(AppConfig config) async {
-    return await repository.updateConfig(config);
+    return await repository.saveConfig(config);
   }
 }

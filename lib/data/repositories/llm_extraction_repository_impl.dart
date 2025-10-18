@@ -31,6 +31,7 @@ class LlmExtractionRepositoryImpl implements LlmExtractionRepository {
   Future<Either<Failure, LlmExtractionResult>> extractFromImage({
     required String base64Image,
     LlmProvider? provider,
+    List<String> existingBiomarkerNames = const [],
   }) async {
     try {
       // Get provider and API key from config
@@ -51,6 +52,7 @@ class LlmExtractionRepositoryImpl implements LlmExtractionRepository {
       final result = await service.extractFromImage(
         base64Image: base64Image,
         apiKey: apiKey,
+        existingBiomarkerNames: existingBiomarkerNames,
       );
 
       return Right(result);
@@ -74,15 +76,15 @@ class LlmExtractionRepositoryImpl implements LlmExtractionRepository {
 
   @override
   LlmProvider getCurrentProvider() {
-    final configResult = _configRepository.getConfig();
-    return configResult.fold(
-      (failure) => LlmProvider.claude,
-      (config) => config.llmProvider,
-    );
+    // Since getConfig is async, we return the default provider
+    // The actual provider is determined at extraction time
+    return LlmProvider.claude;
   }
 
   @override
   void cancel() {
-    _providerServices.values.forEach((service) => service.cancel());
+    for (final service in _providerServices.values) {
+      service.cancel();
+    }
   }
 }

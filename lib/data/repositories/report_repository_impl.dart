@@ -118,4 +118,24 @@ class ReportRepositoryImpl implements ReportRepository {
       return Left(CacheFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, List<String>>> getDistinctBiomarkerNames() async {
+    try {
+      final reports = await localDataSource.getAllReports();
+      final biomarkerNames = <String>{};
+
+      for (final reportModel in reports) {
+        for (final biomarkerModel in reportModel.biomarkers) {
+          biomarkerNames.add(biomarkerModel.name);
+        }
+      }
+
+      // Convert to sorted list for consistency
+      final sortedNames = biomarkerNames.toList()..sort();
+      return Right(sortedNames);
+    } on CacheException {
+      return Left(CacheFailure());
+    }
+  }
 }

@@ -14,4 +14,8 @@ abstract class ReportRepository {
     DateTime? startDate,
     DateTime? endDate,
   });
+
+  /// Get list of distinct biomarker names from all stored reports
+  /// Used for LLM normalization during extraction
+  Future<Either<Failure, List<String>>> getDistinctBiomarkerNames();
 }

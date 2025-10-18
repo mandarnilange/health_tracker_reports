@@ -21,6 +21,7 @@ class ClaudeLlmService implements LlmProviderService {
   Future<LlmExtractionResult> extractFromImage({
     required String base64Image,
     required String apiKey,
+    List<String> existingBiomarkerNames = const [],
     int timeoutSeconds = 30,
   }) async {
     _cancelToken = CancelToken();
@@ -53,7 +54,7 @@ class ClaudeLlmService implements LlmProviderService {
               },
               {
                 'type': 'text',
-                'text': _getPrompt(),
+                'text': _getPrompt(existingBiomarkerNames),
               }
             ]
           }
@@ -70,9 +71,25 @@ class ClaudeLlmService implements LlmProviderService {
     _cancelToken?.cancel();
   }
 
-  String _getPrompt() {
-    return '''You are a medical lab report analyzer. Extract biomarker data from the provided blood test report image.
+  String _getPrompt(List<String> existingBiomarkerNames) {
+    final normalizationGuidance = existingBiomarkerNames.isEmpty
+        ? ''
+        : '''
 
+IMPORTANT - Biomarker Name Normalization:
+The user has the following biomarker names in their historical reports:
+${existingBiomarkerNames.map((name) => '  - $name').join('\n')}
+
+When extracting biomarkers, if you identify a biomarker that matches one of these existing names (considering common aliases, abbreviations, or slight variations), use the EXACT name from the list above. For example:
+- If you see "Hb" or "HGB" and "Hemoglobin" exists in the list, use "Hemoglobin"
+- If you see "WBC Count" and "White Blood Cell Count" exists, use "White Blood Cell Count"
+- If you see "Chol" and "Cholesterol" exists, use "Cholesterol"
+
+This ensures consistency across all reports for trend analysis.
+''';
+
+    return '''You are a medical lab report analyzer. Extract biomarker data from the provided blood test report image.
+$normalizationGuidance
 Return ONLY valid JSON in this exact format (no markdown, no explanations):
 
 {
@@ -97,7 +114,7 @@ Return ONLY valid JSON in this exact format (no markdown, no explanations):
 
 Rules:
 1. Extract ALL biomarkers visible in the report
-2. Preserve exact spelling of biomarker names
+2. Use exact names from the historical list when applicable (see normalization guidance above)
 3. Include units even if they're in column headers
 4. Parse reference ranges (e.g., "10-20", "<5", ">100")
 5. Set confidence scores based on clarity (0.0-1.0)

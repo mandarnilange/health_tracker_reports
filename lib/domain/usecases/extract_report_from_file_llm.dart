@@ -5,7 +5,7 @@ import 'package:health_tracker_reports/domain/entities/biomarker.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/domain/entities/reference_range.dart';
 import 'package:health_tracker_reports/domain/repositories/llm_extraction_repository.dart';
-import 'package:health_tracker_reports/domain/usecases/normalize_biomarker_name.dart';
+import 'package:health_tracker_reports/domain/repositories/report_repository.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
@@ -15,17 +15,24 @@ import 'package:uuid/uuid.dart';
 class ExtractReportFromFileLlm {
   final LlmExtractionRepository llmRepository;
   final ImageProcessingService imageService;
-  final NormalizeBiomarkerName normalizeBiomarker;
+  final ReportRepository reportRepository;
 
   ExtractReportFromFileLlm({
     required this.llmRepository,
     required this.imageService,
-    required this.normalizeBiomarker,
+    required this.reportRepository,
   });
 
   Future<Either<Failure, Report>> call(String filePath) async {
     try {
-      // 1. Convert file to base64 images
+      // 1. Get existing biomarker names for normalization
+      final existingNamesResult = await reportRepository.getDistinctBiomarkerNames();
+      final existingBiomarkerNames = existingNamesResult.fold(
+        (failure) => <String>[], // If no existing reports, use empty list
+        (names) => names,
+      );
+
+      // 2. Convert file to base64 images
       final extension = p.extension(filePath).toLowerCase();
       final List<String> base64Images;
 
@@ -42,7 +49,7 @@ class ExtractReportFromFileLlm {
         );
       }
 
-      // 2. Extract biomarkers from each page using LLM
+      // 3. Extract biomarkers from each page using LLM
       final allBiomarkers = <Biomarker>[];
       String? patientName;
       DateTime? reportDate;
@@ -52,9 +59,10 @@ class ExtractReportFromFileLlm {
         // Compress if needed
         final compressed = await imageService.compressImageBase64(base64Image);
 
-        // Call LLM API
+        // Call LLM API with existing biomarker names for normalization
         final result = await llmRepository.extractFromImage(
           base64Image: compressed,
+          existingBiomarkerNames: existingBiomarkerNames,
         );
 
         await result.fold(
@@ -71,12 +79,8 @@ class ExtractReportFromFileLlm {
             }
 
             // Convert extracted biomarkers to domain entities
+            // LLM already normalized the names based on existing biomarkers
             for (final extracted in extraction.biomarkers) {
-              final normalizedName = normalizeBiomarker(extracted.name);
-              final name = normalizedName.isNotEmpty
-                  ? normalizedName
-                  : extracted.name;
-
               // Parse value
               final value = _parseDouble(extracted.value);
               if (value == null) continue; // Skip non-numeric values for now
@@ -87,7 +91,7 @@ class ExtractReportFromFileLlm {
               allBiomarkers.add(
                 Biomarker(
                   id: const Uuid().v4(),
-                  name: name,
+                  name: extracted.name, // Use LLM-normalized name directly
                   value: value,
                   unit: extracted.unit ?? '',
                   referenceRange: range ?? ReferenceRange(min: value, max: value),

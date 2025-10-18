@@ -18,16 +18,8 @@ import 'package:health_tracker_reports/data/datasources/external/gemini_llm_serv
     as _i48;
 import 'package:health_tracker_reports/data/datasources/external/image_processing_service.dart'
     as _i46;
-import 'package:health_tracker_reports/data/datasources/external/llm_extraction_service.dart'
-    as _i212;
-import 'package:health_tracker_reports/data/datasources/external/ocr_service.dart'
-    as _i829;
 import 'package:health_tracker_reports/data/datasources/external/openai_llm_service.dart'
     as _i549;
-import 'package:health_tracker_reports/data/datasources/external/pdf_document_wrapper.dart'
-    as _i435;
-import 'package:health_tracker_reports/data/datasources/external/pdf_service.dart'
-    as _i760;
 import 'package:health_tracker_reports/data/datasources/local/config_local_datasource.dart'
     as _i537;
 import 'package:health_tracker_reports/data/datasources/local/hive_database.dart'
@@ -55,8 +47,6 @@ import 'package:health_tracker_reports/domain/usecases/compare_biomarker_across_
     as _i889;
 import 'package:health_tracker_reports/domain/usecases/delete_report.dart'
     as _i248;
-import 'package:health_tracker_reports/domain/usecases/extract_report_from_file.dart'
-    as _i839;
 import 'package:health_tracker_reports/domain/usecases/extract_report_from_file_llm.dart'
     as _i990;
 import 'package:health_tracker_reports/domain/usecases/get_all_reports.dart'
@@ -107,28 +97,17 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i549.OpenAiLlmService(gh<_i361.Dio>()));
     gh.lazySingleton<_i48.GeminiLlmService>(
         () => _i48.GeminiLlmService(gh<_i361.Dio>()));
-    gh.lazySingleton<_i212.LlmExtractionService>(() =>
-        _i212.LlmExtractionServiceImpl(appConfig: gh<_i386.AppConfigModel>()));
-    gh.lazySingleton<_i829.OcrService>(
-        () => _i829.OcrService(textRecognizer: gh<InvalidType>()));
     gh.lazySingleton<_i537.ConfigLocalDataSource>(() =>
         _i537.ConfigLocalDataSourceImpl(
             box: gh<_i979.Box<_i386.AppConfigModel>>()));
     gh.lazySingleton<_i767.ReportRepository>(() => _i508.ReportRepositoryImpl(
         localDataSource: gh<_i273.ReportLocalDataSource>()));
-    gh.lazySingleton<_i760.PdfService>(() =>
-        _i760.PdfService(pdfDocumentWrapper: gh<_i435.PdfDocumentWrapper>()));
     gh.lazySingleton<_i567.SaveReport>(
         () => _i567.SaveReport(repository: gh<_i767.ReportRepository>()));
     gh.lazySingleton<_i657.GetAllReports>(
         () => _i657.GetAllReports(repository: gh<_i767.ReportRepository>()));
     gh.lazySingleton<_i248.DeleteReport>(
         () => _i248.DeleteReport(repository: gh<_i767.ReportRepository>()));
-    gh.lazySingleton<_i839.ExtractReportFromFile>(
-        () => _i839.ExtractReportFromFile(
-              reportScanService: gh<InvalidType>(),
-              normalizeBiomarker: gh<_i197.NormalizeBiomarkerName>(),
-            ));
     gh.lazySingleton<_i649.ConfigRepository>(() => _i616.ConfigRepositoryImpl(
         localDataSource: gh<_i537.ConfigLocalDataSource>()));
     gh.factory<_i1005.UpdateConfig>(
@@ -153,7 +132,7 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i990.ExtractReportFromFileLlm(
               llmRepository: gh<_i111.LlmExtractionRepository>(),
               imageService: gh<_i46.ImageProcessingService>(),
-              normalizeBiomarker: gh<_i197.NormalizeBiomarkerName>(),
+              reportRepository: gh<_i767.ReportRepository>(),
             ));
     return this;
   }

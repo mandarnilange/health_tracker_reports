@@ -7,9 +7,11 @@ import 'package:health_tracker_reports/domain/entities/llm_extraction.dart';
 abstract class LlmExtractionRepository {
   /// Extracts biomarkers from a base64-encoded image
   /// Uses configured provider if [provider] is null
+  /// [existingBiomarkerNames] helps LLM normalize biomarker names to match historical data
   Future<Either<Failure, LlmExtractionResult>> extractFromImage({
     required String base64Image,
     LlmProvider? provider,
+    List<String> existingBiomarkerNames = const [],
   });
 
   /// Returns the currently configured LLM provider
