@@ -27,6 +27,13 @@ class RouteNames {
   /// Settings route - allows users to configure app settings
   static const String settings = '/settings';
 
+  /// Health log detail route - displays details of a specific health log
+  /// Use with health log ID parameter: /health-log/:id
+  static const String healthLogDetail = '/health-log/:id';
+
   /// Helper method to generate report detail route with ID
   static String reportDetailWithId(String id) => '/report/$id';
+
+  /// Helper method to generate health log detail route with ID
+  static String healthLogDetailWithId(String id) => '/health-log/$id';
 }

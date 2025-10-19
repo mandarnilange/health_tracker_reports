@@ -3,7 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:health_tracker_reports/presentation/pages/error/error_page.dart';
 import 'package:health_tracker_reports/presentation/pages/home/reports_list_page.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
+import 'package:health_tracker_reports/domain/entities/health_log.dart';
 import 'package:health_tracker_reports/presentation/pages/report_detail/report_detail_page.dart';
+import 'package:health_tracker_reports/presentation/pages/health_log/health_log_detail_page.dart';
 import 'package:health_tracker_reports/presentation/pages/settings/settings_page.dart';
 import 'package:health_tracker_reports/presentation/pages/trends/comparison_view.dart';
 import 'package:health_tracker_reports/presentation/pages/trends/trends_page.dart';
@@ -129,6 +131,30 @@ class AppRouter {
               key: state.pageKey,
               child: const SettingsPage(),
             ),
+          ),
+
+          // Health Log Detail Route - View specific health log
+          GoRoute(
+            path: RouteNames.healthLogDetail,
+            name: 'healthLogDetail',
+            pageBuilder: (context, state) {
+              final extra = state.extra;
+
+              // Validate that HealthLog data is provided
+              if (extra is! HealthLog) {
+                return MaterialPage<void>(
+                  key: state.pageKey,
+                  child: const ErrorPage(
+                    errorMessage: 'Health log data is required',
+                  ),
+                );
+              }
+
+              return MaterialPage<void>(
+                key: state.pageKey,
+                child: HealthLogDetailPage(log: extra),
+              );
+            },
           ),
         ],
       );
