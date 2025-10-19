@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Registered the new adapters, introduced a dedicated `health_logs` box, and regenerated DI wiring/build artifacts.
 - Covered serialization logic with unit tests for both models (`test/unit/data/models/*_model_test.dart`).
 
+### Added - Phase 6 Health Log Local Data Source (2025-10-18)
+
+- Created `HealthLogLocalDataSource` for Hive persistence with full CRUD support and defensive cache error handling.
+- Expanded HiveDatabase contract/tests to register/load the new health log adapters and box.
+- Added unit coverage for the data source behaviours (`test/unit/data/datasources/local/health_log_local_datasource_test.dart`).
+
 ### Added - Phase 6 Domain Foundations (2025-10-18)
 
 - Introduced unified timeline domain interfaces: `HealthEntry`, `HealthLog`, `VitalMeasurement`, `VitalReferenceDefaults`, and `VitalStatistics` with comprehensive unit tests.

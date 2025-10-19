@@ -1,11 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:health_tracker_reports/data/models/reference_range_model.dart';
+import 'package:health_tracker_reports/data/models/health_log_model.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:hive/hive.dart';
 import 'package:health_tracker_reports/data/datasources/local/hive_database.dart';
 import 'package:health_tracker_reports/data/models/report_model.dart';
 import 'package:health_tracker_reports/data/models/app_config_model.dart';
 import 'package:health_tracker_reports/data/models/biomarker_model.dart';
+import 'package:health_tracker_reports/data/models/reference_range_model.dart';
+import 'package:health_tracker_reports/data/models/vital_measurement_model.dart';
 import 'package:health_tracker_reports/domain/entities/llm_extraction.dart';
 
 class MockHive extends Mock implements HiveInterface {}
@@ -22,6 +24,8 @@ void main() {
     registerFallbackValue(ReportModelAdapter());
     registerFallbackValue(AppConfigModelAdapter());
     registerFallbackValue(BiomarkerModelAdapter());
+    registerFallbackValue(HealthLogModelAdapter());
+    registerFallbackValue(VitalMeasurementModelAdapter());
     registerFallbackValue(ReferenceRangeModelAdapter());
     registerFallbackValue(LlmProviderAdapter());
   });
@@ -33,6 +37,10 @@ void main() {
       when(() => mockHive.registerAdapter<AppConfigModel>(any()))
           .thenReturn(null);
       when(() => mockHive.registerAdapter<BiomarkerModel>(any()))
+          .thenReturn(null);
+      when(() => mockHive.registerAdapter<HealthLogModel>(any()))
+          .thenReturn(null);
+      when(() => mockHive.registerAdapter<VitalMeasurementModel>(any()))
           .thenReturn(null);
       when(() => mockHive.registerAdapter<ReferenceRangeModel>(any()))
           .thenReturn(null);
@@ -46,6 +54,9 @@ void main() {
       verify(() => mockHive.registerAdapter<ReportModel>(any())).called(1);
       verify(() => mockHive.registerAdapter<AppConfigModel>(any())).called(1);
       verify(() => mockHive.registerAdapter<BiomarkerModel>(any())).called(1);
+      verify(() => mockHive.registerAdapter<HealthLogModel>(any())).called(1);
+      verify(() => mockHive.registerAdapter<VitalMeasurementModel>(any()))
+          .called(1);
       verify(() => mockHive.registerAdapter<ReferenceRangeModel>(any()))
           .called(1);
       verify(() => mockHive.registerAdapter<LlmProvider>(any())).called(1);
@@ -57,6 +68,8 @@ void main() {
           .thenAnswer((_) async => MockBox<ReportModel>());
       when(() => mockHive.openBox<AppConfigModel>(any()))
           .thenAnswer((_) async => MockBox<AppConfigModel>());
+      when(() => mockHive.openBox<HealthLogModel>(any()))
+          .thenAnswer((_) async => MockBox<HealthLogModel>());
 
       // Act
       await hiveDatabase.openBoxes();
@@ -65,6 +78,9 @@ void main() {
       verify(() => mockHive.openBox<ReportModel>(HiveDatabase.reportBoxName))
           .called(1);
       verify(() => mockHive.openBox<AppConfigModel>(HiveDatabase.configBoxName))
+          .called(1);
+      verify(() =>
+              mockHive.openBox<HealthLogModel>(HiveDatabase.healthLogBoxName))
           .called(1);
     });
   });

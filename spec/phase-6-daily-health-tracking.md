@@ -1118,12 +1118,12 @@ final vitalStatisticsProvider = FutureProvider.family<VitalStatistics, VitalType
 - [x] CODE: VitalMeasurementModel + TypeAdapter
 - [x] CODE: Update HiveDatabase (register adapters, open box)
 - [x] CODE: Run build_runner
-- [ ] COMMIT: Hive models complete
+- [x] COMMIT: Hive models complete
 
 **Day 3: Local Data Source**
-- [ ] TEST: HealthLogLocalDataSource tests
-- [ ] CODE: HealthLogLocalDataSource
-- [ ] VERIFY: All tests pass
+- [x] TEST: HealthLogLocalDataSource tests
+- [x] CODE: HealthLogLocalDataSource
+- [x] VERIFY: All tests pass
 - [ ] COMMIT: Local data source complete
 
 **Day 4-5: Repository Implementations**
