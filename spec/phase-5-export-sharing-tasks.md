@@ -529,7 +529,7 @@ class DashboardCategory extends Equatable {
 ## Phase 5 Completion Checklist
 
 ### Functional Requirements
-- [ ] User can navigate to Export page
+- [x] User can navigate to Export page
 - [ ] User can export reports_biomarkers.csv
 - [ ] User can export health_logs_vitals.csv
 - [ ] User can export trends_statistics.csv
