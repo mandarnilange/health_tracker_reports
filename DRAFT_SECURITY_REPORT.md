@@ -11,7 +11,7 @@
 
 *   **Vulnerability:** Path Traversal
 *   **Severity:** High
-*   **Location:** /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/usecases/extract_report_from_file_llm.dart
-*   **Line Content:** `base64Images = await imageService.pdfToBase64Images(filePath);` and `final image = await imageService.imageToBase64(filePath);`
-*   **Description:** The `filePath` parameter, which is user-controlled, is used to read files from the file system without proper validation or sanitization. This could allow an attacker to read arbitrary files from the file system by providing a malicious path (e.g., `../../../../etc/passwd`).
+*   **Location:** /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/domain/usecases/extract_report_from_file_llm.dart and /Users/mandarnilange/Mandar/codebases/personal/chintuuuu/health_tracker_reports/lib/data/datasources/external/image_processing_service.dart
+*   **Line Content:** `base64Images = await imageService.pdfToBase64Images(filePath);` in `extract_report_from_file_llm.dart` and `final document = await PdfDocument.openFile(pdfPath);` in `image_processing_service.dart`
+*   **Description:** The `filePath` parameter, which is user-controlled, is used to read files from the file system without proper validation or sanitization. This could allow an attacker to read arbitrary files from the file system by providing a malicious path (e.g., `../../../../etc/passwd`). The vulnerability originates in `extract_report_from_file_llm.dart` and the sink is in `image_processing_service.dart`.
 *   **Recommendation:** Sanitize the `filePath` to ensure it does not contain any path traversal characters (e.g., `..`). Additionally, consider restricting file access to a specific directory.

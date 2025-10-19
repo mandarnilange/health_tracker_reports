@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:health_tracker_reports/domain/entities/health_log.dart';
 import 'package:health_tracker_reports/domain/entities/vital_measurement.dart';
+import 'package:health_tracker_reports/presentation/router/route_names.dart';
 import 'package:intl/intl.dart';
 
 class HealthLogCard extends StatelessWidget {
@@ -20,44 +22,50 @@ class HealthLogCard extends StatelessWidget {
     return Card(
       elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.note_alt, size: 20),
-                const SizedBox(width: 8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          context.push(RouteNames.healthLogDetailWithId(log.id), extra: log);
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.note_alt, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    _timestampFormatter.format(log.timestamp),
+                    style: theme.textTheme.titleMedium,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              if (displayedVitals.isNotEmpty)
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: displayedVitals.map(_buildVitalChip).toList(),
+                ),
+              if (vitals.length > displayedVitals.length)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    '+${vitals.length - displayedVitals.length} more',
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ),
+              if (log.notes != null && log.notes!.trim().isNotEmpty) ...[
+                const SizedBox(height: 12),
                 Text(
-                  _timestampFormatter.format(log.timestamp),
-                  style: theme.textTheme.titleMedium,
+                  log.notes!.trim(),
+                  style: theme.textTheme.bodyMedium,
                 ),
               ],
-            ),
-            const SizedBox(height: 8),
-            if (displayedVitals.isNotEmpty)
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: displayedVitals.map(_buildVitalChip).toList(),
-              ),
-            if (vitals.length > displayedVitals.length)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  '+${vitals.length - displayedVitals.length} more',
-                  style: theme.textTheme.bodySmall,
-                ),
-              ),
-            if (log.notes != null && log.notes!.trim().isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Text(
-                log.notes!.trim(),
-                style: theme.textTheme.bodyMedium,
-              ),
             ],
-          ],
+          ),
         ),
       ),
     );

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:health_tracker_reports/domain/entities/health_entry.dart';
 import 'package:health_tracker_reports/domain/entities/health_log.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/presentation/providers/timeline_provider.dart';
+import 'package:health_tracker_reports/presentation/router/route_names.dart';
 import 'package:health_tracker_reports/presentation/widgets/health_log_card.dart';
 import 'package:intl/intl.dart';
 
@@ -13,7 +15,7 @@ class HealthTimeline extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final filter = ref.watch(timelineFilterProvider);
-    final timeline = ref.watch(timelineProvider);
+    final timeline = ref.watch(filteredTimelineProvider);
 
     return Column(
       children: [
@@ -136,47 +138,53 @@ class _ReportTimelineCard extends StatelessWidget {
     return Card(
       elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.insert_drive_file_outlined, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  report.labName,
-                  style: theme.textTheme.titleMedium,
-                ),
-                const Spacer(),
-                Text(
-                  _dateFormat.format(report.date),
-                  style: theme.textTheme.bodySmall,
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '${report.totalBiomarkerCount} biomarkers',
-              style: theme.textTheme.bodyMedium,
-            ),
-            if (outOfRange > 0)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Row(
-                  children: [
-                    Icon(Icons.warning_amber_rounded,
-                        color: Colors.orange.shade700, size: 18),
-                    const SizedBox(width: 4),
-                    Text(
-                      '$outOfRange out of range',
-                      style: theme.textTheme.bodySmall,
-                    ),
-                  ],
-                ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          context.push(RouteNames.reportDetailWithId(report.id));
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.insert_drive_file_outlined, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    report.labName,
+                    style: theme.textTheme.titleMedium,
+                  ),
+                  const Spacer(),
+                  Text(
+                    _dateFormat.format(report.date),
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ],
               ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                '${report.totalBiomarkerCount} biomarkers',
+                style: theme.textTheme.bodyMedium,
+              ),
+              if (outOfRange > 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Row(
+                    children: [
+                      Icon(Icons.warning_amber_rounded,
+                          color: Colors.orange.shade700, size: 18),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$outOfRange out of range',
+                        style: theme.textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

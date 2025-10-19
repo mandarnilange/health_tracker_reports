@@ -53,55 +53,53 @@ class _HealthLogEntrySheetState extends ConsumerState<HealthLogEntrySheet> {
 
   @override
   Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final bottomInset = mediaQuery.viewInsets.bottom;
-
     return DraggableScrollableSheet(
       expand: false,
       minChildSize: 0.5,
       initialChildSize: 0.85,
       maxChildSize: 0.95,
       builder: (context, scrollController) {
-        return Padding(
-          padding: EdgeInsets.only(bottom: bottomInset),
-          child: Scaffold(
-            body: SingleChildScrollView(
-              controller: scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHeader(context),
-                  const SizedBox(height: 16),
-                  _buildVitalList(context),
-                  const SizedBox(height: 16),
-                  _buildAddVitalButton(),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _notesController,
-                    maxLines: 3,
-                    decoration: const InputDecoration(
-                      labelText: 'Notes',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _isSaving ? null : _onSave,
-                      child: _isSaving
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Save Health Log'),
-                    ),
-                  ),
-                ],
+        return Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          child: ListView(
+            controller: scrollController,
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            children: [
+              _buildHeader(context),
+              const SizedBox(height: 16),
+              _buildVitalList(context),
+              const SizedBox(height: 16),
+              _buildAddVitalButton(),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _notesController,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'Notes (Optional)',
+                  hintText: 'Add any notes about this reading...',
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: _isSaving ? null : _onSave,
+                  child: _isSaving
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Save Health Log'),
+                ),
+              ),
+              SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
+            ],
           ),
         );
       },
@@ -225,7 +223,7 @@ class _HealthLogEntrySheetState extends ConsumerState<HealthLogEntrySheet> {
     final messenger = ScaffoldMessenger.of(context);
     if (!_validateInputs()) {
       messenger.showSnackBar(
-        const SnackBar(content: Text('Please enter values for all vitals.')),
+        const SnackBar(content: Text('Please enter at least one vital measurement.')),
       );
       return;
     }
@@ -264,15 +262,27 @@ class _HealthLogEntrySheetState extends ConsumerState<HealthLogEntrySheet> {
   }
 
   bool _validateInputs() {
+    // At least one vital should have a value
+    bool hasAtLeastOne = false;
+
     for (final type in _selectedVitals) {
       final value = _values[type]!;
       if (!_hasSecondaryField(type)) {
-        if (value.primary == null) return false;
+        if (value.primary != null) {
+          hasAtLeastOne = true;
+        }
       } else {
-        if (value.primary == null || value.secondary == null) return false;
+        // For BP, both systolic and diastolic must be provided if any
+        if (value.primary != null && value.secondary != null) {
+          hasAtLeastOne = true;
+        } else if (value.primary != null || value.secondary != null) {
+          // If only one BP value is provided, it's invalid
+          return false;
+        }
       }
     }
-    return true;
+
+    return hasAtLeastOne;
   }
 
   List<VitalMeasurementInput> _buildVitalInputs() {
@@ -281,18 +291,24 @@ class _HealthLogEntrySheetState extends ConsumerState<HealthLogEntrySheet> {
     for (final type in _selectedVitals) {
       final value = _values[type]!;
       if (type == VitalType.bloodPressureSystolic) {
-        inputs.addAll([
-          VitalMeasurementInput(type: VitalType.bloodPressureSystolic, value: value.primary!),
-          VitalMeasurementInput(type: VitalType.bloodPressureDiastolic, value: value.secondary!),
-        ]);
+        // Only add BP if both systolic and diastolic are provided
+        if (value.primary != null && value.secondary != null) {
+          inputs.addAll([
+            VitalMeasurementInput(type: VitalType.bloodPressureSystolic, value: value.primary!),
+            VitalMeasurementInput(type: VitalType.bloodPressureDiastolic, value: value.secondary!),
+          ]);
+        }
       } else {
-        inputs.add(
-          VitalMeasurementInput(
-            type: type,
-            value: value.primary!,
-            referenceRange: value.referenceRange,
-          ),
-        );
+        // Only add vital if it has a value
+        if (value.primary != null) {
+          inputs.add(
+            VitalMeasurementInput(
+              type: type,
+              value: value.primary!,
+              referenceRange: value.referenceRange,
+            ),
+          );
+        }
       }
     }
 
