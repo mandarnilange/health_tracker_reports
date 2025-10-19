@@ -81,6 +81,18 @@ class FileSystemFailure extends Failure {
   const FileSystemFailure({required String message}) : super(message);
 }
 
+/// Failure that occurs when the app lacks permission to write to storage.
+class PermissionFailure extends Failure {
+  /// Creates a [PermissionFailure] with a required error message.
+  const PermissionFailure({required String message}) : super(message);
+}
+
+/// Failure that occurs when device storage is full.
+class StorageFailure extends Failure {
+  /// Creates a [StorageFailure] with a required error message.
+  const StorageFailure({required String message}) : super(message);
+}
+
 /// Failure that occurs during embedding operations (loading, matching, etc.)
 class EmbeddingFailure extends Failure {
   /// Creates an [EmbeddingFailure] with a required error message
