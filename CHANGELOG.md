@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Registered the new adapters, introduced a dedicated `health_logs` box, and regenerated DI wiring/build artifacts.
 - Covered serialization logic with unit tests for both models (`test/unit/data/models/*_model_test.dart`).
 
+### Added - Phase 6 Providers (2025-10-18)
+
+- Introduced Riverpod notifiers/providers for health logs, unified timeline, and vital trend statistics.
+- Added test suites covering load, mutation, and error flows for the new providers.
+- Wired providers to the latest use cases via `getIt` injection helpers.
+
 ### Added - Phase 6 Repository Implementations (2025-10-18)
 
 - Implemented `HealthLogRepositoryImpl` with Hive-backed persistence, filtering helpers, and vital trend extraction logic.
