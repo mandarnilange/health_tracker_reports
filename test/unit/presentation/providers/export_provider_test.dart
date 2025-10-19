@@ -61,30 +61,10 @@ void main() {
     updatedAt: tDate,
   );
 
-  final trendSeries = TrendMetricSeries(
-    type: TrendMetricType.biomarker,
-    name: 'Glucose',
-    points: [
-      TrendMetricPoint(
-        timestamp: DateTime(2025, 10, 1),
-        value: 95,
-        unit: 'mg/dL',
-        isOutOfRange: false,
-      ),
-      TrendMetricPoint(
-        timestamp: DateTime(2026, 1, 10),
-        value: 110,
-        unit: 'mg/dL',
-        isOutOfRange: true,
-      ),
-    ],
-  );
-
-  setUpAll(() {
-    registerFallbackValue(<Report>[]);
-    registerFallbackValue(<HealthLog>[]);
-    registerFallbackValue(<TrendMetricSeries>[]);
-  });
+  final reportsLoader =
+      () async => Right<Failure, List<Report>>([report]);
+  final logsLoader =
+      () async => Right<Failure, List<HealthLog>>([healthLog]);
 
   setUp(() {
     csvExportService = _MockCsvExportService();
@@ -92,6 +72,8 @@ void main() {
     provider = ExportProvider(
       csvExportService: csvExportService,
       fileWriterService: fileWriterService,
+      reportsLoader: reportsLoader,
+      healthLogsLoader: logsLoader,
     );
   });
 
@@ -102,6 +84,7 @@ void main() {
       expect(provider.state.total, 0);
       expect(provider.state.results, isEmpty);
       expect(provider.state.failure, isNull);
+      expect(provider.state.activeAction, isNull);
     });
   });
 
@@ -120,7 +103,7 @@ void main() {
       final states = <ExportState>[];
       provider.addListener(states.add, fireImmediately: true);
 
-      await provider.exportReports([report]);
+      await provider.exportReports();
 
       expect(states.map((s) => s.status), [
         ExportStatus.idle,
@@ -133,6 +116,7 @@ void main() {
       expect(successState.results.first.path, '/tmp/reports.csv');
       expect(successState.completed, 1);
       expect(successState.total, 1);
+      expect(successState.activeAction, isNull);
     });
   });
 
@@ -158,25 +142,22 @@ void main() {
       final states = <ExportState>[];
       provider.addListener(states.add, fireImmediately: true);
 
-      await provider.exportAll(
-        reports: [report],
-        healthLogs: [healthLog],
-        trends: [trendSeries],
-      );
+      await provider.exportAll();
 
-      expect(states.length, greaterThanOrEqualTo(4));
       expect(states.first.status, ExportStatus.idle);
-      expect(states[1].completed, 0);
-      expect(states[1].total, 3);
-
-      expect(provider.state.status, ExportStatus.success);
+      expect(states[1].status, ExportStatus.inProgress);
+      expect(states[1].activeAction, ExportAction.all);
+      expect(states.last.status, ExportStatus.success);
       expect(provider.state.completed, 3);
       expect(provider.state.total, 3);
-      expect(provider.state.results.map((r) => r.target), [
-        ExportTarget.reports,
-        ExportTarget.vitals,
-        ExportTarget.trends,
-      ]);
+      expect(
+        provider.state.results.map((r) => r.target).toList(),
+        [
+          ExportTarget.reports,
+          ExportTarget.vitals,
+          ExportTarget.trends,
+        ],
+      );
     });
   });
 
@@ -200,7 +181,7 @@ void main() {
       final states = <ExportState>[];
       provider.addListener(states.add, fireImmediately: true);
 
-      await provider.exportReports([report]);
+      await provider.exportReports();
 
       expect(provider.state.status, ExportStatus.error);
       expect(provider.state.failure, isA<PermissionFailure>());

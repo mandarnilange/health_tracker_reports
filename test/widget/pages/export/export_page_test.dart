@@ -1,14 +1,12 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/data/datasources/external/csv_export_service.dart';
 import 'package:health_tracker_reports/data/datasources/external/file_writer_service.dart';
-import 'package:health_tracker_reports/domain/entities/biomarker.dart';
 import 'package:health_tracker_reports/domain/entities/health_log.dart';
-import 'package:health_tracker_reports/domain/entities/reference_range.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
-import 'package:health_tracker_reports/domain/entities/vital_measurement.dart';
 import 'package:health_tracker_reports/domain/usecases/export_reports_to_csv.dart';
 import 'package:health_tracker_reports/domain/usecases/export_trends_to_csv.dart';
 import 'package:health_tracker_reports/domain/usecases/export_vitals_to_csv.dart';
@@ -27,6 +25,8 @@ class _SpyExportProvider extends ExportProvider {
             downloadsPathProvider: _StubDownloadsPathProvider(),
             fileWriter: (_, __) async {},
           ),
+          reportsLoader: () async => Right<Failure, List<Report>>([]),
+          healthLogsLoader: () async => Right<Failure, List<HealthLog>>([]),
         );
 
   bool exportReportsCalled = false;
@@ -34,38 +34,24 @@ class _SpyExportProvider extends ExportProvider {
   bool exportTrendsCalled = false;
   bool exportAllCalled = false;
 
-  List<Report>? capturedReports;
-  List<HealthLog>? capturedLogs;
-  List<TrendMetricSeries>? capturedTrends;
-
   @override
-  Future<void> exportReports(List<Report> reports) async {
+  Future<void> exportReports() async {
     exportReportsCalled = true;
-    capturedReports = reports;
   }
 
   @override
-  Future<void> exportVitals(List<HealthLog> logs) async {
+  Future<void> exportVitals() async {
     exportVitalsCalled = true;
-    capturedLogs = logs;
   }
 
   @override
-  Future<void> exportTrends(List<TrendMetricSeries> series) async {
+  Future<void> exportTrends() async {
     exportTrendsCalled = true;
-    capturedTrends = series;
   }
 
   @override
-  Future<void> exportAll({
-    required List<Report> reports,
-    required List<HealthLog> healthLogs,
-    required List<TrendMetricSeries> trends,
-  }) async {
+  Future<void> exportAll() async {
     exportAllCalled = true;
-    capturedReports = reports;
-    capturedLogs = healthLogs;
-    capturedTrends = trends;
   }
 }
 
@@ -75,63 +61,6 @@ class _StubDownloadsPathProvider implements DownloadsPathProvider {
 }
 
 void main() {
-  final tReport = Report(
-    id: 'r1',
-    date: DateTime(2026, 1, 10),
-    labName: 'Quest',
-    biomarkers: [
-      Biomarker(
-        id: 'b1',
-        name: 'Glucose',
-        value: 110,
-        unit: 'mg/dL',
-        referenceRange: const ReferenceRange(min: 70, max: 100),
-        measuredAt: DateTime(2026, 1, 10),
-      ),
-    ],
-    originalFilePath: '/files/report.pdf',
-    notes: null,
-    createdAt: DateTime(2026, 1, 10),
-    updatedAt: DateTime(2026, 1, 10),
-  );
-
-  final tLog = HealthLog(
-    id: 'log_1',
-    timestamp: DateTime(2026, 1, 15),
-    vitals: [
-      const VitalMeasurement(
-        id: 'v1',
-        type: VitalType.heartRate,
-        value: 72,
-        unit: 'bpm',
-        status: VitalStatus.normal,
-        referenceRange: ReferenceRange(min: 60, max: 100),
-      ),
-    ],
-    notes: null,
-    createdAt: DateTime(2026, 1, 15),
-    updatedAt: DateTime(2026, 1, 15),
-  );
-
-  final tTrendSeries = TrendMetricSeries(
-    type: TrendMetricType.biomarker,
-    name: 'Glucose',
-    points: [
-      TrendMetricPoint(
-        timestamp: DateTime(2025, 10, 1),
-        value: 95,
-        unit: 'mg/dL',
-        isOutOfRange: false,
-      ),
-      TrendMetricPoint(
-        timestamp: DateTime(2026, 1, 10),
-        value: 110,
-        unit: 'mg/dL',
-        isOutOfRange: true,
-      ),
-    ],
-  );
-
   Future<void> _pumpPage(
     WidgetTester tester, {
     required _SpyExportProvider provider,
@@ -141,12 +70,8 @@ void main() {
         overrides: [
           exportNotifierProvider.overrideWith((ref) => provider),
         ],
-        child: MaterialApp(
-          home: ExportPage(
-            reports: [tReport],
-            healthLogs: [tLog],
-            trendSeries: [tTrendSeries],
-          ),
+        child: const MaterialApp(
+          home: ExportPage(),
         ),
       ),
     );
@@ -170,23 +95,26 @@ void main() {
     await tester.pump();
 
     expect(provider.exportAllCalled, isTrue);
-    expect(provider.capturedReports, isNotNull);
-    expect(provider.capturedLogs, isNotNull);
-    expect(provider.capturedTrends, isNotNull);
   });
 
-  testWidgets('shows progress indicator during export', (tester) async {
+  testWidgets('disables buttons and shows progress while exporting',
+      (tester) async {
     final provider = _SpyExportProvider();
     await _pumpPage(tester, provider: provider);
 
     provider.state = provider.state.asProgress(
+      action: ExportAction.all,
       completed: 1,
       total: 3,
       results: const [],
     );
     await tester.pump();
 
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    final allButton = tester.widget<ElevatedButton>(
+      find.widgetWithText(ElevatedButton, 'Export All CSVs'),
+    );
+    expect(allButton.onPressed, isNull);
+    expect(find.byType(CircularProgressIndicator), findsWidgets);
     expect(find.text('Exporting 1 of 3 files (33%)…'), findsOneWidget);
   });
 
