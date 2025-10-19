@@ -385,7 +385,9 @@ class _BiomarkerCompactCard extends StatelessWidget {
                       biomarker.name,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: Colors.grey[900],
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface,
                           ),
                     ),
                   ),
