@@ -7,6 +7,95 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Phase 6: Daily Health Tracking Complete (2025-10-19)
+
+**Goal:** Enable users to log daily vital signs alongside lab reports in a unified timeline view.
+
+**Major Features:**
+- **Unified Health Timeline**: Visual timeline combining lab reports and health logs chronologically
+  - Filter chips: "All" | "Lab Reports" | "Health Logs"
+  - Color-coded dots: blue (reports), green (normal logs), orange (warnings)
+  - Date separators for visual organization
+  - Dedicated cards for each entry type
+- **Health Log Entry Bottom Sheet**: Modal bottom sheet (85% screen) for quick vital logging
+  - Default visible vitals: Blood Pressure (Systolic/Diastolic), SpO2, Heart Rate
+  - 11 vital types supported: BP, SpO2, HR, Temperature, Weight, Glucose, Sleep, Medication, Respiratory Rate, Energy Level
+  - Real-time status indicators (green/orange/red)
+  - Timestamp auto-populated and editable
+  - Notes field for free text
+- **Health Log Detail Page**: Complete view of health log with edit/delete
+  - All vitals displayed with status indicators
+  - Visual range indicators based on medical standards
+  - Edit functionality via bottom sheet
+  - Delete with confirmation dialog
+- **Vital Trend Charts**: Extended trends page with vitals support
+  - New "Vitals" tab alongside "Biomarkers" tab
+  - Line charts with reference range bands
+  - Dual-line chart for blood pressure (systolic + diastolic)
+  - Statistics: average, min, max, trend direction
+  - Color-coded points based on status
+  - Touch interactions with tooltips
+- **Smart Reference Ranges**: Medical standard defaults for vitals
+  - BP Systolic: 90-120 mmHg, Diastolic: 60-80 mmHg
+  - SpO2: 95-100%, Heart Rate: 60-100 bpm
+  - Temperature: 97-99°F, Glucose: 70-100 mg/dL (fasting)
+  - Respiratory Rate: 12-20 breaths/min
+
+**Technical Implementation:**
+- **Domain Layer** (commits 0addb7b, 22f0dc7):
+  - New entities: `HealthLog`, `VitalMeasurement`, `VitalType`, `VitalStatus`
+  - `HealthEntry` interface for unified timeline (implemented by Report and HealthLog)
+  - `VitalReferenceDefaults` utility for medical standard ranges
+  - Repository interfaces: `HealthLogRepository`, `TimelineRepository`
+  - Use cases: `CreateHealthLog`, `GetAllHealthLogs`, `GetHealthLogById`, `UpdateHealthLog`, `DeleteHealthLog`, `ValidateVitalMeasurement`, `GetVitalTrend`, `CalculateVitalStatistics`, `GetUnifiedTimeline`
+  - Comprehensive unit test coverage (90%+)
+- **Data Layer** (commits 545270b, 81e9058, 7cb6efe):
+  - Hive models: `HealthLogModel` (typeId: 11), `VitalMeasurementModel` (typeId: 12)
+  - TypeAdapters with JSON serialization helpers
+  - `HealthLogLocalDataSource` for Hive persistence with full CRUD
+  - Repository implementations: `HealthLogRepositoryImpl`, `TimelineRepositoryImpl`
+  - Dedicated `health_logs` Hive box
+  - Defensive cache error handling
+- **Presentation Layer** (commits 9a9db68, c5e20b3, 6b686aa, 2783fb3, 3cf76b2, 6d6852d):
+  - Riverpod providers: `healthLogsProvider`, `timelineProvider`, `vitalTrendProvider`, `vitalStatisticsProvider`
+  - `HealthTimeline` widget with chip filters and refresh support
+  - `HealthLogCard` widget showing top vitals and status
+  - `HealthLogEntrySheet` bottom sheet with dynamic vital selection
+  - `VitalInputField` widget for typed vital inputs (dual fields for BP, slider for energy, etc.)
+  - `HealthLogDetailPage` with edit/delete functionality
+  - `VitalTrendChart` widget using fl_chart with dual-line support
+  - Vitals tab in trends page
+  - Navigation routes configured
+  - Widget tests for all components
+
+**Test Coverage:**
+- Overall project coverage: 69%
+- Phase 6 code coverage: 90%+ (domain and data layers)
+- 100+ new test cases added
+- All tests passing, flutter analyze clean
+
+**Commits:**
+- `0addb7b`: feat: implement phase 6 health log domain foundations
+- `545270b`: feat: add phase 6 hive models for health logs
+- `81e9058`: feat: add health log hive local datasource
+- `7cb6efe`: feat: add health log repositories and timeline aggregation
+- `9a9db68`: feat: add phase 6 provider layer scaffolding
+- `c5e20b3`: feat: implement phase 6 health timeline ui
+- `6b686aa`: feat: add health log entry sheet
+- `2783fb3`: feat: implement health log detail page
+- `3cf76b2`: feat: add vitals tab to trends page
+- `6d6852d`: feat: implement vital trend chart widget
+
+**Benefits:**
+- ✅ Comprehensive health tracking: lab reports + daily vitals in one place
+- ✅ Offline-first with Hive storage
+- ✅ Medical-grade reference ranges
+- ✅ Visual trend analysis for vitals
+- ✅ Clean architecture maintained
+- ✅ High test coverage ensures reliability
+
+---
+
 ### Added - Phase 6 Hive Models (2025-10-18)
 
 - Added Hive-backed `VitalMeasurementModel` and `HealthLogModel` with JSON helpers and bidirectional entity mappers.

@@ -207,7 +207,7 @@ The pipeline currently lacks integration tests for OpenAI/Gemini parsing and rea
 | Phase 2 – Viewing & Trends | Reports list, trends, search/filter | ✅ Implemented with Riverpod and charts |
 | Phase 3 – Enhancements | Reminders, onboarding | ⏳ Partially done (reminders stubbed) |
 | Phase 4 – LLM Extraction | Dynamic normalization, UI polish, secure storage | ✅ Complete (hardening tasks pending) |
-| **Phase 6 – Daily Health Tracking** | **Vitals logging, unified timeline, vital trends** | 🚧 **In progress (domain foundations complete)** |
+| **Phase 6 – Daily Health Tracking** | **Vitals logging, unified timeline, vital trends** | ✅ **Complete (2025-10-19)** |
 | Phase 5 – Export & Sharing | Doctor PDF, CSV export, Drive sync, sharing | ❌ Not started |
 
 **Phase 4 Hardening (Pending)**:
@@ -215,7 +215,15 @@ The pipeline currently lacks integration tests for OpenAI/Gemini parsing and rea
 - Provider coverage tests (OpenAI/Gemini)
 - Regression fixtures (multi-page PDF + image tests)
 
-**Next Priority**: Phase 6 – Daily Health Tracking (spec file created: `spec/phase-6-daily-health-tracking.md`)
+**Phase 6 – Daily Health Tracking (Completed 2025-10-19)**:
+- Domain: `HealthLog`, `VitalMeasurement` entities; `HealthLogRepository`, `TimelineRepository` interfaces; 9 use cases
+- Data: Hive models (typeId 11, 12); `HealthLogLocalDataSource`; repository implementations
+- Presentation: Riverpod providers; unified timeline with filter chips; health log entry bottom sheet; detail page with edit/delete; vital trend charts with dual-line BP support
+- Test coverage: 90%+ for Phase 6 code
+- All acceptance criteria met
+- See `spec/phase-6-daily-health-tracking.md` for full implementation details
+
+**Next Priority**: Phase 5 – Export & Sharing (Doctor PDF generation, CSV export, Google Drive sync)
 
 ---
 

@@ -993,6 +993,615 @@ class AppConfig {
 
 ---
 
+## Phase 6 Examples: Daily Health Tracking
+
+### Health Log Entity Usage
+
+```dart
+// domain/entities/health_log.dart
+import 'package:equatable/equatable.dart';
+import 'vital_measurement.dart';
+import 'health_entry.dart';
+
+class HealthLog extends Equatable implements HealthEntry {
+  final String id;
+  final DateTime timestamp;
+  final List<VitalMeasurement> vitals;
+  final String? notes;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  const HealthLog({
+    required this.id,
+    required this.timestamp,
+    required this.vitals,
+    this.notes,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  @override
+  HealthEntryType get entryType => HealthEntryType.healthLog;
+
+  @override
+  String get displayTitle => 'Health Log';
+
+  @override
+  bool get hasWarnings {
+    return vitals.any((v) => v.status != VitalStatus.normal);
+  }
+
+  HealthLog copyWith({
+    String? id,
+    DateTime? timestamp,
+    List<VitalMeasurement>? vitals,
+    String? notes,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return HealthLog(
+      id: id ?? this.id,
+      timestamp: timestamp ?? this.timestamp,
+      vitals: vitals ?? this.vitals,
+      notes: notes ?? this.notes,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  List<Object?> get props => [id, timestamp, vitals, notes, createdAt, updatedAt];
+}
+```
+
+### VitalMeasurement Creation with Reference Ranges
+
+```dart
+// Example: Creating vital measurements with automatic status calculation
+import 'package:uuid/uuid.dart';
+import '../../domain/entities/vital_measurement.dart';
+import '../../domain/entities/vital_reference_defaults.dart';
+
+VitalMeasurement createVitalMeasurement({
+  required VitalType type,
+  required double value,
+}) {
+  final unit = VitalReferenceDefaults.getUnit(type);
+  final referenceRange = VitalReferenceDefaults.getDefault(type);
+  final status = VitalReferenceDefaults.calculateStatus(type, value);
+
+  return VitalMeasurement(
+    id: const Uuid().v4(),
+    type: type,
+    value: value,
+    unit: unit,
+    status: status,
+    referenceRange: referenceRange,
+  );
+}
+
+// Usage example
+void main() {
+  // Normal BP reading
+  final systolic = createVitalMeasurement(
+    type: VitalType.bloodPressureSystolic,
+    value: 115.0,  // Within 90-120 range
+  );
+  print(systolic.status);  // VitalStatus.normal
+
+  // High heart rate
+  final heartRate = createVitalMeasurement(
+    type: VitalType.heartRate,
+    value: 105.0,  // Above 100 bpm
+  );
+  print(heartRate.status);  // VitalStatus.warning or critical
+}
+```
+
+### Timeline Aggregation Repository Pattern
+
+```dart
+// data/repositories/timeline_repository_impl.dart
+import 'package:injectable/injectable.dart';
+import 'package:dartz/dartz.dart';
+import '../../domain/repositories/timeline_repository.dart';
+import '../../domain/repositories/report_repository.dart';
+import '../../domain/repositories/health_log_repository.dart';
+import '../../domain/entities/health_entry.dart';
+
+@LazySingleton(as: TimelineRepository)
+class TimelineRepositoryImpl implements TimelineRepository {
+  final ReportRepository reportRepository;
+  final HealthLogRepository healthLogRepository;
+
+  const TimelineRepositoryImpl({
+    required this.reportRepository,
+    required this.healthLogRepository,
+  });
+
+  @override
+  Future<Either<Failure, List<HealthEntry>>> getUnifiedTimeline({
+    DateTime? startDate,
+    DateTime? endDate,
+    HealthEntryType? filterType,
+  }) async {
+    try {
+      final entries = <HealthEntry>[];
+
+      // Fetch reports if not filtered to health logs only
+      if (filterType != HealthEntryType.healthLog) {
+        final reportsResult = await reportRepository.getAllReports();
+        reportsResult.fold(
+          (failure) => throw CacheException(),
+          (reports) => entries.addAll(reports),
+        );
+      }
+
+      // Fetch health logs if not filtered to reports only
+      if (filterType != HealthEntryType.labReport) {
+        final logsResult = await healthLogRepository.getAllHealthLogs();
+        logsResult.fold(
+          (failure) => throw CacheException(),
+          (logs) => entries.addAll(logs),
+        );
+      }
+
+      // Filter by date range
+      var filtered = entries;
+      if (startDate != null) {
+        filtered = filtered.where((e) => e.timestamp.isAfter(startDate)).toList();
+      }
+      if (endDate != null) {
+        filtered = filtered.where((e) => e.timestamp.isBefore(endDate)).toList();
+      }
+
+      // Sort by timestamp descending (newest first)
+      filtered.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+      return Right(filtered);
+    } on CacheException {
+      return Left(CacheFailure());
+    }
+  }
+}
+```
+
+### Riverpod Provider Patterns for Health Logs
+
+```dart
+// presentation/providers/health_log_provider.dart
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../core/di/injection_container.dart';
+import '../../domain/entities/health_log.dart';
+import '../../domain/usecases/get_all_health_logs.dart';
+import '../../domain/usecases/create_health_log.dart';
+import '../../domain/usecases/update_health_log.dart';
+import '../../domain/usecases/delete_health_log.dart';
+
+part 'health_log_provider.g.dart';
+
+@riverpod
+class HealthLogs extends _$HealthLogs {
+  @override
+  Future<List<HealthLog>> build() async {
+    return _loadHealthLogs();
+  }
+
+  Future<List<HealthLog>> _loadHealthLogs() async {
+    final getAllLogs = getIt<GetAllHealthLogs>();
+    final result = await getAllLogs();
+
+    return result.fold(
+      (failure) => throw failure,
+      (logs) => logs,
+    );
+  }
+
+  Future<void> addHealthLog(HealthLog log) async {
+    // Set state to loading
+    state = const AsyncValue.loading();
+
+    final createLog = getIt<CreateHealthLog>();
+    final result = await createLog(log);
+
+    await result.fold(
+      (failure) async {
+        state = AsyncValue.error(failure, StackTrace.current);
+      },
+      (_) async {
+        // Refresh the list
+        state = await AsyncValue.guard(() => _loadHealthLogs());
+      },
+    );
+  }
+
+  Future<void> updateHealthLog(HealthLog log) async {
+    state = const AsyncValue.loading();
+
+    final updateLog = getIt<UpdateHealthLog>();
+    final result = await updateLog(log);
+
+    await result.fold(
+      (failure) async {
+        state = AsyncValue.error(failure, StackTrace.current);
+      },
+      (_) async {
+        state = await AsyncValue.guard(() => _loadHealthLogs());
+      },
+    );
+  }
+
+  Future<void> deleteHealthLog(String id) async {
+    state = const AsyncValue.loading();
+
+    final deleteLog = getIt<DeleteHealthLog>();
+    final result = await deleteLog(id);
+
+    await result.fold(
+      (failure) async {
+        state = AsyncValue.error(failure, StackTrace.current);
+      },
+      (_) async {
+        state = await AsyncValue.guard(() => _loadHealthLogs());
+      },
+    );
+  }
+}
+
+// Usage in a widget
+class HealthLogsListWidget extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final healthLogsAsync = ref.watch(healthLogsProvider);
+
+    return healthLogsAsync.when(
+      data: (logs) => ListView.builder(
+        itemCount: logs.length,
+        itemBuilder: (context, index) {
+          final log = logs[index];
+          return HealthLogCard(log: log);
+        },
+      ),
+      loading: () => const CircularProgressIndicator(),
+      error: (error, stack) => Text('Error: $error'),
+    );
+  }
+}
+```
+
+### Health Log Detail Page Widget Example
+
+```dart
+// presentation/pages/health_log/health_log_detail_page.dart
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../domain/entities/health_log.dart';
+import '../../domain/entities/vital_measurement.dart';
+import '../../providers/health_log_provider.dart';
+import 'package:intl/intl.dart';
+
+class HealthLogDetailPage extends ConsumerWidget {
+  const HealthLogDetailPage({
+    super.key,
+    required this.log,
+  });
+
+  final HealthLog log;
+
+  static final DateFormat _timestampFormatter =
+      DateFormat('MMM d, yyyy • h:mm a');
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Health Log Details'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            tooltip: 'Edit',
+            onPressed: () => _onEdit(context),
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            tooltip: 'Delete',
+            onPressed: () => _onDelete(context, ref),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTimestampCard(context),
+            const SizedBox(height: 16),
+            ..._buildVitalCards(context),
+            if (log.notes != null && log.notes!.trim().isNotEmpty) ...[
+              const SizedBox(height: 16),
+              _buildNotesCard(context),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVitalCard(BuildContext context, VitalMeasurement vital) {
+    final theme = Theme.of(context);
+    final statusColor = _getStatusColor(vital.status);
+    final statusEmoji = _getStatusEmoji(vital.status);
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header with icon, name, and status
+            Row(
+              children: [
+                Text(
+                  vital.type.icon,
+                  style: const TextStyle(fontSize: 24),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    vital.type.displayName,
+                    style: theme.textTheme.titleMedium,
+                  ),
+                ),
+                Text(
+                  statusEmoji,
+                  style: const TextStyle(fontSize: 20),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Value and unit
+            Text(
+              '${_formatValue(vital.value)} ${vital.unit}',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                color: statusColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            // Reference range if available
+            if (vital.referenceRange != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Reference: ${_formatValue(vital.referenceRange!.min)}-${_formatValue(vital.referenceRange!.max)} ${vital.unit}',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color _getStatusColor(VitalStatus status) {
+    switch (status) {
+      case VitalStatus.normal:
+        return Colors.green.shade700;
+      case VitalStatus.warning:
+        return Colors.orange.shade700;
+      case VitalStatus.critical:
+        return Colors.red.shade700;
+    }
+  }
+
+  String _getStatusEmoji(VitalStatus status) {
+    switch (status) {
+      case VitalStatus.normal:
+        return '🟢';
+      case VitalStatus.warning:
+        return '🟡';
+      case VitalStatus.critical:
+        return '🔴';
+    }
+  }
+
+  Future<void> _onDelete(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Health Log'),
+        content: const Text(
+          'Are you sure you want to delete this health log? This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    await ref.read(healthLogsProvider.notifier).deleteHealthLog(log.id);
+
+    if (!context.mounted) return;
+
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Health log deleted.')),
+    );
+  }
+}
+```
+
+### Vital Trend Chart Widget with Dual-Line Support
+
+```dart
+// presentation/widgets/vital_trend_chart.dart
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../../domain/entities/vital_measurement.dart';
+
+/// A chart widget that displays vital sign trends with dual-line support for BP
+class VitalTrendChart extends StatelessWidget {
+  final List<VitalMeasurement> measurements;
+  final VitalType vitalType;
+  final List<DateTime> dates;
+  final bool showStatistics;
+
+  const VitalTrendChart({
+    super.key,
+    required this.measurements,
+    required this.vitalType,
+    required this.dates,
+    this.showStatistics = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (measurements.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Semantics(
+      label: 'Vital trend chart for ${vitalType.displayName}',
+      child: Column(
+        children: [
+          if (_isBloodPressure) _buildLegend(colorScheme),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: LineChart(
+                _buildLineChartData(colorScheme),
+              ),
+            ),
+          ),
+          if (showStatistics) _buildStatistics(colorScheme),
+        ],
+      ),
+    );
+  }
+
+  LineChartData _buildLineChartData(ColorScheme colorScheme) {
+    return LineChartData(
+      gridData: FlGridData(
+        show: true,
+        drawVerticalLine: true,
+        horizontalInterval: _calculateInterval(),
+      ),
+      titlesData: _buildTitlesData(colorScheme),
+      borderData: FlBorderData(
+        show: true,
+        border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+      ),
+      lineBarsData: _buildLineBarsData(colorScheme),
+      extraLinesData: _buildExtraLinesData(colorScheme),
+      lineTouchData: _buildTouchData(colorScheme),
+      minX: 0,
+      maxX: (dates.length - 1).toDouble(),
+      minY: _calculateMinY(),
+      maxY: _calculateMaxY(),
+    );
+  }
+
+  List<LineChartBarData> _buildLineBarsData(ColorScheme colorScheme) {
+    if (_isBloodPressure) {
+      // Dual-line chart for blood pressure
+      return [
+        _buildSystolicLine(colorScheme),
+        _buildDiastolicLine(colorScheme),
+      ];
+    }
+
+    return [_buildSingleLine(colorScheme)];
+  }
+
+  LineChartBarData _buildSystolicLine(ColorScheme colorScheme) {
+    final systolicMeasurements = measurements
+        .where((m) => m.type == VitalType.bloodPressureSystolic)
+        .toList();
+
+    final spots = <FlSpot>[];
+    for (int i = 0; i < systolicMeasurements.length; i++) {
+      spots.add(FlSpot(i.toDouble(), systolicMeasurements[i].value));
+    }
+
+    return LineChartBarData(
+      spots: spots,
+      isCurved: true,
+      color: Colors.red[600],
+      barWidth: 3,
+      isStrokeCapRound: true,
+      dotData: FlDotData(
+        show: true,
+        getDotPainter: (spot, percent, barData, index) {
+          final status = systolicMeasurements[index].status;
+          final color = _getStatusColor(status);
+
+          return FlDotCirclePainter(
+            radius: 6,
+            color: color,
+            strokeWidth: 2,
+            strokeColor: Colors.white,
+          );
+        },
+      ),
+    );
+  }
+
+  LineChartBarData _buildDiastolicLine(ColorScheme colorScheme) {
+    final diastolicMeasurements = measurements
+        .where((m) => m.type == VitalType.bloodPressureDiastolic)
+        .toList();
+
+    final spots = <FlSpot>[];
+    for (int i = 0; i < diastolicMeasurements.length; i++) {
+      spots.add(FlSpot(i.toDouble(), diastolicMeasurements[i].value));
+    }
+
+    return LineChartBarData(
+      spots: spots,
+      isCurved: true,
+      color: Colors.blue[600],
+      barWidth: 3,
+      isStrokeCapRound: true,
+      dotData: FlDotData(
+        show: true,
+        getDotPainter: (spot, percent, barData, index) {
+          final status = diastolicMeasurements[index].status;
+          final color = _getStatusColor(status);
+
+          return FlDotCirclePainter(
+            radius: 6,
+            color: color,
+            strokeWidth: 2,
+            strokeColor: Colors.white,
+          );
+        },
+      ),
+    );
+  }
+
+  bool get _isBloodPressure =>
+      vitalType == VitalType.bloodPressureSystolic ||
+      vitalType == VitalType.bloodPressureDiastolic;
+}
+```
+
+---
+
 ## Common Pitfalls to Avoid
 
 1. **Writing code before tests** - Always TDD
@@ -1048,6 +1657,6 @@ flutter run               # Connected device
 
 ---
 
-**Last Updated:** 2025-10-15
-**Version:** 1.0
+**Last Updated:** 2025-10-19
+**Version:** 1.1 (Added Phase 6 examples)
 **Maintainer:** AI Agent Context Guide
