@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `b8e81cd` refactor: lazy load export data — moves CSV generation to fetch data on-demand, disables UI interactions while exporting, and introduces button-level loading indicators (`lib/presentation/providers/export_provider.dart`, `lib/presentation/pages/export/export_page.dart`).
 - `25d8620` fix: ensure export navigation uses named route — resolves blank screen by routing via the GoRouter name instead of path (`lib/presentation/pages/home/reports_list_page.dart`).
 - `9f2624a` fix: align export route name — centralizes the export route name constant to keep navigation in sync (`lib/presentation/router/route_names.dart`, `lib/presentation/router/app_router.dart`).
+- `61091a5` fix: register export services in DI — wires CsvExportService/FileWriterService into GetIt and adds export navigation coverage (`lib/data/datasources/external/*`, `lib/core/di/injection_container.config.dart`, `test/widget/navigation/export_navigation_test.dart`).
 
 ### Fixed - Report Detail Loading Regression (2025-10-19)
 - `ReportsNotifier` now triggers an initial `loadReports()` during construction so timeline navigation opens report detail reliably (`lib/presentation/providers/reports_provider.dart`, `test/unit/presentation/providers/reports_provider_test.dart`, `test/widget/pages/report_detail/report_detail_page_test.dart`).
