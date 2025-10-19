@@ -1,45 +1,44 @@
 import 'package:equatable/equatable.dart';
 
-/// Configuration for generating a doctor-friendly summary report.
-///
-/// This entity defines the parameters for generating a summary PDF
-/// that includes selected reports, vitals, and statistics within a date range.
+/// Represents the configuration for generating a doctor summary PDF.
 class DoctorSummaryConfig extends Equatable {
-  /// Start date of the summary period
+  /// The start date of the period for the summary.
   final DateTime startDate;
 
-  /// End date of the summary period
+  /// The end date of the period for the summary.
   final DateTime endDate;
 
-  /// List of specific report IDs to include.
-  /// If empty, all reports within the date range are included.
+  /// A list of specific report IDs to include.
+  /// If empty, all reports within the date range will be considered.
   final List<String> selectedReportIds;
 
-  /// Whether to include vital measurements in the summary.
-  /// Defaults to true.
+  /// A flag to indicate whether to include vitals data in the summary.
+  /// Defaults to `true`.
   final bool includeVitals;
 
-  /// Whether to include the full data table on Page 4.
-  /// Defaults to false.
+  /// A flag to indicate whether to include the full data table on a separate page.
+  /// Defaults to `false`.
   final bool includeFullDataTable;
 
-  /// Creates a [DoctorSummaryConfig] with the given properties.
-  ///
-  /// Validates that [startDate] is before or equal to [endDate].
-  DoctorSummaryConfig({
+  const DoctorSummaryConfig({
     required this.startDate,
     required this.endDate,
-    required this.selectedReportIds,
-    required this.includeVitals,
-    required this.includeFullDataTable,
-  }) {
-    assert(
-      !startDate.isAfter(endDate),
-      'startDate must be before or equal to endDate',
-    );
-  }
+    this.selectedReportIds = const [],
+    this.includeVitals = true,
+    this.includeFullDataTable = false,
+  });
 
-  /// Creates a copy of this config with the given fields replaced with new values.
+  @override
+  List<Object?> get props => [
+        startDate,
+        endDate,
+        selectedReportIds,
+        includeVitals,
+        includeFullDataTable,
+      ];
+
+  /// Creates a copy of this [DoctorSummaryConfig] but with the given fields
+  /// replaced with the new values.
   DoctorSummaryConfig copyWith({
     DateTime? startDate,
     DateTime? endDate,
@@ -55,13 +54,4 @@ class DoctorSummaryConfig extends Equatable {
       includeFullDataTable: includeFullDataTable ?? this.includeFullDataTable,
     );
   }
-
-  @override
-  List<Object?> get props => [
-        startDate,
-        endDate,
-        selectedReportIds,
-        includeVitals,
-        includeFullDataTable,
-      ];
 }
