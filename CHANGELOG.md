@@ -684,3 +684,4 @@ All tests passing. Coverage: 100%.
 
 [Unreleased]: https://github.com/yourusername/health_tracker_reports/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/yourusername/health_tracker_reports/releases/tag/v0.1.0
+- `3372a98` fix: restore biomarker name contrast in review — ensures biomarker titles remain visible across themes (`lib/presentation/pages/upload/review_page.dart`).
