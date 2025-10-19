@@ -16,6 +16,10 @@ import 'package:health_tracker_reports/core/di/injection_container.dart'
 import 'package:health_tracker_reports/core/utils/clock.dart' as _i31;
 import 'package:health_tracker_reports/data/datasources/external/claude_llm_service.dart'
     as _i26;
+import 'package:health_tracker_reports/data/datasources/external/csv_export_service.dart'
+    as _i611;
+import 'package:health_tracker_reports/data/datasources/external/file_writer_service.dart'
+    as _i446;
 import 'package:health_tracker_reports/data/datasources/external/gemini_llm_service.dart'
     as _i48;
 import 'package:health_tracker_reports/data/datasources/external/image_processing_service.dart'
@@ -69,6 +73,12 @@ import 'package:health_tracker_reports/domain/usecases/delete_health_log.dart'
     as _i508;
 import 'package:health_tracker_reports/domain/usecases/delete_report.dart'
     as _i248;
+import 'package:health_tracker_reports/domain/usecases/export_reports_to_csv.dart'
+    as _i249;
+import 'package:health_tracker_reports/domain/usecases/export_trends_to_csv.dart'
+    as _i733;
+import 'package:health_tracker_reports/domain/usecases/export_vitals_to_csv.dart'
+    as _i361;
 import 'package:health_tracker_reports/domain/usecases/extract_report_from_file_llm.dart'
     as _i990;
 import 'package:health_tracker_reports/domain/usecases/get_all_health_logs.dart'
@@ -129,10 +139,16 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i197.NormalizeBiomarkerName());
     gh.lazySingleton<_i542.ValidateVitalMeasurement>(
         () => _i542.ValidateVitalMeasurement());
+    gh.lazySingleton<_i361.ExportVitalsToCsv>(() => _i361.ExportVitalsToCsv());
+    gh.lazySingleton<_i733.ExportTrendsToCsv>(() => _i733.ExportTrendsToCsv());
+    gh.lazySingleton<_i249.ExportReportsToCsv>(
+        () => _i249.ExportReportsToCsv());
     gh.lazySingleton<_i154.HealthLogLocalDataSource>(() =>
         _i154.HealthLogLocalDataSourceImpl(
             box: gh<_i979.Box<_i510.HealthLogModel>>()));
     gh.lazySingleton<_i31.Clock>(() => _i31.SystemClock());
+    gh.lazySingleton<_i446.DownloadsPathProvider>(
+        () => const _i446.PathProviderDownloadsPath());
     gh.lazySingleton<_i273.ReportLocalDataSource>(() =>
         _i273.ReportLocalDataSourceImpl(
             box: gh<_i979.Box<_i936.ReportModel>>()));
@@ -158,6 +174,13 @@ extension GetItInjectableX on _i174.GetIt {
             localDataSource: gh<_i154.HealthLogLocalDataSource>()));
     gh.lazySingleton<_i848.SecureConfigStorage>(
         () => _i848.SecureConfigStorageImpl(gh<_i558.FlutterSecureStorage>()));
+    gh.lazySingleton<_i611.CsvExportService>(() => _i611.CsvExportService(
+          exportReportsToCsv: gh<_i249.ExportReportsToCsv>(),
+          exportVitalsToCsv: gh<_i361.ExportVitalsToCsv>(),
+          exportTrendsToCsv: gh<_i733.ExportTrendsToCsv>(),
+        ));
+    gh.lazySingleton<_i446.FileWriterService>(() => _i446.FileWriterService(
+        downloadsPathProvider: gh<_i446.DownloadsPathProvider>()));
     gh.lazySingleton<_i880.TimelineRepository>(
         () => _i875.TimelineRepositoryImpl(
               reportLocalDataSource: gh<_i273.ReportLocalDataSource>(),

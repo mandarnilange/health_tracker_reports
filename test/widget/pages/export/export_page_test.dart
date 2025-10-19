@@ -21,7 +21,7 @@ class _SpyExportProvider extends ExportProvider {
             exportVitalsToCsv: ExportVitalsToCsv(),
             exportTrendsToCsv: ExportTrendsToCsv(),
           ),
-          fileWriterService: FileWriterService(
+          fileWriterService: FileWriterService.test(
             downloadsPathProvider: _StubDownloadsPathProvider(),
             fileWriter: (_, __) async {},
           ),

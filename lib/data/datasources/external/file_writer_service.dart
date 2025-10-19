@@ -9,7 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-typedef _DateTimeProvider = DateTime Function();
+typedef DateTimeProvider = DateTime Function();
 typedef FileWriterCallback = Future<void> Function(
   String path,
   String contents,
@@ -22,7 +22,7 @@ abstract class DownloadsPathProvider {
 }
 
 /// Default implementation that relies on `path_provider`.
-@lazySingleton
+@LazySingleton(as: DownloadsPathProvider)
 class PathProviderDownloadsPath implements DownloadsPathProvider {
   const PathProviderDownloadsPath();
 
@@ -54,13 +54,19 @@ class PathProviderDownloadsPath implements DownloadsPathProvider {
 class FileWriterService {
   FileWriterService({
     required this.downloadsPathProvider,
-    _DateTimeProvider? now,
+  })  : now = DateTime.now,
+        _fileWriter = _defaultFileWriter;
+
+  @visibleForTesting
+  FileWriterService.test({
+    required this.downloadsPathProvider,
+    DateTimeProvider? nowOverride,
     FileWriterCallback? fileWriter,
-  })  : now = now ?? DateTime.now,
+  })  : now = nowOverride ?? DateTime.now,
         _fileWriter = fileWriter ?? _defaultFileWriter;
 
   final DownloadsPathProvider downloadsPathProvider;
-  final _DateTimeProvider now;
+  final DateTimeProvider now;
   final FileWriterCallback _fileWriter;
 
   static Future<void> _defaultFileWriter(String path, String contents) async {

@@ -40,9 +40,9 @@ void main() {
 
   group('FileWriterService', () {
     test('writes CSV file to downloads directory and returns path', () async {
-      final service = FileWriterService(
+      final service = FileWriterService.test(
         downloadsPathProvider: _StubDownloadsPathProvider(tempDir.path),
-        now: () => fixedNow,
+        nowOverride: () => fixedNow,
         fileWriter: (path, contents) async {
           final file = File(path);
           await file.create(recursive: true);
@@ -74,9 +74,9 @@ void main() {
 
     test('returns PermissionFailure when writer throws permission error',
         () async {
-      final service = FileWriterService(
+      final service = FileWriterService.test(
         downloadsPathProvider: _StubDownloadsPathProvider(tempDir.path),
-        now: () => fixedNow,
+        nowOverride: () => fixedNow,
         fileWriter: (path, _) async {
           throw FileSystemException('Permission denied', path);
         },
@@ -96,9 +96,9 @@ void main() {
 
     test('returns StorageFailure when writer throws storage full error',
         () async {
-      final service = FileWriterService(
+      final service = FileWriterService.test(
         downloadsPathProvider: _StubDownloadsPathProvider(tempDir.path),
-        now: () => fixedNow,
+        nowOverride: () => fixedNow,
         fileWriter: (path, _) async {
           throw FileSystemException('No space left on device', path);
         },
@@ -118,11 +118,11 @@ void main() {
 
     test('returns FileSystemFailure when downloads path cannot be resolved',
         () async {
-      final service = FileWriterService(
+      final service = FileWriterService.test(
         downloadsPathProvider: _ThrowingDownloadsPathProvider(
           Exception('unavailable'),
         ),
-        now: () => fixedNow,
+        nowOverride: () => fixedNow,
       );
 
       final result = await service.writeCsv(
