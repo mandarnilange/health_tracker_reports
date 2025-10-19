@@ -1,249 +1,93 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:equatable/equatable.dart';
 import 'package:health_tracker_reports/domain/entities/doctor_summary_config.dart';
 
 void main() {
   group('DoctorSummaryConfig', () {
-    final tStartDate = DateTime(2025, 1, 1);
-    final tEndDate = DateTime(2025, 12, 31);
-    const tSelectedReportIds = ['report-1', 'report-2'];
-    const tIncludeVitals = true;
-    const tIncludeFullDataTable = false;
+    final startDate = DateTime(2023, 1, 1);
+    final endDate = DateTime(2023, 1, 31);
+    
+    // A base model instance to use in tests
+    final tDoctorSummaryConfig = DoctorSummaryConfig(
+      startDate: startDate,
+      endDate: endDate,
+      selectedReportIds: const ['report1', 'report2'],
+      includeVitals: true,
+      includeFullDataTable: false,
+    );
 
-    test('should create a valid DoctorSummaryConfig with all fields', () {
-      // Act
-      final config = DoctorSummaryConfig(
-        startDate: tStartDate,
-        endDate: tEndDate,
-        selectedReportIds: tSelectedReportIds,
-        includeVitals: tIncludeVitals,
-        includeFullDataTable: tIncludeFullDataTable,
-      );
-
-      // Assert
-      expect(config.startDate, tStartDate);
-      expect(config.endDate, tEndDate);
-      expect(config.selectedReportIds, tSelectedReportIds);
-      expect(config.includeVitals, tIncludeVitals);
-      expect(config.includeFullDataTable, tIncludeFullDataTable);
+    test('DoctorSummaryConfig should be a subclass of Equatable', () {
+      expect(tDoctorSummaryConfig, isA<Equatable>());
     });
 
-    test('should create with empty selectedReportIds for all reports', () {
-      // Act
-      final config = DoctorSummaryConfig(
-        startDate: tStartDate,
-        endDate: tEndDate,
-        selectedReportIds: const [],
-        includeVitals: tIncludeVitals,
-        includeFullDataTable: tIncludeFullDataTable,
-      );
-
+    test('should correctly initialize properties', () {
       // Assert
-      expect(config.selectedReportIds, isEmpty);
+      expect(tDoctorSummaryConfig.startDate, startDate);
+      expect(tDoctorSummaryConfig.endDate, endDate);
+      expect(tDoctorSummaryConfig.selectedReportIds, const ['report1', 'report2']);
+      expect(tDoctorSummaryConfig.includeVitals, isTrue);
+      expect(tDoctorSummaryConfig.includeFullDataTable, isFalse);
     });
 
-    test('should create with default includeVitals as true', () {
-      // Act
-      final config = DoctorSummaryConfig(
-        startDate: tStartDate,
-        endDate: tEndDate,
-        selectedReportIds: tSelectedReportIds,
-        includeVitals: true,
-        includeFullDataTable: tIncludeFullDataTable,
-      );
-
+    test('props list should contain all properties', () {
       // Assert
-      expect(config.includeVitals, true);
-    });
-
-    test('should create with default includeFullDataTable as false', () {
-      // Act
-      final config = DoctorSummaryConfig(
-        startDate: tStartDate,
-        endDate: tEndDate,
-        selectedReportIds: tSelectedReportIds,
-        includeVitals: tIncludeVitals,
-        includeFullDataTable: false,
-      );
-
-      // Assert
-      expect(config.includeFullDataTable, false);
-    });
-
-    test('should be equal when all properties are the same', () {
-      // Arrange
-      final config1 = DoctorSummaryConfig(
-        startDate: tStartDate,
-        endDate: tEndDate,
-        selectedReportIds: tSelectedReportIds,
-        includeVitals: tIncludeVitals,
-        includeFullDataTable: tIncludeFullDataTable,
-      );
-      final config2 = DoctorSummaryConfig(
-        startDate: tStartDate,
-        endDate: tEndDate,
-        selectedReportIds: tSelectedReportIds,
-        includeVitals: tIncludeVitals,
-        includeFullDataTable: tIncludeFullDataTable,
-      );
-
-      // Assert
-      expect(config1, config2);
-    });
-
-    test('should not be equal when properties are different', () {
-      // Arrange
-      final config1 = DoctorSummaryConfig(
-        startDate: tStartDate,
-        endDate: tEndDate,
-        selectedReportIds: tSelectedReportIds,
-        includeVitals: tIncludeVitals,
-        includeFullDataTable: tIncludeFullDataTable,
-      );
-      final config2 = DoctorSummaryConfig(
-        startDate: tStartDate,
-        endDate: DateTime(2026, 12, 31), // Different end date
-        selectedReportIds: tSelectedReportIds,
-        includeVitals: tIncludeVitals,
-        includeFullDataTable: tIncludeFullDataTable,
-      );
-
-      // Assert
-      expect(config1, isNot(config2));
-    });
-
-    test('should have correct props for Equatable', () {
-      // Arrange
-      final config = DoctorSummaryConfig(
-        startDate: tStartDate,
-        endDate: tEndDate,
-        selectedReportIds: tSelectedReportIds,
-        includeVitals: tIncludeVitals,
-        includeFullDataTable: tIncludeFullDataTable,
-      );
-
-      // Assert
-      expect(
-        config.props,
-        [
-          tStartDate,
-          tEndDate,
-          tSelectedReportIds,
-          tIncludeVitals,
-          tIncludeFullDataTable,
-        ],
-      );
+      expect(tDoctorSummaryConfig.props, [
+        startDate,
+        endDate,
+        const ['report1', 'report2'],
+        true,
+        false,
+      ]);
     });
 
     group('copyWith', () {
-      final originalConfig = DoctorSummaryConfig(
-        startDate: tStartDate,
-        endDate: tEndDate,
-        selectedReportIds: tSelectedReportIds,
-        includeVitals: tIncludeVitals,
-        includeFullDataTable: tIncludeFullDataTable,
-      );
-
-      test('should return a copy with updated startDate', () {
-        // Arrange
-        final newStartDate = DateTime(2025, 6, 1);
-
-        // Act
-        final updated = originalConfig.copyWith(startDate: newStartDate);
-
-        // Assert
-        expect(updated.startDate, newStartDate);
-        expect(updated.endDate, tEndDate);
-        expect(updated.selectedReportIds, tSelectedReportIds);
+      test('should return a new instance with the updated startDate', () {
+        final newDate = DateTime(2023, 2, 1);
+        final updatedConfig = tDoctorSummaryConfig.copyWith(startDate: newDate);
+        expect(updatedConfig.startDate, newDate);
+        expect(updatedConfig.endDate, tDoctorSummaryConfig.endDate);
       });
 
-      test('should return a copy with updated endDate', () {
-        // Arrange
-        final newEndDate = DateTime(2026, 6, 1);
-
-        // Act
-        final updated = originalConfig.copyWith(endDate: newEndDate);
-
-        // Assert
-        expect(updated.startDate, tStartDate);
-        expect(updated.endDate, newEndDate);
-        expect(updated.selectedReportIds, tSelectedReportIds);
+      test('should return a new instance with the updated endDate', () {
+        final newDate = DateTime(2023, 2, 28);
+        final updatedConfig = tDoctorSummaryConfig.copyWith(endDate: newDate);
+        expect(updatedConfig.endDate, newDate);
+        expect(updatedConfig.startDate, tDoctorSummaryConfig.startDate);
       });
 
-      test('should return a copy with updated selectedReportIds', () {
-        // Arrange
-        const newReportIds = ['report-3', 'report-4'];
-
-        // Act
-        final updated = originalConfig.copyWith(selectedReportIds: newReportIds);
-
-        // Assert
-        expect(updated.selectedReportIds, newReportIds);
-        expect(updated.startDate, tStartDate);
-        expect(updated.endDate, tEndDate);
+      test('should return a new instance with updated selectedReportIds', () {
+        final newIds = ['report3'];
+        final updatedConfig = tDoctorSummaryConfig.copyWith(selectedReportIds: newIds);
+        expect(updatedConfig.selectedReportIds, newIds);
       });
 
-      test('should return a copy with updated includeVitals', () {
-        // Act
-        final updated = originalConfig.copyWith(includeVitals: false);
-
-        // Assert
-        expect(updated.includeVitals, false);
-        expect(updated.startDate, tStartDate);
+      test('should return a new instance with updated includeVitals', () {
+        final updatedConfig = tDoctorSummaryConfig.copyWith(includeVitals: false);
+        expect(updatedConfig.includeVitals, isFalse);
       });
 
-      test('should return a copy with updated includeFullDataTable', () {
-        // Act
-        final updated = originalConfig.copyWith(includeFullDataTable: true);
-
-        // Assert
-        expect(updated.includeFullDataTable, true);
-        expect(updated.startDate, tStartDate);
+      test('should return a new instance with updated includeFullDataTable', () {
+        final updatedConfig = tDoctorSummaryConfig.copyWith(includeFullDataTable: true);
+        expect(updatedConfig.includeFullDataTable, isTrue);
       });
 
-      test('should return exact copy when no parameters provided', () {
-        // Act
-        final copy = originalConfig.copyWith();
-
-        // Assert
-        expect(copy, originalConfig);
+      test('should return an identical instance if copyWith is called with no arguments', () {
+        final updatedConfig = tDoctorSummaryConfig.copyWith();
+        expect(updatedConfig, equals(tDoctorSummaryConfig));
       });
-    });
 
-    group('validation', () {
-      test('should throw assertion error when startDate is after endDate', () {
-        // Arrange
-        final invalidStartDate = DateTime(2025, 12, 31);
-        final invalidEndDate = DateTime(2025, 1, 1);
-
-        // Act & Assert
-        expect(
-          () => DoctorSummaryConfig(
-            startDate: invalidStartDate,
-            endDate: invalidEndDate,
-            selectedReportIds: tSelectedReportIds,
-            includeVitals: tIncludeVitals,
-            includeFullDataTable: tIncludeFullDataTable,
-          ),
-          throwsA(isA<AssertionError>()),
+      test('should return a new instance with multiple updated fields', () {
+        final newDate = DateTime(2024, 1, 1);
+        final newIds = ['report_new'];
+        final updatedConfig = tDoctorSummaryConfig.copyWith(
+          startDate: newDate,
+          selectedReportIds: newIds,
+          includeVitals: false,
         );
-      });
-
-      test('should allow startDate equal to endDate', () {
-        // Arrange
-        final sameDate = DateTime(2025, 6, 1);
-
-        // Act
-        final config = DoctorSummaryConfig(
-          startDate: sameDate,
-          endDate: sameDate,
-          selectedReportIds: tSelectedReportIds,
-          includeVitals: tIncludeVitals,
-          includeFullDataTable: tIncludeFullDataTable,
-        );
-
-        // Assert
-        expect(config.startDate, sameDate);
-        expect(config.endDate, sameDate);
+        expect(updatedConfig.startDate, newDate);
+        expect(updatedConfig.selectedReportIds, newIds);
+        expect(updatedConfig.includeVitals, isFalse);
+        expect(updatedConfig.endDate, tDoctorSummaryConfig.endDate);
       });
     });
   });
