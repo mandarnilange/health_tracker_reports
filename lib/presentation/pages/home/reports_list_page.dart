@@ -15,11 +15,6 @@ class ReportsListPage extends ConsumerWidget {
         title: const Text('Health Timeline'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.upload_file),
-            tooltip: 'Upload Lab Report',
-            onPressed: () => context.push(RouteNames.upload),
-          ),
-          IconButton(
             icon: const Icon(Icons.settings),
             tooltip: 'Settings',
             onPressed: () => context.push(RouteNames.settings),
@@ -32,10 +27,26 @@ class ReportsListPage extends ConsumerWidget {
         ],
       ),
       body: const HealthTimeline(),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => HealthLogEntrySheet.show(context),
-        icon: const Icon(Icons.add_chart),
-        label: const Text('Log Vitals'),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: 'upload_report',
+            onPressed: () => context.push(RouteNames.upload),
+            backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+            foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
+            icon: const Icon(Icons.upload_file),
+            label: const Text('Upload Report'),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'log_vitals',
+            onPressed: () => HealthLogEntrySheet.show(context),
+            icon: const Icon(Icons.add_chart),
+            label: const Text('Log Vitals'),
+          ),
+        ],
       ),
     );
   }

@@ -281,45 +281,60 @@ class _ReportTimelineCard extends StatelessWidget {
           context.push(RouteNames.reportDetailWithId(report.id));
         },
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Row(
                 children: [
-                  const Icon(Icons.insert_drive_file_outlined, size: 20),
+                  const Icon(Icons.insert_drive_file_outlined, size: 18),
                   const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      report.labName,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
                   Text(
-                    report.labName,
-                    style: theme.textTheme.titleMedium,
+                    '${report.totalBiomarkerCount} biomarkers',
+                    style: theme.textTheme.bodyMedium,
                   ),
                   const Spacer(),
                   Text(
                     _dateFormat.format(report.date),
-                    style: theme.textTheme.bodySmall,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              Text(
-                '${report.totalBiomarkerCount} biomarkers',
-                style: theme.textTheme.bodyMedium,
-              ),
-              if (outOfRange > 0)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Row(
-                    children: [
-                      Icon(Icons.warning_amber_rounded,
-                          color: Colors.orange.shade700, size: 18),
-                      const SizedBox(width: 4),
-                      Text(
-                        '$outOfRange out of range',
-                        style: theme.textTheme.bodySmall,
+              if (outOfRange > 0) ...[
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Icon(Icons.warning_amber_rounded,
+                        color: Colors.orange.shade700, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$outOfRange out of range',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.orange.shade700,
+                        fontWeight: FontWeight.w600,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+              ],
             ],
           ),
         ),

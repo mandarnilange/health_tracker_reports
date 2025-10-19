@@ -73,32 +73,48 @@ class HealthLogCard extends StatelessWidget {
 
   Widget _buildVitalChip(VitalMeasurement measurement) {
     Color backgroundColor;
+    Color textColor;
     IconData? statusIcon;
 
     switch (measurement.status) {
       case VitalStatus.normal:
-        backgroundColor = Colors.green.shade50;
+        backgroundColor = Colors.green.shade100;
+        textColor = Colors.green.shade900;
         break;
       case VitalStatus.warning:
-        backgroundColor = Colors.orange.shade50;
+        backgroundColor = Colors.orange.shade100;
+        textColor = Colors.orange.shade900;
         statusIcon = Icons.warning_amber_rounded;
         break;
       case VitalStatus.critical:
-        backgroundColor = Colors.red.shade50;
+        backgroundColor = Colors.red.shade100;
+        textColor = Colors.red.shade900;
         statusIcon = Icons.error_outline;
         break;
     }
 
     final displayName = measurement.type.displayName;
     final unit = measurement.unit;
+    final value = measurement.value;
+    final formattedValue = value == value.roundToDouble()
+        ? value.toInt().toString()
+        : value.toStringAsFixed(1);
 
     return Chip(
       avatar: statusIcon != null
-          ? Icon(statusIcon, color: Colors.orange.shade700, size: 18)
+          ? Icon(statusIcon, color: textColor, size: 16)
           : null,
       backgroundColor: backgroundColor,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       label: Text(
-        '$displayName • ${measurement.value.toStringAsFixed(0)} $unit',
+        '$displayName: $formattedValue $unit',
+        style: TextStyle(
+          color: textColor,
+          fontWeight: FontWeight.w600,
+          fontSize: 13,
+        ),
       ),
     );
   }
