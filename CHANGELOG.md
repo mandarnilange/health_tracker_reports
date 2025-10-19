@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added test suites covering load, mutation, and error flows for the new providers.
 - Wired providers to the latest use cases via `getIt` injection helpers.
 
+### Added - Phase 6 Timeline UI (2025-10-18)
+
+- Implemented `HealthTimeline` and `HealthLogCard` widgets with chip filters, refresh support, and dedicated report/health log cards.
+- Replaced `ReportsListPage` list view with the unified timeline experience and refreshed widget tests.
+- Added widget tests covering card rendering, empty state, and error scenarios for the new timeline.
+
 ### Added - Phase 6 Repository Implementations (2025-10-18)
 
 - Implemented `HealthLogRepositoryImpl` with Hive-backed persistence, filtering helpers, and vital trend extraction logic.

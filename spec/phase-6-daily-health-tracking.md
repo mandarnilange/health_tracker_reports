@@ -1148,12 +1148,12 @@ final vitalStatisticsProvider = FutureProvider.family<VitalStatistics, VitalType
 - [x] COMMIT: Providers complete
 
 **Day 2-3: Timeline Widget**
-- [ ] TEST: HealthTimeline widget tests
-- [ ] CODE: HealthTimeline widget
-- [ ] TEST: HealthLogCard widget tests
-- [ ] CODE: HealthLogCard widget
-- [ ] CODE: Update reports_list_page.dart
-- [ ] VERIFY: Widget tests pass
+- [x] TEST: HealthTimeline widget tests
+- [x] CODE: HealthTimeline widget
+- [x] TEST: HealthLogCard widget tests
+- [x] CODE: HealthLogCard widget
+- [x] CODE: Update reports_list_page.dart
+- [x] VERIFY: Widget tests pass
 - [ ] COMMIT: Timeline view complete
 
 **Day 4-5: Bottom Sheet Entry**

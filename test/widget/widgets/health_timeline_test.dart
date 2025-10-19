@@ -2,14 +2,15 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/domain/entities/health_entry.dart';
 import 'package:health_tracker_reports/domain/entities/health_log.dart';
 import 'package:health_tracker_reports/domain/entities/reference_range.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/domain/entities/vital_measurement.dart';
 import 'package:health_tracker_reports/domain/usecases/get_unified_timeline.dart';
-import 'package:health_tracker_reports/presentation/pages/home/reports_list_page.dart';
 import 'package:health_tracker_reports/presentation/providers/timeline_provider.dart';
+import 'package:health_tracker_reports/presentation/widgets/health_timeline.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockGetUnifiedTimeline extends Mock implements GetUnifiedTimeline {}
@@ -19,6 +20,10 @@ void main() {
 
   late MockGetUnifiedTimeline mockGetUnifiedTimeline;
   late List<HealthEntry> entries;
+
+  setUpAll(() {
+    registerFallbackValue(HealthEntryType.labReport);
+  });
 
   setUp(() {
     mockGetUnifiedTimeline = MockGetUnifiedTimeline();
@@ -37,7 +42,7 @@ void main() {
             referenceRange: ReferenceRange(min: 60, max: 100),
           ),
         ],
-        notes: 'Morning log',
+        notes: 'Morning',
         createdAt: now,
         updatedAt: now,
       ),
@@ -53,9 +58,14 @@ void main() {
     ];
   });
 
-  Future<void> pumpPage(WidgetTester tester) async {
+  Future<void> pumpTimeline(
+    WidgetTester tester, {
+    required Future<Either<Failure, List<HealthEntry>>> Function(
+            Invocation invocation)
+        handler,
+  }) async {
     when(() => mockGetUnifiedTimeline(filterType: any(named: 'filterType')))
-        .thenAnswer((_) async => Right(entries));
+        .thenAnswer(handler);
 
     final container = ProviderContainer(
       overrides: [
@@ -64,27 +74,52 @@ void main() {
         ),
       ],
     );
+
     addTearDown(container.dispose);
 
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
         child: const MaterialApp(
-          home: ReportsListPage(),
+          home: Scaffold(body: HealthTimeline()),
         ),
       ),
     );
 
-    await tester.pump();
+    await tester.pump(); // start async work
     await tester.pump(const Duration(milliseconds: 100));
   }
 
-  testWidgets('renders timeline view and actions', (tester) async {
-    await pumpPage(tester);
+  group('HealthTimeline', () {
+    testWidgets('renders entries grouped with filter chips', (tester) async {
+      await pumpTimeline(
+        tester,
+        handler: (_) async => Right(entries),
+      );
 
-    expect(find.text('Health Timeline'), findsOneWidget);
-    expect(find.text('Morning log'), findsOneWidget);
-    expect(find.text('Quest Diagnostics'), findsOneWidget);
-    expect(find.byIcon(Icons.upload_file), findsOneWidget);
+      expect(find.text('All'), findsOneWidget);
+      expect(find.text('Lab Reports'), findsOneWidget);
+      expect(find.text('Health Logs'), findsOneWidget);
+      expect(find.textContaining('Quest Diagnostics'), findsOneWidget);
+      expect(find.textContaining('Morning'), findsOneWidget);
+    });
+
+    testWidgets('shows empty state when no entries', (tester) async {
+      await pumpTimeline(
+        tester,
+        handler: (_) async => const Right(<HealthEntry>[]),
+      );
+
+      expect(find.text('No entries yet'), findsOneWidget);
+    });
+
+    testWidgets('shows error message when loading fails', (tester) async {
+      await pumpTimeline(
+        tester,
+        handler: (_) async => const Left(CacheFailure('boom')),
+      );
+
+      expect(find.textContaining('boom'), findsOneWidget);
+    });
   });
 }
