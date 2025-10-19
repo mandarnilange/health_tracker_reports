@@ -25,6 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced `ReportsListPage` list view with the unified timeline experience and refreshed widget tests.
 - Added widget tests covering card rendering, empty state, and error scenarios for the new timeline.
 
+### Added - Phase 6 Health Log Entry Sheet (2025-10-18)
+
+- Added `HealthLogEntrySheet` bottom sheet with timestamp editing, default vitals (BP, SpO2, Heart Rate), notes, and dynamic vital selection.
+- Introduced `VitalInputField` widget to handle typed vital inputs, including dual fields, slider, and toggle variants with unit labels.
+- Updated floating action button on the home timeline to launch the entry sheet and added comprehensive widget tests.
+
 ### Added - Phase 6 Repository Implementations (2025-10-18)
 
 - Implemented `HealthLogRepositoryImpl` with Hive-backed persistence, filtering helpers, and vital trend extraction logic.

@@ -1157,12 +1157,12 @@ final vitalStatisticsProvider = FutureProvider.family<VitalStatistics, VitalType
 - [ ] COMMIT: Timeline view complete
 
 **Day 4-5: Bottom Sheet Entry**
-- [ ] TEST: HealthLogEntrySheet widget tests
-- [ ] CODE: HealthLogEntrySheet
-- [ ] TEST: VitalInputField widget tests
-- [ ] CODE: VitalInputField
-- [ ] CODE: Add FAB to home page
-- [ ] VERIFY: Widget tests pass
+- [x] TEST: HealthLogEntrySheet widget tests
+- [x] CODE: HealthLogEntrySheet
+- [x] TEST: VitalInputField widget tests
+- [x] CODE: VitalInputField
+- [x] CODE: Add FAB to home page
+- [x] VERIFY: Widget tests pass
 - [ ] COMMIT: Health log entry complete
 
 ### Week 4: Advanced Features & Polish

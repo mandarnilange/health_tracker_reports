@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:health_tracker_reports/presentation/pages/health_log/health_log_entry_sheet.dart';
 import 'package:health_tracker_reports/presentation/router/route_names.dart';
 import 'package:health_tracker_reports/presentation/widgets/health_timeline.dart';
 
@@ -14,6 +15,11 @@ class ReportsListPage extends ConsumerWidget {
         title: const Text('Health Timeline'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.upload_file),
+            tooltip: 'Upload Lab Report',
+            onPressed: () => context.push(RouteNames.upload),
+          ),
+          IconButton(
             icon: const Icon(Icons.settings),
             tooltip: 'Settings',
             onPressed: () => context.push(RouteNames.settings),
@@ -26,10 +32,10 @@ class ReportsListPage extends ConsumerWidget {
         ],
       ),
       body: const HealthTimeline(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push(RouteNames.upload),
-        tooltip: 'Upload Lab Report',
-        child: const Icon(Icons.upload_file),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => HealthLogEntrySheet.show(context),
+        icon: const Icon(Icons.add_chart),
+        label: const Text('Log Vitals'),
       ),
     );
   }
