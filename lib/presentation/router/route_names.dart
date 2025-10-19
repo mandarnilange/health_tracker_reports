@@ -33,6 +33,7 @@ class RouteNames {
 
   /// Export route - provides CSV/PDF export actions
   static const String export = '/export';
+  static const String exportName = 'export';
 
   /// Helper method to generate report detail route with ID
   static String reportDetailWithId(String id) => '/report/$id';

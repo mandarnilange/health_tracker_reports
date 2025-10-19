@@ -2,36 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_tracker_reports/presentation/providers/export_provider.dart';
 
-/// Export hub page that exposes CSV export actions for reports, vitals, and trends.
 class ExportPage extends ConsumerWidget {
   const ExportPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen<ExportState>(
-      exportNotifierProvider,
-      (previous, next) {
-        if (previous?.status == next.status &&
-            previous?.results == next.results &&
-            previous?.failure == next.failure) {
-          return;
-        }
+    ref.listen<ExportState>(exportNotifierProvider, (previous, next) {
+      if (previous?.status == next.status &&
+          previous?.results == next.results &&
+          previous?.failure == next.failure) {
+        return;
+      }
 
-        if (next.status == ExportStatus.success && next.results.isNotEmpty) {
-          final message = next.results
-              .map((result) => 'Saved to: ${result.path}')
-              .join('\n');
+      if (next.status == ExportStatus.success && next.results.isNotEmpty) {
+        final message = next.results
+            .map((result) => 'Saved to: ${result.path}')
+            .join('\n');
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(message)),
-          );
-        } else if (next.status == ExportStatus.error && next.failure != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(next.failure!.message)),
-          );
-        }
-      },
-    );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+      } else if (next.status == ExportStatus.error && next.failure != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.failure!.message)),
+        );
+      }
+    });
 
     final exportState = ref.watch(exportNotifierProvider);
     final notifier = ref.read(exportNotifierProvider.notifier);

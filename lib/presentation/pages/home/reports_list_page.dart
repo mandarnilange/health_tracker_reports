@@ -26,7 +26,7 @@ class ReportsListPage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.file_download_outlined),
             tooltip: 'Export Data',
-            onPressed: () => context.pushNamed('export'),
+            onPressed: () => context.pushNamed(RouteNames.exportName),
           ),
         ],
       ),

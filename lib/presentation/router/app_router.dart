@@ -166,7 +166,7 @@ class AppRouter {
           // Export Route - CSV/PDF export tools
           GoRoute(
             path: RouteNames.export,
-            name: 'export',
+            name: RouteNames.exportName,
             pageBuilder: (context, state) => MaterialPage<void>(
               key: state.pageKey,
               child: const ExportPage(),
