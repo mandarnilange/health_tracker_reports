@@ -18,4 +18,12 @@ abstract class ReportRepository {
   /// Get list of distinct biomarker names from all stored reports
   /// Used for LLM normalization during extraction
   Future<Either<Failure, List<String>>> getDistinctBiomarkerNames();
+
+  /// Get all reports within a specific date range
+  /// Returns reports where date is between [start] and [end] (inclusive)
+  /// Results are sorted by date in ascending order
+  Future<Either<Failure, List<Report>>> getReportsByDateRange(
+    DateTime start,
+    DateTime end,
+  );
 }

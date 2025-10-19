@@ -356,4 +356,180 @@ void main() {
       expect(result, Left(CacheFailure()));
     });
   });
+
+  group('getReportsByDateRange', () {
+    final report1 = ReportModel(
+      id: 'report-1',
+      date: DateTime(2023, 1, 15),
+      labName: 'Lab A',
+      biomarkers: [],
+      originalFilePath: '/tmp/report1.pdf',
+      createdAt: DateTime(2023, 1, 15),
+      updatedAt: DateTime(2023, 1, 15),
+    );
+
+    final report2 = ReportModel(
+      id: 'report-2',
+      date: DateTime(2023, 2, 10),
+      labName: 'Lab B',
+      biomarkers: [],
+      originalFilePath: '/tmp/report2.pdf',
+      createdAt: DateTime(2023, 2, 10),
+      updatedAt: DateTime(2023, 2, 10),
+    );
+
+    final report3 = ReportModel(
+      id: 'report-3',
+      date: DateTime(2023, 3, 5),
+      labName: 'Lab C',
+      biomarkers: [],
+      originalFilePath: '/tmp/report3.pdf',
+      createdAt: DateTime(2023, 3, 5),
+      updatedAt: DateTime(2023, 3, 5),
+    );
+
+    final report4 = ReportModel(
+      id: 'report-4',
+      date: DateTime(2023, 4, 20),
+      labName: 'Lab D',
+      biomarkers: [],
+      originalFilePath: '/tmp/report4.pdf',
+      createdAt: DateTime(2023, 4, 20),
+      updatedAt: DateTime(2023, 4, 20),
+    );
+
+    test('should return reports within date range', () async {
+      // Arrange
+      when(() => mockLocalDataSource.getAllReports())
+          .thenAnswer((_) async => [report1, report2, report3, report4]);
+
+      // Act
+      final result = await repository.getReportsByDateRange(
+        DateTime(2023, 2, 1),
+        DateTime(2023, 3, 31),
+      );
+
+      // Assert
+      result.fold(
+        (failure) => fail('expected success, got failure'),
+        (reports) {
+          expect(reports, hasLength(2));
+          expect(reports[0].id, 'report-2');
+          expect(reports[1].id, 'report-3');
+        },
+      );
+      verify(() => mockLocalDataSource.getAllReports()).called(1);
+    });
+
+    test('should exclude reports before start date', () async {
+      // Arrange
+      when(() => mockLocalDataSource.getAllReports())
+          .thenAnswer((_) async => [report1, report2, report3, report4]);
+
+      // Act
+      final result = await repository.getReportsByDateRange(
+        DateTime(2023, 2, 1),
+        DateTime(2023, 12, 31),
+      );
+
+      // Assert
+      result.fold(
+        (failure) => fail('expected success, got failure'),
+        (reports) {
+          expect(reports, hasLength(3));
+          expect(reports.every((r) => !r.date.isBefore(DateTime(2023, 2, 1))),
+              isTrue);
+          expect(reports.first.id, 'report-2');
+        },
+      );
+    });
+
+    test('should exclude reports after end date', () async {
+      // Arrange
+      when(() => mockLocalDataSource.getAllReports())
+          .thenAnswer((_) async => [report1, report2, report3, report4]);
+
+      // Act
+      final result = await repository.getReportsByDateRange(
+        DateTime(2023, 1, 1),
+        DateTime(2023, 2, 28),
+      );
+
+      // Assert
+      result.fold(
+        (failure) => fail('expected success, got failure'),
+        (reports) {
+          expect(reports, hasLength(2));
+          expect(reports.every((r) => !r.date.isAfter(DateTime(2023, 2, 28))),
+              isTrue);
+          expect(reports.last.id, 'report-2');
+        },
+      );
+    });
+
+    test('should return empty list when no reports in range', () async {
+      // Arrange
+      when(() => mockLocalDataSource.getAllReports())
+          .thenAnswer((_) async => [report1, report2, report3, report4]);
+
+      // Act
+      final result = await repository.getReportsByDateRange(
+        DateTime(2023, 5, 1),
+        DateTime(2023, 12, 31),
+      );
+
+      // Assert
+      result.fold(
+        (failure) => fail('expected success, got failure'),
+        (reports) => expect(reports, isEmpty),
+      );
+    });
+
+    test('should sort reports by date ascending', () async {
+      // Arrange - deliberately out of order
+      when(() => mockLocalDataSource.getAllReports())
+          .thenAnswer((_) async => [report4, report1, report3, report2]);
+
+      // Act
+      final result = await repository.getReportsByDateRange(
+        DateTime(2023, 1, 1),
+        DateTime(2023, 12, 31),
+      );
+
+      // Assert
+      result.fold(
+        (failure) => fail('expected success, got failure'),
+        (reports) {
+          expect(reports, hasLength(4));
+          expect(reports[0].id, 'report-1');
+          expect(reports[1].id, 'report-2');
+          expect(reports[2].id, 'report-3');
+          expect(reports[3].id, 'report-4');
+          // Verify ascending order
+          for (int i = 1; i < reports.length; i++) {
+            expect(
+              reports[i].date.isAfter(reports[i - 1].date) ||
+                  reports[i].date.isAtSameMomentAs(reports[i - 1].date),
+              isTrue,
+            );
+          }
+        },
+      );
+    });
+
+    test('should return CacheFailure when data source throws', () async {
+      // Arrange
+      when(() => mockLocalDataSource.getAllReports())
+          .thenThrow(CacheException());
+
+      // Act
+      final result = await repository.getReportsByDateRange(
+        DateTime(2023, 1, 1),
+        DateTime(2023, 12, 31),
+      );
+
+      // Assert
+      expect(result, Left(CacheFailure()));
+    });
+  });
 }

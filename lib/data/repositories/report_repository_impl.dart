@@ -138,4 +138,30 @@ class ReportRepositoryImpl implements ReportRepository {
       return Left(CacheFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, List<Report>>> getReportsByDateRange(
+    DateTime start,
+    DateTime end,
+  ) async {
+    try {
+      final reports = await localDataSource.getAllReports();
+      final filteredReports = <Report>[];
+
+      for (final reportModel in reports) {
+        // Filter reports within date range (inclusive)
+        if (!reportModel.date.isBefore(start) &&
+            !reportModel.date.isAfter(end)) {
+          filteredReports.add(reportModel.toEntity());
+        }
+      }
+
+      // Sort by date ascending
+      filteredReports.sort((a, b) => a.date.compareTo(b.date));
+
+      return Right(filteredReports);
+    } on CacheException {
+      return Left(CacheFailure());
+    }
+  }
 }
