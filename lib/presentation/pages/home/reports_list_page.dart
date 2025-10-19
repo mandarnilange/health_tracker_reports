@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:health_tracker_reports/domain/entities/health_log.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/domain/usecases/export_trends_to_csv.dart';
+import 'package:health_tracker_reports/domain/entities/vital_measurement.dart';
 import 'package:health_tracker_reports/presentation/pages/export/export_page_args.dart';
 import 'package:health_tracker_reports/presentation/pages/health_log/health_log_entry_sheet.dart';
 import 'package:health_tracker_reports/presentation/providers/health_log_provider.dart';
@@ -16,6 +17,9 @@ class ReportsListPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final reportsState = ref.watch(reportsProvider);
+    final healthLogsState = ref.watch(healthLogsProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Health Timeline'),
@@ -33,7 +37,8 @@ class ReportsListPage extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.file_download_outlined),
             tooltip: 'Export Data',
-            onPressed: () => _handleExportPressed(context, ref),
+            onPressed: () =>
+                _handleExportPressed(context, reportsState, healthLogsState),
           ),
         ],
       ),
@@ -62,14 +67,14 @@ class ReportsListPage extends ConsumerWidget {
     );
   }
 
-  void _handleExportPressed(BuildContext context, WidgetRef ref) {
-    final reportsState = ref.read(reportsProvider);
-    final logsState = ref.read(healthLogsProvider);
+  void _handleExportPressed(
+    BuildContext context,
+    AsyncValue<List<Report>> reportsState,
+    AsyncValue<List<HealthLog>> healthLogsState,
+  ) {
+    final isLoading = reportsState.isLoading || healthLogsState.isLoading;
 
-    final reportsLoaded = reportsState is AsyncData<List<Report>>;
-    final healthLogsLoaded = logsState is AsyncData<List<HealthLog>>;
-
-    if (!reportsLoaded || !healthLogsLoaded) {
+    if (isLoading) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Reports and health logs are still loading. Please try again shortly.'),
@@ -78,15 +83,92 @@ class ReportsListPage extends ConsumerWidget {
       return;
     }
 
-    final reports = (reportsState as AsyncData<List<Report>>).value;
-    final healthLogs = (logsState as AsyncData<List<HealthLog>>).value;
+    final hasError = reportsState.hasError || healthLogsState.hasError;
+    if (hasError) {
+      final errorMessage = reportsState.error?.toString() ??
+          healthLogsState.error?.toString() ??
+          'Unable to load data for export.';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+        ),
+      );
+      return;
+    }
+
+    final reports = reportsState.value ?? const <Report>[];
+    final healthLogs = healthLogsState.value ?? const <HealthLog>[];
 
     final args = ExportPageArgs(
       reports: reports,
       healthLogs: healthLogs,
-      trendSeries: const <TrendMetricSeries>[], // TODO: derive aggregated trend series
+      trendSeries: _buildTrendSeries(reports, healthLogs),
     );
 
     context.push(RouteNames.export, extra: args);
+  }
+
+  List<TrendMetricSeries> _buildTrendSeries(
+    List<Report> reports,
+    List<HealthLog> healthLogs,
+  ) {
+    final biomarkerSeries = <String, List<TrendMetricPoint>>{};
+
+    for (final report in reports) {
+      for (final biomarker in report.biomarkers) {
+        final points = biomarkerSeries.putIfAbsent(biomarker.name, () => []);
+        points.add(
+          TrendMetricPoint(
+            timestamp: biomarker.measuredAt,
+            value: biomarker.value,
+            unit: biomarker.unit,
+            isOutOfRange: biomarker.isOutOfRange,
+          ),
+        );
+      }
+    }
+
+    final vitalSeries = <VitalType, List<TrendMetricPoint>>{};
+    for (final log in healthLogs) {
+      for (final vital in log.vitals) {
+        final points = vitalSeries.putIfAbsent(vital.type, () => []);
+        points.add(
+          TrendMetricPoint(
+            timestamp: log.timestamp,
+            value: vital.value,
+            unit: vital.unit,
+            isOutOfRange: vital.isOutOfRange,
+          ),
+        );
+      }
+    }
+
+    List<TrendMetricSeries> buildSeriesFromMap<K>(
+      Map<K, List<TrendMetricPoint>> map,
+      TrendMetricType type,
+      String Function(K key) nameBuilder,
+    ) {
+      return map.entries.map((entry) {
+        entry.value.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+        return TrendMetricSeries(
+          type: type,
+          name: nameBuilder(entry.key),
+          points: List.unmodifiable(entry.value),
+        );
+      }).toList(growable: false);
+    }
+
+    return [
+      ...buildSeriesFromMap(
+        biomarkerSeries,
+        TrendMetricType.biomarker,
+        (key) => key,
+      ),
+      ...buildSeriesFromMap(
+        vitalSeries,
+        TrendMetricType.vital,
+        (type) => type.displayName,
+      ),
+    ];
   }
 }
