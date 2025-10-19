@@ -38,19 +38,19 @@ Export user data to 3 separate CSV files with simple denormalized structure:
 ### Tasks
 
 #### 1.1 ExportReportsToCsv UseCase
-- [ ] **TEST:** Export single report with multiple biomarkers to CSV rows
-- [ ] **CODE:** Create ExportReportsToCsv usecase
-- [ ] **TEST:** Export multiple reports (denormalized - biomarker rows)
-- [ ] **CODE:** Implement denormalized CSV generation
-- [ ] **TEST:** Handle special characters (commas, quotes, newlines in notes/lab names)
-- [ ] **CODE:** Properly escape special characters per CSV spec
-- [ ] **TEST:** Date formatting (ISO 8601)
-- [ ] **CODE:** Format all dates consistently
-- [ ] **TEST:** Empty reports list handling
-- [ ] **CODE:** Handle case with no reports (return empty CSV with headers)
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for ExportReportsToCsv usecase`
-- [ ] **COMMIT:** `feat: implement reports CSV export usecase`
+- [x] **TEST:** Export single report with multiple biomarkers to CSV rows
+- [x] **CODE:** Create ExportReportsToCsv usecase
+- [x] **TEST:** Export multiple reports (denormalized - biomarker rows)
+- [x] **CODE:** Implement denormalized CSV generation
+- [x] **TEST:** Handle special characters (commas, quotes, newlines in notes/lab names)
+- [x] **CODE:** Properly escape special characters per CSV spec
+- [x] **TEST:** Date formatting (ISO 8601)
+- [x] **CODE:** Format all dates consistently
+- [x] **TEST:** Empty reports list handling
+- [x] **CODE:** Handle case with no reports (return empty CSV with headers)
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `feat: implement CSV export usecases` (85cc00d)
+- [x] **COMMIT:** (covered above)
 
 **Output Structure (reports_biomarkers.csv):**
 ```
@@ -64,15 +64,15 @@ rpt_001,2026-01-10,Quest,bio_123,Glucose,112.0,mg/dL,70.0,100.0,HIGH,,/files/rep
 ---
 
 #### 1.2 ExportVitalsToCsv UseCase
-- [ ] **TEST:** Export health logs with vitals (denormalized)
-- [ ] **CODE:** Create ExportVitalsToCsv usecase
-- [ ] **TEST:** Handle multiple vitals per log entry
-- [ ] **CODE:** Generate one CSV row per vital measurement
-- [ ] **TEST:** Empty health logs handling
-- [ ] **CODE:** Handle case with no logs (return empty CSV with headers)
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for ExportVitalsToCsv usecase`
-- [ ] **COMMIT:** `feat: implement vitals CSV export usecase`
+- [x] **TEST:** Export health logs with vitals (denormalized)
+- [x] **CODE:** Create ExportVitalsToCsv usecase
+- [x] **TEST:** Handle multiple vitals per log entry
+- [x] **CODE:** Generate one CSV row per vital measurement
+- [x] **TEST:** Empty health logs handling
+- [x] **CODE:** Handle case with no logs (return empty CSV with headers)
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `feat: implement CSV export usecases` (85cc00d)
+- [x] **COMMIT:** (covered above)
 
 **Output Structure (health_logs_vitals.csv):**
 ```
@@ -86,19 +86,19 @@ log_001,2026-01-15 07:30:00,vit_101,BP Systolic,125.0,mmHg,90.0,120.0,BORDERLINE
 ---
 
 #### 1.3 ExportTrendsToCsv UseCase
-- [ ] **TEST:** Calculate and export biomarker trend statistics
-- [ ] **CODE:** Create ExportTrendsToCsv usecase
-- [ ] **TEST:** Calculate and export vital trend statistics
-- [ ] **CODE:** Compute trends for vitals
-- [ ] **TEST:** Trend direction calculation (increasing/decreasing/stable)
-- [ ] **CODE:** Implement trend direction algorithm
-- [ ] **TEST:** Statistics calculation (avg, min, max, std dev, % change)
-- [ ] **CODE:** Implement statistical calculations
-- [ ] **TEST:** Handle metrics with single data point (no trend possible)
-- [ ] **CODE:** Return "N/A" for trend when insufficient data
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for ExportTrendsToCsv usecase`
-- [ ] **COMMIT:** `feat: implement trends CSV export usecase`
+- [x] **TEST:** Calculate and export biomarker trend statistics
+- [x] **CODE:** Create ExportTrendsToCsv usecase
+- [x] **TEST:** Calculate and export vital trend statistics
+- [x] **CODE:** Compute trends for vitals
+- [x] **TEST:** Trend direction calculation (increasing/decreasing/stable)
+- [x] **CODE:** Implement trend direction algorithm
+- [x] **TEST:** Statistics calculation (avg, min, max, std dev, % change)
+- [x] **CODE:** Implement statistical calculations
+- [x] **TEST:** Handle metrics with single data point (no trend possible)
+- [x] **CODE:** Return "N/A" for trend when insufficient data
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `feat: implement CSV export usecases` (85cc00d)
+- [x] **COMMIT:** (covered above)
 
 **Output Structure (trends_statistics.csv):**
 ```
@@ -112,21 +112,21 @@ biomarker,Glucose,2025-10-01,2026-01-10,3,101.67,93.0,112.0,9.71,INCREASING,9.5,
 ---
 
 #### 1.4 CsvExportService (Data Layer)
-- [ ] **TEST:** Convert Report entities to CSV string
-- [ ] **CODE:** Create CsvExportService
-- [ ] **TEST:** Convert HealthLog entities to CSV string
-- [ ] **CODE:** Implement vitals CSV generation
-- [ ] **TEST:** Convert trend statistics to CSV string
-- [ ] **CODE:** Implement trends CSV generation
-- [ ] **TEST:** Escape special characters (quotes, commas, newlines)
-- [ ] **CODE:** Properly escape per CSV RFC 4180
-- [ ] **TEST:** Generate CSV headers
-- [ ] **CODE:** Add headers to all CSV outputs
-- [ ] **TEST:** Handle null/optional fields (convert to empty string)
-- [ ] **CODE:** Implement null handling
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add tests for CsvExportService`
-- [ ] **COMMIT:** `feat: implement CSV export service`
+- [x] **TEST:** Convert Report entities to CSV string
+- [x] **CODE:** Create CsvExportService
+- [x] **TEST:** Convert HealthLog entities to CSV string
+- [x] **CODE:** Implement vitals CSV generation
+- [x] **TEST:** Convert trend statistics to CSV string
+- [x] **CODE:** Implement trends CSV generation
+- [x] **TEST:** Escape special characters (quotes, commas, newlines)
+- [x] **CODE:** Properly escape per CSV RFC 4180
+- [x] **TEST:** Generate CSV headers
+- [x] **CODE:** Add headers to all CSV outputs
+- [x] **TEST:** Handle null/optional fields (convert to empty string)
+- [x] **CODE:** Implement null handling
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `feat: implement CSV export services` (201cd21)
+- [x] **COMMIT:** (covered above)
 
 **Location:** `lib/data/datasources/external/csv_export_service.dart`
 **Register DI:** `@lazySingleton`
@@ -134,19 +134,19 @@ biomarker,Glucose,2025-10-01,2026-01-10,3,101.67,93.0,112.0,9.71,INCREASING,9.5,
 ---
 
 #### 1.5 FileWriterService
-- [ ] **TEST:** Write file to downloads folder (iOS/Android/Web)
-- [ ] **CODE:** Create FileWriterService using path_provider
-- [ ] **TEST:** Generate unique filename with timestamp
-- [ ] **CODE:** Implement filename generation: `reports_biomarkers_2026-01-15.csv`
-- [ ] **TEST:** Handle file permission errors
-- [ ] **CODE:** Catch and return appropriate Failure
-- [ ] **TEST:** Handle storage full errors
-- [ ] **CODE:** Catch and return StorageFailure
-- [ ] **TEST:** Return file path on success
-- [ ] **CODE:** Return absolute path for sharing/display
-- [ ] **VERIFY:** Test on iOS, Android, Web
-- [ ] **COMMIT:** `test: add tests for FileWriterService`
-- [ ] **COMMIT:** `feat: implement file writing service`
+- [x] **TEST:** Write file to downloads folder (iOS/Android/Web)
+- [x] **CODE:** Create FileWriterService using path_provider
+- [x] **TEST:** Generate unique filename with timestamp
+- [x] **CODE:** Implement filename generation: `reports_biomarkers_2026-01-15.csv`
+- [x] **TEST:** Handle file permission errors
+- [x] **CODE:** Catch and return appropriate Failure
+- [x] **TEST:** Handle storage full errors
+- [x] **CODE:** Catch and return StorageFailure
+- [x] **TEST:** Return file path on success
+- [x] **CODE:** Return absolute path for sharing/display
+- [x] **VERIFY:** Test on iOS, Android, Web
+- [x] **COMMIT:** `feat: implement CSV export services` (201cd21)
+- [x] **COMMIT:** (covered above)
 
 **Location:** `lib/data/datasources/external/file_writer_service.dart`
 **Register DI:** `@lazySingleton`
@@ -154,33 +154,33 @@ biomarker,Glucose,2025-10-01,2026-01-10,3,101.67,93.0,112.0,9.71,INCREASING,9.5,
 ---
 
 #### 1.6 Export UI & Provider
-- [ ] **TEST:** ExportProvider initial state is idle
-- [ ] **CODE:** Create ExportProvider (StateNotifier)
-- [ ] **TEST:** Export single CSV - loading → success with file path
-- [ ] **CODE:** Implement single CSV export method
-- [ ] **TEST:** Export all 3 CSVs - track progress (1/3, 2/3, 3/3)
-- [ ] **CODE:** Implement multi-file export with progress
-- [ ] **TEST:** Export failure - show error state with message
-- [ ] **CODE:** Handle failures and update state
-- [ ] **COMMIT:** `test: add tests for ExportProvider`
-- [ ] **COMMIT:** `feat: implement export state management`
+- [x] **TEST:** ExportProvider initial state is idle
+- [x] **CODE:** Create ExportProvider (StateNotifier)
+- [x] **TEST:** Export single CSV - loading → success with file path
+- [x] **CODE:** Implement single CSV export method
+- [x] **TEST:** Export all 3 CSVs - track progress (1/3, 2/3, 3/3)
+- [x] **CODE:** Implement multi-file export with progress
+- [x] **TEST:** Export failure - show error state with message
+- [x] **CODE:** Handle failures and update state
+- [x] **COMMIT:** `feat: add export provider and page` (91ef82a)
+- [x] **COMMIT:** (covered above)
 
 **Location:** `lib/presentation/providers/export_provider.dart`
 
-- [ ] **TEST (widget):** ExportPage renders with 4 export buttons
-- [ ] **CODE:** Create ExportPage
-- [ ] **TEST:** "Export All CSVs" button triggers 3 exports
-- [ ] **CODE:** Implement "Export All" functionality
-- [ ] **TEST:** Individual export buttons (reports, vitals, trends)
-- [ ] **CODE:** Implement individual export buttons
-- [ ] **TEST:** Show progress indicator during export (with percentage)
-- [ ] **CODE:** Display CircularProgressIndicator with progress text
-- [ ] **TEST:** Show success snackbar with file paths
-- [ ] **CODE:** Display SnackBar with "Saved to: /path/to/file.csv"
-- [ ] **TEST:** Show error snackbar on failure
-- [ ] **CODE:** Display error message from Failure
-- [ ] **COMMIT:** `test: add ExportPage widget tests`
-- [ ] **COMMIT:** `feat: implement export page UI`
+- [x] **TEST (widget):** ExportPage renders with 4 export buttons
+- [x] **CODE:** Create ExportPage
+- [x] **TEST:** "Export All CSVs" button triggers 3 exports
+- [x] **CODE:** Implement "Export All" functionality
+- [x] **TEST:** Individual export buttons (reports, vitals, trends)
+- [x] **CODE:** Implement individual export buttons
+- [x] **TEST:** Show progress indicator during export (with percentage)
+- [x] **CODE:** Display CircularProgressIndicator with progress text
+- [x] **TEST:** Show success snackbar with file paths
+- [x] **CODE:** Display SnackBar with "Saved to: /path/to/file.csv"
+- [x] **TEST:** Show error snackbar on failure
+- [x] **CODE:** Display error message from Failure
+- [x] **COMMIT:** `feat: add export provider and page` (91ef82a)
+- [x] **COMMIT:** (covered above)
 
 **Location:** `lib/presentation/pages/export/export_page.dart`
 

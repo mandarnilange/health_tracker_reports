@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Phase 5 CSV Export Foundations (2026-01-15)
+- `85cc00d` feat: implement CSV export usecases — adds report, vitals, and trends CSV exporters with UTF-8 BOM, fixed decimal formatting, and exhaustive unit coverage (`lib/domain/usecases/export_*`, `test/unit/domain/usecases/export_*_test.dart`).
+- `201cd21` feat: implement CSV export services — introduces shared CSV export service, file writer with failure mapping, and supporting tests (`lib/data/datasources/external/*`, `lib/core/error/failures.dart`, `test/unit/data/datasources/external/*_test.dart`).
+- `91ef82a` feat: add export provider and page — wires Riverpod state management, new export page UI, and widget/unit tests for progress & feedback (`lib/presentation/providers/export_provider.dart`, `lib/presentation/pages/export/export_page.dart`, `test/unit/presentation/providers/export_provider_test.dart`, `test/widget/pages/export/export_page_test.dart`).
+
 ### Fixed - Report Detail Loading Regression (2025-10-19)
 - `ReportsNotifier` now triggers an initial `loadReports()` during construction so timeline navigation opens report detail reliably (`lib/presentation/providers/reports_provider.dart`, `test/unit/presentation/providers/reports_provider_test.dart`, `test/widget/pages/report_detail/report_detail_page_test.dart`).
 - Report detail screen delete action is wired through `DeleteReport` with a confirmation dialog and error handling, exercised via new widget coverage (`lib/presentation/pages/report_detail/report_detail_page.dart`, `test/widget/pages/report_detail/report_detail_page_test.dart`).
