@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed - Report Detail Loading Regression (2025-10-19)
+- `ReportsNotifier` now triggers an initial `loadReports()` during construction so timeline navigation opens report detail reliably (`lib/presentation/providers/reports_provider.dart`, `test/unit/presentation/providers/reports_provider_test.dart`, `test/widget/pages/report_detail/report_detail_page_test.dart`).
+- Report detail screen delete action is wired through `DeleteReport` with a confirmation dialog and error handling, exercised via new widget coverage (`lib/presentation/pages/report_detail/report_detail_page.dart`, `test/widget/pages/report_detail/report_detail_page_test.dart`).
+
+### Changed - Health Log Card Density (2025-10-19)
+- Simplified `HealthLogCard` to display compact vital summaries (BP aggregation, status dots, limited visible vitals) and removed inline notes, matching UX feedback (`lib/presentation/widgets/health_log_card.dart`, `test/widget/widgets/health_log_card_test.dart`).
+- Added status-dot keys for deterministic testing and updated widget expectations for the condensed layout.
+
 ### Added - Phase 6: Daily Health Tracking Complete (2025-10-19)
 
 **Goal:** Enable users to log daily vital signs alongside lab reports in a unified timeline view.

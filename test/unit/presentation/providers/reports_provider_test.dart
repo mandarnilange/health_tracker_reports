@@ -118,6 +118,8 @@ void main() {
       saveReportProvider: () => mockSaveReport,
     );
 
+    await Future<void>.delayed(Duration.zero);
+
     when(() => mockSaveReport(report))
         .thenAnswer((_) async => const Left(failure));
 

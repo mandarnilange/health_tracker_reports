@@ -9,6 +9,7 @@ import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/domain/usecases/get_all_reports.dart';
 import 'package:health_tracker_reports/domain/usecases/save_report.dart';
 import 'package:health_tracker_reports/domain/usecases/search_biomarkers.dart';
+import 'package:health_tracker_reports/domain/usecases/delete_report.dart';
 import 'package:health_tracker_reports/presentation/pages/report_detail/report_detail_page.dart';
 import 'package:health_tracker_reports/presentation/providers/filter_provider.dart';
 import 'package:health_tracker_reports/presentation/providers/report_usecase_providers.dart';
@@ -22,26 +23,25 @@ class MockGetAllReports extends Mock implements GetAllReports {}
 
 class MockSaveReport extends Mock implements SaveReport {}
 
+class MockDeleteReport extends Mock implements DeleteReport {}
+
 void main() {
   group('ReportDetailPage', () {
     late MockGetAllReports mockGetAllReports;
     late MockSaveReport mockSaveReport;
+    late MockDeleteReport mockDeleteReport;
     late Report testReport;
     late List<Report> testReports;
 
     /// Helper to create ProviderScope with proper overrides
-    Widget createTestWidget(String reportId, {bool shouldLoadReports = true}) {
-      if (shouldLoadReports) {
-        when(() => mockGetAllReports())
-            .thenAnswer((_) async => Right(testReports));
-      }
-
+    Widget createTestWidget(String reportId) {
       return ProviderScope(
         overrides: [
           reportsProvider.overrideWith((ref) => ReportsNotifier(
                 getAllReports: mockGetAllReports,
                 saveReportProvider: () => mockSaveReport,
-              )..loadReports()),
+              )),
+          deleteReportProvider.overrideWithValue(mockDeleteReport),
         ],
         child: MaterialApp(
           home: ReportDetailPage(reportId: reportId),
@@ -52,6 +52,7 @@ void main() {
     setUp(() {
       mockGetAllReports = MockGetAllReports();
       mockSaveReport = MockSaveReport();
+      mockDeleteReport = MockDeleteReport();
 
       final now = DateTime(2024, 1, 15, 10, 30);
 
@@ -98,13 +99,23 @@ void main() {
 
     testWidgets('displays loading indicator while fetching report',
         (WidgetTester tester) async {
+      when(() => mockGetAllReports()).thenAnswer((_) async {
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+        return Right(testReports);
+      });
+
       await tester.pumpWidget(createTestWidget('test-report-1'));
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      await tester.pump(const Duration(milliseconds: 60));
     });
 
     testWidgets('displays report date as AppBar title',
         (WidgetTester tester) async {
+      when(() => mockGetAllReports())
+          .thenAnswer((_) async => Right(testReports));
+
       await tester.pumpWidget(createTestWidget('test-report-1'));
       await tester.pumpAndSettle();
 
@@ -114,6 +125,9 @@ void main() {
     });
 
     testWidgets('displays lab name prominently', (WidgetTester tester) async {
+      when(() => mockGetAllReports())
+          .thenAnswer((_) async => Right(testReports));
+
       await tester.pumpWidget(createTestWidget('test-report-1'));
       await tester.pumpAndSettle();
 
@@ -122,6 +136,9 @@ void main() {
 
     testWidgets('displays out-of-range summary chip',
         (WidgetTester tester) async {
+      when(() => mockGetAllReports())
+          .thenAnswer((_) async => Right(testReports));
+
       await tester.pumpWidget(createTestWidget('test-report-1'));
       await tester.pumpAndSettle();
 
@@ -133,6 +150,9 @@ void main() {
 
     testWidgets('displays all biomarkers using BiomarkerCard',
         (WidgetTester tester) async {
+      when(() => mockGetAllReports())
+          .thenAnswer((_) async => Right(testReports));
+
       await tester.pumpWidget(createTestWidget('test-report-1'));
       await tester.pumpAndSettle();
 
@@ -143,6 +163,9 @@ void main() {
     });
 
     testWidgets('displays biomarkers in ListView', (WidgetTester tester) async {
+      when(() => mockGetAllReports())
+          .thenAnswer((_) async => Right(testReports));
+
       await tester.pumpWidget(createTestWidget('test-report-1'));
       await tester.pumpAndSettle();
 
@@ -151,6 +174,9 @@ void main() {
 
     testWidgets('displays error when report not found',
         (WidgetTester tester) async {
+      when(() => mockGetAllReports())
+          .thenAnswer((_) async => Right(testReports));
+
       await tester.pumpWidget(createTestWidget('non-existent-id'));
       await tester.pumpAndSettle();
 
@@ -162,8 +188,7 @@ void main() {
       when(() => mockGetAllReports()).thenAnswer(
           (_) async => const Left(CacheFailure('Failed to load reports')));
 
-      await tester.pumpWidget(
-          createTestWidget('test-report-1', shouldLoadReports: false));
+      await tester.pumpWidget(createTestWidget('test-report-1'));
       await tester.pumpAndSettle();
 
       expect(find.textContaining('Failed to load reports'), findsOneWidget);
@@ -171,6 +196,9 @@ void main() {
 
     testWidgets('has FloatingActionButton for editing',
         (WidgetTester tester) async {
+      when(() => mockGetAllReports())
+          .thenAnswer((_) async => Right(testReports));
+
       await tester.pumpWidget(createTestWidget('test-report-1'));
       await tester.pumpAndSettle();
 
@@ -179,6 +207,9 @@ void main() {
     });
 
     testWidgets('displays search bar', (WidgetTester tester) async {
+      when(() => mockGetAllReports())
+          .thenAnswer((_) async => Right(testReports));
+
       await tester.pumpWidget(createTestWidget('test-report-1'));
       await tester.pumpAndSettle();
 
@@ -187,11 +218,49 @@ void main() {
     });
 
     testWidgets('displays filter chip', (WidgetTester tester) async {
+      when(() => mockGetAllReports())
+          .thenAnswer((_) async => Right(testReports));
+
       await tester.pumpWidget(createTestWidget('test-report-1'));
       await tester.pumpAndSettle();
 
       expect(find.byType(FilterChip), findsOneWidget);
       expect(find.text('Out of Range Only'), findsOneWidget);
+    });
+
+    testWidgets('requests reports automatically on init',
+        (WidgetTester tester) async {
+      when(() => mockGetAllReports())
+          .thenAnswer((_) async => Right(testReports));
+
+      await tester.pumpWidget(createTestWidget('test-report-1'));
+      await tester.pump();
+
+      verify(() => mockGetAllReports()).called(1);
+    });
+
+    testWidgets('prompts for confirmation and deletes report when accepted',
+        (WidgetTester tester) async {
+      when(() => mockGetAllReports())
+          .thenAnswer((_) async => Right(testReports));
+      when(() => mockDeleteReport('test-report-1'))
+          .thenAnswer((_) async => const Right(null));
+
+      await tester.pumpWidget(createTestWidget('test-report-1'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.more_vert));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Delete Report'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AlertDialog), findsOneWidget);
+
+      await tester.tap(find.text('Delete'));
+      await tester.pumpAndSettle();
+
+      verify(() => mockDeleteReport('test-report-1')).called(1);
     });
   });
 }

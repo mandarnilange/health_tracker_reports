@@ -10,11 +10,14 @@ import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/domain/entities/biomarker.dart';
 import 'package:health_tracker_reports/domain/entities/reference_range.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
+import 'package:health_tracker_reports/domain/entities/health_entry.dart';
 import 'package:health_tracker_reports/domain/entities/trend_data_point.dart';
 import 'package:health_tracker_reports/domain/repositories/report_repository.dart';
+import 'package:health_tracker_reports/domain/repositories/timeline_repository.dart';
 import 'package:health_tracker_reports/domain/usecases/extract_report_from_file_llm.dart';
 import 'package:health_tracker_reports/domain/usecases/get_all_reports.dart';
 import 'package:health_tracker_reports/domain/usecases/save_report.dart';
+import 'package:health_tracker_reports/domain/usecases/get_unified_timeline.dart';
 import 'package:health_tracker_reports/presentation/pages/error/error_page.dart';
 import 'package:health_tracker_reports/presentation/pages/home/reports_list_page.dart';
 import 'package:health_tracker_reports/presentation/pages/report_detail/report_detail_page.dart';
@@ -24,6 +27,7 @@ import 'package:health_tracker_reports/presentation/providers/extraction_provide
 import 'package:health_tracker_reports/presentation/providers/file_picker_provider.dart';
 import 'package:health_tracker_reports/presentation/providers/report_usecase_providers.dart';
 import 'package:health_tracker_reports/presentation/providers/reports_provider.dart';
+import 'package:health_tracker_reports/presentation/providers/timeline_provider.dart';
 import 'package:health_tracker_reports/presentation/router/app_router.dart';
 import 'package:health_tracker_reports/presentation/router/route_names.dart';
 import 'package:mocktail/mocktail.dart';
@@ -75,6 +79,28 @@ class _DummySaveReport extends SaveReport {
 
   @override
   Future<Either<Failure, Report>> call(Report report) async => Right(report);
+}
+
+class _DummyTimelineRepository implements TimelineRepository {
+  @override
+  Future<Either<Failure, List<HealthEntry>>> getUnifiedTimeline({
+    DateTime? startDate,
+    DateTime? endDate,
+    HealthEntryType? filterType,
+  }) async =>
+      Right(<HealthEntry>[]);
+}
+
+class _DummyGetUnifiedTimeline extends GetUnifiedTimeline {
+  _DummyGetUnifiedTimeline() : super(repository: _DummyTimelineRepository());
+
+  @override
+  Future<Either<Failure, List<HealthEntry>>> call({
+    DateTime? startDate,
+    DateTime? endDate,
+    HealthEntryType? filterType,
+  }) async =>
+      Right(<HealthEntry>[]);
 }
 
 class _FakeReportsNotifier extends ReportsNotifier {
@@ -172,7 +198,11 @@ void main() {
   Widget buildRouterApp(GoRouter router,
       {List<Override> overrides = const []}) {
     return ProviderScope(
-      overrides: overrides,
+      overrides: [
+        getUnifiedTimelineUseCaseProvider
+            .overrideWithValue(_DummyGetUnifiedTimeline()),
+        ...overrides,
+      ],
       child: MaterialApp.router(routerConfig: router),
     );
   }

@@ -14,15 +14,23 @@ void main() {
       timestamp: timestamp,
       vitals: const [
         VitalMeasurement(
-          id: 'v1',
-          type: VitalType.heartRate,
-          value: 78,
-          unit: 'bpm',
+          id: 'bp-sys',
+          type: VitalType.bloodPressureSystolic,
+          value: 120,
+          unit: 'mmHg',
           status: VitalStatus.normal,
-          referenceRange: ReferenceRange(min: 60, max: 100),
+          referenceRange: ReferenceRange(min: 90, max: 120),
         ),
         VitalMeasurement(
-          id: 'v2',
+          id: 'bp-dia',
+          type: VitalType.bloodPressureDiastolic,
+          value: 80,
+          unit: 'mmHg',
+          status: VitalStatus.normal,
+          referenceRange: ReferenceRange(min: 60, max: 80),
+        ),
+        VitalMeasurement(
+          id: 'spo2',
           type: VitalType.oxygenSaturation,
           value: 92,
           unit: '%',
@@ -35,7 +43,8 @@ void main() {
       updatedAt: timestamp,
     );
 
-    testWidgets('renders timestamp and notes', (tester) async {
+    testWidgets('renders compact vital summaries with status indicators',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -44,12 +53,21 @@ void main() {
         ),
       );
 
-      expect(find.text(DateFormat('MMM d, yyyy • h:mm a').format(timestamp)),
-          findsOneWidget);
-      expect(find.text('Morning after workout'), findsOneWidget);
+      expect(
+        find.text(DateFormat('MMM d, yyyy • h:mm a').format(timestamp)),
+        findsOneWidget,
+      );
+      expect(find.text('BP - 120/80'), findsOneWidget);
+      expect(find.text('SpO2 - 92%'), findsOneWidget);
+      expect(find.byKey(const Key('vital-status-bloodPressure')), findsOneWidget);
+      expect(
+        find.byKey(const Key('vital-status-oxygenSaturation')),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('shows vital summary chips', (tester) async {
+    testWidgets('omits legacy chips and notes for a denser layout',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -58,22 +76,8 @@ void main() {
         ),
       );
 
-      expect(find.textContaining('Heart Rate'), findsOneWidget);
-      expect(find.textContaining('78 bpm'), findsOneWidget);
-      expect(find.textContaining('SpO2'), findsOneWidget);
-      expect(find.textContaining('92 %'), findsOneWidget);
-    });
-
-    testWidgets('shows warning indicator for out-of-range vitals', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: HealthLogCard(log: log),
-          ),
-        ),
-      );
-
-      expect(find.byIcon(Icons.warning_amber_rounded), findsOneWidget);
+      expect(find.byType(Chip), findsNothing);
+      expect(find.text('Morning after workout'), findsNothing);
     });
   });
 }

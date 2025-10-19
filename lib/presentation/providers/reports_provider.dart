@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
@@ -28,7 +30,9 @@ class ReportsNotifier extends StateNotifier<AsyncValue<List<Report>>> {
     required SaveReport Function() saveReportProvider,
   })  : _getAllReports = getAllReports,
         _saveReportProvider = saveReportProvider,
-        super(const AsyncValue.loading());
+        super(const AsyncValue.loading()) {
+    _initialize();
+  }
 
   final GetAllReports _getAllReports;
   final SaveReport Function() _saveReportProvider;
@@ -102,6 +106,10 @@ class ReportsNotifier extends StateNotifier<AsyncValue<List<Report>>> {
   /// Public refresh helper for UI triggers.
   Future<void> refresh() async {
     await loadReports();
+  }
+
+  void _initialize() {
+    Future<void>.microtask(loadReports);
   }
 }
 

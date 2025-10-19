@@ -101,7 +101,7 @@ void main() {
       expect(find.text('Lab Reports'), findsOneWidget);
       expect(find.text('Health Logs'), findsOneWidget);
       expect(find.textContaining('Quest Diagnostics'), findsOneWidget);
-      expect(find.textContaining('Morning'), findsOneWidget);
+      expect(find.textContaining('Heart Rate - 78 bpm'), findsOneWidget);
     });
 
     testWidgets('shows empty state when no entries', (tester) async {

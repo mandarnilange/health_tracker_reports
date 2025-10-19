@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/presentation/providers/reports_provider.dart';
+import 'package:health_tracker_reports/presentation/providers/report_usecase_providers.dart';
 import 'package:health_tracker_reports/presentation/providers/search_provider.dart';
 import 'package:health_tracker_reports/presentation/providers/filter_provider.dart';
 import 'package:health_tracker_reports/presentation/widgets/biomarker_card.dart';
@@ -66,6 +67,27 @@ class ReportDetailPage extends ConsumerWidget {
         return Scaffold(
           appBar: AppBar(
             title: Text(DateFormat('MMM dd, yyyy').format(report.date)),
+            actions: [
+              PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'delete') {
+                    _showDeleteDialog(context, ref, report);
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete, size: 20),
+                        SizedBox(width: 8),
+                        Text('Delete Report'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
           body: ListView(
             padding: const EdgeInsets.all(16.0),
@@ -327,6 +349,57 @@ class ReportDetailPage extends ConsumerWidget {
             ),
           ),
         );
+      },
+    );
+  }
+
+  Future<void> _showDeleteDialog(
+    BuildContext context,
+    WidgetRef ref,
+    Report report,
+  ) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete Report'),
+        content: const Text(
+          'Are you sure you want to delete this report? This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red.shade700,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete != true) {
+      return;
+    }
+
+    final deleteReport = ref.read(deleteReportProvider);
+    final result = await deleteReport(report.id);
+
+    await result.fold<Future<void>>(
+      (failure) async {
+        final messenger = ScaffoldMessenger.maybeOf(context);
+        messenger?.showSnackBar(
+          SnackBar(content: Text(failure.message)),
+        );
+      },
+      (_) async {
+        await ref.read(reportsProvider.notifier).refresh();
+        final navigator = Navigator.of(context);
+        if (!navigator.mounted) return;
+        navigator.pop();
       },
     );
   }
