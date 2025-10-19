@@ -31,6 +31,9 @@ class RouteNames {
   /// Use with health log ID parameter: /health-log/:id
   static const String healthLogDetail = '/health-log/:id';
 
+  /// Export route - provides CSV/PDF export actions
+  static const String export = '/export';
+
   /// Helper method to generate report detail route with ID
   static String reportDetailWithId(String id) => '/report/$id';
 

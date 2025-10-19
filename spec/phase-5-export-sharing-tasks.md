@@ -515,12 +515,12 @@ class DashboardCategory extends Equatable {
 ### Tasks
 
 #### 4.1 Update App Router
-- [ ] **CODE:** Add `/export` route → ExportPage
+- [x] **CODE:** Add `/export` route → ExportPage
 - [ ] **CODE:** Add `/export/doctor-pdf-config` route → DoctorPdfConfigPage
-- [ ] **CODE:** Add navigation from HomePage (AppBar action or FAB menu)
+- [x] **CODE:** Add navigation from HomePage (AppBar action or FAB menu)
 - [ ] **CODE:** Add navigation from Settings (Export section)
 - [ ] **TEST:** Test navigation flows
-- [ ] **COMMIT:** `feat: add export routes to app router`
+- [x] **COMMIT:** `feat: wire export page navigation`
 
 **Location:** `lib/presentation/router/app_router.dart`
 

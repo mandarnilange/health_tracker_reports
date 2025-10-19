@@ -13,6 +13,8 @@ import 'package:health_tracker_reports/presentation/pages/trends/trends_page_arg
 import 'package:health_tracker_reports/presentation/pages/upload/upload_page.dart';
 import 'package:health_tracker_reports/presentation/pages/upload/review_page.dart';
 import 'package:health_tracker_reports/presentation/router/route_names.dart';
+import 'package:health_tracker_reports/presentation/pages/export/export_page.dart';
+import 'package:health_tracker_reports/presentation/pages/export/export_page_args.dart';
 
 /// Application router configuration using go_router.
 ///
@@ -158,6 +160,32 @@ class AppRouter {
               return MaterialPage<void>(
                 key: state.pageKey,
                 child: HealthLogDetailPage(log: extra),
+              );
+            },
+          ),
+
+          // Export Route - CSV/PDF export tools
+          GoRoute(
+            path: RouteNames.export,
+            name: 'export',
+            pageBuilder: (context, state) {
+              final extra = state.extra;
+              if (extra is! ExportPageArgs) {
+                return MaterialPage<void>(
+                  key: state.pageKey,
+                  child: const ErrorPage(
+                    errorMessage: 'Export data is required',
+                  ),
+                );
+              }
+
+              return MaterialPage<void>(
+                key: state.pageKey,
+                child: ExportPage(
+                  reports: extra.reports,
+                  healthLogs: extra.healthLogs,
+                  trendSeries: extra.trendSeries,
+                ),
               );
             },
           ),
