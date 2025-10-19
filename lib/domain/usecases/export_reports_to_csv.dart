@@ -19,8 +19,10 @@ import 'package:intl/intl.dart';
 @lazySingleton
 class ExportReportsToCsv {
   static const String _csvHeader = 'report_id,report_date,lab_name,biomarker_id,biomarker_name,value,unit,ref_min,ref_max,status,notes,file_path,created_at,updated_at';
+  static const String _utf8Bom = '\ufeff';
 
   final DateFormat _dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
+  final NumberFormat _numberFormat = NumberFormat('0.00');
 
   /// Exports a list of reports to CSV format.
   ///
@@ -31,6 +33,9 @@ class ExportReportsToCsv {
   Either<Failure, String> call(List<Report> reports) {
     try {
       final buffer = StringBuffer();
+
+      // Prefix UTF-8 BOM for compatibility with spreadsheet software
+      buffer.write(_utf8Bom);
 
       // Write header
       buffer.write(_csvHeader);
@@ -58,10 +63,10 @@ class ExportReportsToCsv {
       report.labName,
       biomarker.id,
       biomarker.name,
-      biomarker.value.toString(),
+      _formatDouble(biomarker.value),
       biomarker.unit,
-      biomarker.referenceRange.min.toString(),
-      biomarker.referenceRange.max.toString(),
+      _formatDouble(biomarker.referenceRange.min),
+      _formatDouble(biomarker.referenceRange.max),
       _getBiomarkerStatus(biomarker),
       report.notes ?? '',
       report.originalFilePath,
@@ -70,6 +75,11 @@ class ExportReportsToCsv {
     ];
 
     return fields.map(_escapeCsvField).join(',');
+  }
+
+  /// Formats a double to a string with two decimal places.
+  String _formatDouble(double value) {
+    return _numberFormat.format(value);
   }
 
   /// Gets the status of a biomarker as a string (HIGH, LOW, NORMAL).

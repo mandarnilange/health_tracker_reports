@@ -6,6 +6,14 @@ import 'package:health_tracker_reports/domain/entities/reference_range.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/domain/usecases/export_reports_to_csv.dart';
 
+String stripBom(String value) {
+  const bom = '\ufeff';
+  if (value.startsWith(bom)) {
+    return value.substring(1);
+  }
+  return value;
+}
+
 void main() {
   late ExportReportsToCsv usecase;
 
@@ -95,10 +103,10 @@ void main() {
           expect(csvContent, contains('Quest'));
           expect(csvContent, contains('bio_123'));
           expect(csvContent, contains('Glucose'));
-          expect(csvContent, contains('112.0'));
+          expect(csvContent, contains('112.00'));
           expect(csvContent, contains('mg/dL'));
-          expect(csvContent, contains('70.0'));
-          expect(csvContent, contains('100.0'));
+          expect(csvContent, contains('70.00'));
+          expect(csvContent, contains('100.00'));
           expect(csvContent, contains('HIGH'));
           expect(csvContent, contains('/files/report.pdf'));
         },
@@ -169,7 +177,10 @@ void main() {
         (l) => fail('should not return a failure'),
         (csvContent) {
           final lines = csvContent.split('\r\n');
-          expect(lines.first, 'report_id,report_date,lab_name,biomarker_id,biomarker_name,value,unit,ref_min,ref_max,status,notes,file_path,created_at,updated_at');
+          expect(
+            stripBom(lines.first),
+            'report_id,report_date,lab_name,biomarker_id,biomarker_name,value,unit,ref_min,ref_max,status,notes,file_path,created_at,updated_at',
+          );
         },
       );
     });
@@ -275,6 +286,36 @@ void main() {
       );
     });
 
+    test('should format numeric values with two decimal places', () {
+      // Arrange
+      final reports = [tReport2];
+
+      // Act
+      final result = usecase(reports);
+
+      // Assert
+      expect(result, isA<Right>());
+      result.fold(
+        (l) => fail('should not return a failure'),
+        (csvContent) {
+          final normalized = stripBom(csvContent);
+          final lines = normalized
+              .split('\r\n')
+              .where((line) => line.isNotEmpty)
+              .toList();
+          final dataLines = lines.skip(1).toList();
+
+          expect(dataLines.length, 2);
+          expect(dataLines.first, contains(',112.00,'));
+          expect(dataLines.first, contains(',70.00,'));
+          expect(dataLines.first, contains(',100.00,'));
+          expect(dataLines[1], contains(',15.50,'));
+          expect(dataLines[1], contains(',13.50,'));
+          expect(dataLines[1], contains(',17.50,'));
+        },
+      );
+    });
+
     test('should return headers only for empty reports list', () {
       // Arrange
       final reports = <Report>[];
@@ -290,7 +331,7 @@ void main() {
           final lines = csvContent.split('\r\n');
           // Should have only header and trailing newline
           expect(lines.length, 2);
-          expect(lines.first, contains('report_id,report_date,lab_name'));
+          expect(stripBom(lines.first), contains('report_id,report_date,lab_name'));
         },
       );
     });
@@ -310,6 +351,23 @@ void main() {
           // Should contain CRLF, not just LF
           expect(csvContent, contains('\r\n'));
           expect(csvContent.contains('\n') && !csvContent.contains('\r\n'), isFalse);
+        },
+      );
+    });
+
+    test('should prefix UTF-8 BOM for Excel compatibility', () {
+      // Arrange
+      final reports = [tReport1];
+
+      // Act
+      final result = usecase(reports);
+
+      // Assert
+      expect(result, isA<Right>());
+      result.fold(
+        (l) => fail('should not return a failure'),
+        (csvContent) {
+          expect(csvContent.startsWith('\ufeff'), isTrue);
         },
       );
     });
