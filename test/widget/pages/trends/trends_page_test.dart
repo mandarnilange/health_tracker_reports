@@ -6,16 +6,22 @@ import 'package:health_tracker_reports/domain/entities/biomarker.dart';
 import 'package:health_tracker_reports/domain/entities/reference_range.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/domain/entities/trend_analysis.dart';
+import 'package:health_tracker_reports/domain/entities/vital_measurement.dart';
+import 'package:health_tracker_reports/domain/entities/vital_statistics.dart';
 import 'package:health_tracker_reports/domain/usecases/calculate_trend.dart';
+import 'package:health_tracker_reports/domain/usecases/calculate_vital_statistics.dart';
 import 'package:health_tracker_reports/domain/usecases/get_all_reports.dart';
 import 'package:health_tracker_reports/domain/usecases/get_biomarker_trend.dart';
+import 'package:health_tracker_reports/domain/usecases/get_vital_trend.dart';
 import 'package:health_tracker_reports/domain/usecases/save_report.dart';
 import 'package:health_tracker_reports/presentation/pages/trends/trends_page.dart';
 import 'package:health_tracker_reports/presentation/pages/trends/widgets/biomarker_selector.dart';
 import 'package:health_tracker_reports/presentation/pages/trends/widgets/time_range_selector.dart';
+import 'package:health_tracker_reports/presentation/pages/trends/widgets/trend_chart.dart';
 import 'package:health_tracker_reports/presentation/providers/report_usecase_providers.dart';
 import 'package:health_tracker_reports/presentation/providers/reports_provider.dart';
 import 'package:health_tracker_reports/presentation/providers/trend_provider.dart';
+import 'package:health_tracker_reports/presentation/providers/vital_trend_provider.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockGetAllReports extends Mock implements GetAllReports {}
@@ -26,13 +32,27 @@ class MockGetBiomarkerTrend extends Mock implements GetBiomarkerTrend {}
 
 class MockCalculateTrend extends Mock implements CalculateTrend {}
 
+class MockGetVitalTrend extends Mock implements GetVitalTrend {}
+
+class MockCalculateVitalStatistics extends Mock
+    implements CalculateVitalStatistics {}
+
 void main() {
+  setUpAll(() {
+    // Register fallback values for mocktail
+    registerFallbackValue(VitalType.heartRate);
+  });
+
   group('TrendsPage', () {
     late MockGetAllReports mockGetAllReports;
     late MockSaveReport mockSaveReport;
     late MockGetBiomarkerTrend mockGetBiomarkerTrend;
     late MockCalculateTrend mockCalculateTrend;
+    late MockGetVitalTrend mockGetVitalTrend;
+    late MockCalculateVitalStatistics mockCalculateVitalStatistics;
     late List<Report> testReports;
+    late List<VitalMeasurement> testVitalMeasurements;
+    late VitalStatistics testVitalStatistics;
 
     /// Helper to create ProviderScope with proper overrides
     Widget createTestWidget({bool hasReports = true}) {
@@ -48,6 +68,9 @@ void main() {
         overrides: [
           getBiomarkerTrendProvider.overrideWithValue(mockGetBiomarkerTrend),
           calculateTrendProvider.overrideWithValue(mockCalculateTrend),
+          getVitalTrendUseCaseProvider.overrideWithValue(mockGetVitalTrend),
+          calculateVitalStatisticsUseCaseProvider
+              .overrideWithValue(mockCalculateVitalStatistics),
           reportsProvider.overrideWith((ref) => ReportsNotifier(
                 getAllReports: mockGetAllReports,
                 saveReportProvider: () => mockSaveReport,
@@ -64,6 +87,8 @@ void main() {
       mockSaveReport = MockSaveReport();
       mockGetBiomarkerTrend = MockGetBiomarkerTrend();
       mockCalculateTrend = MockCalculateTrend();
+      mockGetVitalTrend = MockGetVitalTrend();
+      mockCalculateVitalStatistics = MockCalculateVitalStatistics();
 
       // Default behavior for calculateTrend
       when(() => mockCalculateTrend(any())).thenReturn(
@@ -77,6 +102,47 @@ void main() {
           ),
         ),
       );
+
+      // Default behavior for getVitalTrend
+      testVitalMeasurements = [
+        const VitalMeasurement(
+          id: 'v1',
+          type: VitalType.heartRate,
+          value: 72.0,
+          unit: 'bpm',
+          status: VitalStatus.normal,
+        ),
+        const VitalMeasurement(
+          id: 'v2',
+          type: VitalType.heartRate,
+          value: 75.0,
+          unit: 'bpm',
+          status: VitalStatus.normal,
+        ),
+        const VitalMeasurement(
+          id: 'v3',
+          type: VitalType.heartRate,
+          value: 70.0,
+          unit: 'bpm',
+          status: VitalStatus.normal,
+        ),
+      ];
+
+      testVitalStatistics = const VitalStatistics(
+        average: 72.3,
+        min: 70.0,
+        max: 75.0,
+        firstValue: 72.0,
+        lastValue: 70.0,
+        count: 3,
+        percentageChange: -2.8,
+        trendDirection: TrendDirection.stable,
+      );
+
+      when(() => mockGetVitalTrend(any()))
+          .thenAnswer((_) async => Right(testVitalMeasurements));
+      when(() => mockCalculateVitalStatistics(any()))
+          .thenAnswer((_) async => Right(testVitalStatistics));
 
       final now = DateTime(2024, 1, 15, 10, 30);
       final threeMonthsAgo = DateTime(2023, 10, 15, 10, 30);
@@ -162,7 +228,6 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      // Find the AppBar's Text widget
       final appBarTitle = find.descendant(
         of: find.byType(AppBar),
         matching: find.text('Trends'),
@@ -170,7 +235,17 @@ void main() {
       expect(appBarTitle, findsOneWidget);
     });
 
-    testWidgets('displays biomarker selector dropdown',
+    testWidgets('displays tab bar with Biomarkers and Vitals tabs',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TabBar), findsOneWidget);
+      expect(find.text('Biomarkers'), findsOneWidget);
+      expect(find.text('Vitals'), findsOneWidget);
+    });
+
+    testWidgets('displays biomarker selector in Biomarkers tab by default',
         (WidgetTester tester) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
@@ -178,7 +253,7 @@ void main() {
       expect(find.byType(BiomarkerSelector), findsOneWidget);
     });
 
-    testWidgets('displays time range selector with buttons',
+    testWidgets('displays time range selector in Biomarkers tab',
         (WidgetTester tester) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
@@ -197,11 +272,242 @@ void main() {
       expect(find.text('All'), findsOneWidget);
     });
 
+    testWidgets('switches to Vitals tab when tapped',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Vitals'));
+      await tester.pumpAndSettle();
+
+      // Should not show biomarker selector in vitals tab
+      expect(find.byType(BiomarkerSelector), findsNothing);
+    });
+
+    testWidgets('displays vital type dropdown in Vitals tab',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Vitals'));
+      await tester.pumpAndSettle();
+
+      // Look for dropdown with vital types
+      expect(find.byType(DropdownButton<VitalType>), findsOneWidget);
+    });
+
+    testWidgets('vital type dropdown shows all vital types',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Vitals'));
+      await tester.pumpAndSettle();
+
+      // Tap dropdown to open
+      await tester.tap(find.byType(DropdownButton<VitalType>));
+      await tester.pumpAndSettle();
+
+      // Check for some vital type display names
+      expect(find.text('Heart Rate'), findsOneWidget);
+      expect(find.text('BP Systolic'), findsOneWidget);
+      expect(find.text('SpO2'), findsOneWidget);
+    });
+
+    testWidgets('displays vital trend chart when vital type is selected',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Vitals'));
+      await tester.pumpAndSettle();
+
+      // Select heart rate
+      await tester.tap(find.byType(DropdownButton<VitalType>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Heart Rate').last);
+      await tester.pumpAndSettle();
+
+      // Should display trend chart
+      expect(find.byType(TrendChart), findsOneWidget);
+    });
+
+    testWidgets('displays vital statistics card when vital type is selected',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Vitals'));
+      await tester.pumpAndSettle();
+
+      // Select heart rate
+      await tester.tap(find.byType(DropdownButton<VitalType>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Heart Rate').last);
+      await tester.pumpAndSettle();
+
+      // Should display statistics
+      expect(find.text('Statistics'), findsOneWidget);
+    });
+
+    testWidgets('vital statistics card shows average value',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Vitals'));
+      await tester.pumpAndSettle();
+
+      // Select heart rate
+      await tester.tap(find.byType(DropdownButton<VitalType>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Heart Rate').last);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Average'), findsOneWidget);
+      expect(find.textContaining('72.3'), findsOneWidget);
+    });
+
+    testWidgets('vital statistics card shows min and max values',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Vitals'));
+      await tester.pumpAndSettle();
+
+      // Select heart rate
+      await tester.tap(find.byType(DropdownButton<VitalType>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Heart Rate').last);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Min'), findsOneWidget);
+      expect(find.text('Max'), findsOneWidget);
+      expect(find.textContaining('70.0'), findsOneWidget);
+      expect(find.textContaining('75.0'), findsOneWidget);
+    });
+
+    testWidgets('vital statistics card shows trend direction',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Vitals'));
+      await tester.pumpAndSettle();
+
+      // Select heart rate
+      await tester.tap(find.byType(DropdownButton<VitalType>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Heart Rate').last);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Trend'), findsOneWidget);
+      // Should show stable text
+      expect(find.textContaining('Stable'), findsOneWidget);
+    });
+
+    testWidgets('vital statistics card shows measurement count',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Vitals'));
+      await tester.pumpAndSettle();
+
+      // Select heart rate
+      await tester.tap(find.byType(DropdownButton<VitalType>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Heart Rate').last);
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('3 measurement'), findsOneWidget);
+    });
+
+    testWidgets('shows empty state in Vitals tab when no vital is selected',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Vitals'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Select a vital'), findsOneWidget);
+      expect(
+          find.textContaining('Choose a vital from the dropdown'), findsOneWidget);
+    });
+
+    testWidgets('shows empty state when no vital data available',
+        (WidgetTester tester) async {
+      when(() => mockGetVitalTrend(any()))
+          .thenAnswer((_) async => const Right([]));
+
+      await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Vitals'));
+      await tester.pumpAndSettle();
+
+      // Select heart rate
+      await tester.tap(find.byType(DropdownButton<VitalType>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Heart Rate').last);
+      await tester.pumpAndSettle();
+
+      expect(find.text('No data available'), findsOneWidget);
+    });
+
+    testWidgets('shows loading state while fetching vital trend data',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Vitals'));
+      await tester.pumpAndSettle();
+
+      // Select heart rate
+      await tester.tap(find.byType(DropdownButton<VitalType>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Heart Rate').last);
+      await tester.pump();
+
+      // Should show loading before data arrives
+      expect(find.byType(CircularProgressIndicator), findsAtLeastNWidgets(1));
+    });
+
+    testWidgets('tab state persists when switching between tabs',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+
+      // Switch to vitals
+      await tester.tap(find.text('Vitals'));
+      await tester.pumpAndSettle();
+
+      // Select heart rate
+      await tester.tap(find.byType(DropdownButton<VitalType>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Heart Rate').last);
+      await tester.pumpAndSettle();
+
+      // Switch back to biomarkers
+      await tester.tap(find.text('Biomarkers'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(BiomarkerSelector), findsOneWidget);
+
+      // Switch back to vitals
+      await tester.tap(find.text('Vitals'));
+      await tester.pumpAndSettle();
+
+      // Should still be on Heart Rate
+      expect(find.byType(TrendChart), findsOneWidget);
+    });
+
     testWidgets('displays chart container', (WidgetTester tester) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      // Look for a Card or Container that would hold the chart
       expect(find.byType(Card), findsWidgets);
     });
 
@@ -218,7 +524,6 @@ void main() {
       await tester.pumpWidget(createTestWidget(hasReports: false));
       await tester.pumpAndSettle();
 
-      // Should show empty state message
       expect(find.textContaining('No data available'), findsOneWidget);
       expect(find.byIcon(Icons.show_chart), findsOneWidget);
     });
@@ -239,7 +544,6 @@ void main() {
       final biomarkerSelector = find.byType(BiomarkerSelector);
       expect(biomarkerSelector, findsOneWidget);
 
-      // Verify it's enabled/tappable
       final widget = tester.widget<BiomarkerSelector>(biomarkerSelector);
       expect(widget.onBiomarkerSelected, isNotNull);
     });
@@ -249,11 +553,9 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      // Tap on 6M option
       await tester.tap(find.text('6M'));
       await tester.pumpAndSettle();
 
-      // Verify the selector exists and is responsive
       expect(find.byType(TimeRangeSelector), findsOneWidget);
     });
 
@@ -270,7 +572,6 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      // Verify Material design elements are present
       expect(find.byType(AppBar), findsOneWidget);
       expect(find.byType(Card), findsWidgets);
     });
@@ -280,7 +581,6 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      // Initially should show a biomarker selector
       expect(find.byType(BiomarkerSelector), findsOneWidget);
     });
 
@@ -289,8 +589,8 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      // Verify padding exists around content
       expect(find.byType(Padding), findsWidgets);
     });
+
   });
 }
