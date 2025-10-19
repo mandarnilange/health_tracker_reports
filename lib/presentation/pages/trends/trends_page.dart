@@ -14,6 +14,7 @@ import 'package:health_tracker_reports/presentation/providers/reports_provider.d
 import 'package:health_tracker_reports/presentation/providers/trend_provider.dart';
 import 'package:health_tracker_reports/presentation/providers/vital_trend_provider.dart';
 import 'package:health_tracker_reports/presentation/router/route_names.dart';
+import 'package:health_tracker_reports/presentation/pages/trends/trends_page_args.dart';
 import 'package:health_tracker_reports/presentation/widgets/trend_indicator.dart';
 import 'package:intl/intl.dart';
 
@@ -27,7 +28,9 @@ import 'package:intl/intl.dart';
 /// - View charts showing values over time
 /// - View statistics for vitals
 class TrendsPage extends ConsumerStatefulWidget {
-  const TrendsPage({super.key});
+  const TrendsPage({super.key, this.initialArgs});
+
+  final TrendsPageArgs? initialArgs;
 
   @override
   ConsumerState<TrendsPage> createState() => _TrendsPageState();
@@ -40,7 +43,26 @@ class _TrendsPageState extends ConsumerState<TrendsPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    final initialTab = widget.initialArgs?.initialTab ?? TrendsTab.biomarkers;
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: initialTab == TrendsTab.vitals ? 1 : 0,
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args = widget.initialArgs;
+      if (args == null) return;
+      if (args.initialBiomarker != null) {
+        ref
+            .read(trendProvider.notifier)
+            .selectBiomarker(args.initialBiomarker!);
+      }
+      if (args.initialVitalType != null) {
+        ref.read(selectedVitalTypeProvider.notifier).state =
+            args.initialVitalType;
+      }
+    });
   }
 
   @override
@@ -148,7 +170,8 @@ class _TrendsPageState extends ConsumerState<TrendsPage>
   }
 
   /// Builds the vital type dropdown selector
-  Widget _buildVitalTypeSelector(BuildContext context, VitalType? selectedType) {
+  Widget _buildVitalTypeSelector(
+      BuildContext context, VitalType? selectedType) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -279,7 +302,8 @@ class _TrendsPageState extends ConsumerState<TrendsPage>
           final date = DateTime.now().subtract(Duration(days: index * 7));
 
           // Convert VitalStatus to BiomarkerStatus for chart compatibility
-          final biomarkerStatus = _convertVitalStatusToBiomarkerStatus(measurement.status);
+          final biomarkerStatus =
+              _convertVitalStatusToBiomarkerStatus(measurement.status);
 
           return TrendDataPoint(
             date: date,
@@ -315,9 +339,12 @@ class _TrendsPageState extends ConsumerState<TrendsPage>
                           const SizedBox(height: 4),
                           Text(
                             '${measurements.length} data point${measurements.length > 1 ? 's' : ''}',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
                           ),
                         ],
                       ),
@@ -484,7 +511,8 @@ class _TrendsPageState extends ConsumerState<TrendsPage>
   }
 
   /// Gets the color for a trend direction
-  Color _getTrendDirectionColor(BuildContext context, TrendDirection direction) {
+  Color _getTrendDirectionColor(
+      BuildContext context, TrendDirection direction) {
     switch (direction) {
       case TrendDirection.increasing:
         return Colors.red;
@@ -685,9 +713,12 @@ class _TrendsPageState extends ConsumerState<TrendsPage>
                           const SizedBox(height: 4),
                           Text(
                             '${trendData.length} data point${trendData.length > 1 ? 's' : ''}',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
                           ),
                         ],
                       ),

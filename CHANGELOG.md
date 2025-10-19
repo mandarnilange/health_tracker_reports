@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Simplified `HealthLogCard` to display compact vital summaries (BP aggregation, status dots, limited visible vitals) and removed inline notes, matching UX feedback (`lib/presentation/widgets/health_log_card.dart`, `test/widget/widgets/health_log_card_test.dart`).
 - Added status-dot keys for deterministic testing and updated widget expectations for the condensed layout.
 
+### Changed - Timeline & Detail UX (2025-10-19)
+- Reworked `HealthTimeline` to a sliver-based layout with pinned date headers and a continuous vertical rail for better alignment (`lib/presentation/widgets/health_timeline.dart`, `test/widget/widgets/health_timeline_test.dart`).
+- Added trend navigation support from health log detail cards and ensured edit sheets (prefill now handled inside the sheet widget) (`lib/presentation/pages/health_log/health_log_detail_page.dart`, `lib/presentation/pages/trends/trends_page.dart`, `lib/presentation/router/app_router.dart`).
+- Introduced `TrendsPageArgs` to simplify tab/vital preselection when deep-linking to Trends (`lib/presentation/pages/trends/trends_page_args.dart`).
+
 ### Added - Phase 6: Daily Health Tracking Complete (2025-10-19)
 
 **Goal:** Enable users to log daily vital signs alongside lab reports in a unified timeline view.

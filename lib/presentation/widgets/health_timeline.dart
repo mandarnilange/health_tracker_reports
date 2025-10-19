@@ -9,6 +9,17 @@ import 'package:health_tracker_reports/presentation/router/route_names.dart';
 import 'package:health_tracker_reports/presentation/widgets/health_log_card.dart';
 import 'package:intl/intl.dart';
 
+const double _timelineLeftPadding = 16;
+const double _timelineMarkerColumnWidth = 36;
+const double _timelineSpacing = 12;
+const double _timelineLineWidth = 2;
+const double _markerDiameter = 16;
+
+Color _timelineRailColor(BuildContext context) {
+  final theme = Theme.of(context);
+  return theme.colorScheme.outlineVariant.withOpacity(0.35);
+}
+
 class HealthTimeline extends ConsumerWidget {
   const HealthTimeline({super.key});
 
@@ -19,34 +30,7 @@ class HealthTimeline extends ConsumerWidget {
 
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Wrap(
-            spacing: 8,
-            children: [
-              _FilterChip(
-                label: 'All',
-                selected: filter == null,
-                onSelected: (_) =>
-                    ref.read(timelineFilterProvider.notifier).state = null,
-              ),
-              _FilterChip(
-                label: 'Lab Reports',
-                selected: filter == HealthEntryType.labReport,
-                onSelected: (_) => ref
-                    .read(timelineFilterProvider.notifier)
-                    .state = HealthEntryType.labReport,
-              ),
-              _FilterChip(
-                label: 'Health Logs',
-                selected: filter == HealthEntryType.healthLog,
-                onSelected: (_) => ref
-                    .read(timelineFilterProvider.notifier)
-                    .state = HealthEntryType.healthLog,
-              ),
-            ],
-          ),
-        ),
+        _FilterBar(filter: filter),
         Expanded(
           child: timeline.when(
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -57,14 +41,49 @@ class HealthTimeline extends ConsumerWidget {
               }
 
               return RefreshIndicator(
-                onRefresh: () =>
-                    ref.read(timelineProvider.notifier).refresh(),
-                child: _TimelineList(entries: entries),
+                onRefresh: () => ref.read(timelineProvider.notifier).refresh(),
+                child: _TimelineScroll(entries: entries),
               );
             },
           ),
         ),
       ],
+    );
+  }
+}
+
+class _FilterBar extends ConsumerWidget {
+  const _FilterBar({required this.filter});
+
+  final HealthEntryType? filter;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Wrap(
+        spacing: 8,
+        children: [
+          _FilterChip(
+            label: 'All',
+            selected: filter == null,
+            onSelected: (_) =>
+                ref.read(timelineFilterProvider.notifier).state = null,
+          ),
+          _FilterChip(
+            label: 'Lab Reports',
+            selected: filter == HealthEntryType.labReport,
+            onSelected: (_) => ref.read(timelineFilterProvider.notifier).state =
+                HealthEntryType.labReport,
+          ),
+          _FilterChip(
+            label: 'Health Logs',
+            selected: filter == HealthEntryType.healthLog,
+            onSelected: (_) => ref.read(timelineFilterProvider.notifier).state =
+                HealthEntryType.healthLog,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -90,123 +109,217 @@ class _FilterChip extends StatelessWidget {
   }
 }
 
-class _TimelineList extends StatelessWidget {
-  const _TimelineList({required this.entries});
+class _TimelineScroll extends StatelessWidget {
+  const _TimelineScroll({required this.entries});
 
   final List<HealthEntry> entries;
 
-  static final DateFormat _dateGroupFormat = DateFormat('MMMM d, yyyy');
-
   @override
   Widget build(BuildContext context) {
-    // Group entries by date
-    final groupedEntries = <String, List<HealthEntry>>{};
-    for (final entry in entries) {
-      final dateKey = _dateGroupFormat.format(entry.timestamp);
-      groupedEntries.putIfAbsent(dateKey, () => []).add(entry);
-    }
+    final groups = _TimelineGroup.fromEntries(entries);
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      itemCount: groupedEntries.length,
-      itemBuilder: (context, index) {
-        final dateKey = groupedEntries.keys.elementAt(index);
-        final dateEntries = groupedEntries[dateKey]!;
-        return _DateGroup(dateKey: dateKey, entries: dateEntries);
-      },
-    );
-  }
-}
-
-class _DateGroup extends StatelessWidget {
-  const _DateGroup({required this.dateKey, required this.entries});
-
-  final String dateKey;
-  final List<HealthEntry> entries;
-
-  String _getRelativeDate() {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final yesterday = today.subtract(const Duration(days: 1));
-
-    final firstEntry = entries.first.timestamp;
-    final entryDate = DateTime(firstEntry.year, firstEntry.month, firstEntry.day);
-
-    if (entryDate == today) {
-      return 'Today • $dateKey';
-    } else if (entryDate == yesterday) {
-      return 'Yesterday • $dateKey';
-    } else {
-      return dateKey;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-          child: Text(
-            _getRelativeDate(),
-            style: theme.textTheme.titleSmall?.copyWith(
-              color: theme.colorScheme.primary,
-              fontWeight: FontWeight.w600,
+    return CustomScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      slivers: [
+        const SliverToBoxAdapter(child: SizedBox(height: 4)),
+        for (var i = 0; i < groups.length; i++) ...[
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _DateHeaderDelegate(
+              label: groups[i].label,
+              isFirstGroup: i == 0,
             ),
           ),
-        ),
-        ...entries.asMap().entries.map((e) {
-          final index = e.key;
-          final entry = e.value;
-          final isLast = index == entries.length - 1;
-          return _TimelineItem(
-            entry: entry,
-            showLine: !isLast,
-          );
-        }).toList(),
-        const SizedBox(height: 24),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => _TimelineItem(model: groups[i].items[index]),
+              childCount: groups[i].items.length,
+            ),
+          ),
+        ],
+        const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
       ],
     );
   }
 }
 
-class _TimelineItem extends StatelessWidget {
-  const _TimelineItem({
+class _TimelineGroup {
+  _TimelineGroup(this.date, this.items) : label = _formatRelativeDate(date);
+
+  final DateTime date;
+  final String label;
+  final List<_TimelineEntryModel> items;
+
+  static List<_TimelineGroup> fromEntries(List<HealthEntry> entries) {
+    final sorted = entries.toList()
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+    final groups = <_TimelineGroup>[];
+    _TimelineGroup? current;
+
+    for (var i = 0; i < sorted.length; i++) {
+      final entry = sorted[i];
+      final dateKey = DateTime(
+          entry.timestamp.year, entry.timestamp.month, entry.timestamp.day);
+
+      if (current == null || !_sameDay(current.date, dateKey)) {
+        current = _TimelineGroup(dateKey, []);
+        groups.add(current);
+      }
+
+      current.items.add(
+        _TimelineEntryModel(
+          entry: entry,
+          showTopConnector: i != 0,
+          showBottomConnector: i != sorted.length - 1,
+        ),
+      );
+    }
+
+    return groups;
+  }
+
+  static bool _sameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  static String _formatRelativeDate(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+
+    if (_sameDay(date, today)) {
+      return 'Today • ${DateFormat('MMMM d, yyyy').format(date)}';
+    }
+    if (_sameDay(date, yesterday)) {
+      return 'Yesterday • ${DateFormat('MMMM d, yyyy').format(date)}';
+    }
+    return DateFormat('MMMM d, yyyy').format(date);
+  }
+}
+
+class _TimelineEntryModel {
+  const _TimelineEntryModel({
     required this.entry,
-    required this.showLine,
+    required this.showTopConnector,
+    required this.showBottomConnector,
   });
 
   final HealthEntry entry;
-  final bool showLine;
+  final bool showTopConnector;
+  final bool showBottomConnector;
+}
+
+class _DateHeaderDelegate extends SliverPersistentHeaderDelegate {
+  _DateHeaderDelegate({
+    required this.label,
+    required this.isFirstGroup,
+  });
+
+  final String label;
+  final bool isFirstGroup;
+
+  @override
+  double get minExtent => 44;
+
+  @override
+  double get maxExtent => 44;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    final lineColor = _timelineRailColor(context);
+
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SizedBox(width: _timelineLeftPadding),
+          SizedBox(
+            width: _timelineMarkerColumnWidth,
+            child: Align(
+              alignment: Alignment.center,
+              child: Container(
+                width: _timelineLineWidth,
+                height: double.infinity,
+                color: isFirstGroup ? Colors.transparent : lineColor,
+              ),
+            ),
+          ),
+          const SizedBox(width: _timelineSpacing),
+          Expanded(
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant _DateHeaderDelegate oldDelegate) {
+    return oldDelegate.label != label ||
+        oldDelegate.isFirstGroup != isFirstGroup;
+  }
+}
+
+class _TimelineItem extends StatelessWidget {
+  const _TimelineItem({required this.model});
+
+  final _TimelineEntryModel model;
 
   Color _getDotColor(BuildContext context) {
+    final entry = model.entry;
     if (entry is Report) {
       return Colors.blue.shade700;
-    } else if (entry is HealthLog) {
-      final log = entry as HealthLog;
-      return log.hasWarnings ? Colors.orange.shade700 : Colors.green.shade700;
+    }
+    if (entry is HealthLog) {
+      return entry.hasWarnings ? Colors.orange.shade700 : Colors.green.shade700;
     }
     return Colors.grey;
   }
 
+  Color _timelineLineColor(BuildContext context) {
+    final theme = Theme.of(context);
+    return _timelineRailColor(context);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final entry = model.entry;
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(width: 16),
-          // Timeline dot and line
+          const SizedBox(width: _timelineLeftPadding),
           SizedBox(
-            width: 32,
+            width: _timelineMarkerColumnWidth,
             child: Column(
               children: [
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: Container(
+                      width: _timelineLineWidth,
+                      color: model.showTopConnector
+                          ? _timelineLineColor(context)
+                          : Colors.transparent,
+                    ),
+                  ),
+                ),
                 Container(
-                  width: 12,
-                  height: 12,
+                  width: _markerDiameter,
+                  height: _markerDiameter,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: _getDotColor(context),
@@ -216,18 +329,21 @@ class _TimelineItem extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (showLine)
-                  Expanded(
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
                     child: Container(
-                      width: 2,
-                      color: Colors.grey.shade300,
+                      width: _timelineLineWidth,
+                      color: model.showBottomConnector
+                          ? _timelineLineColor(context)
+                          : Colors.transparent,
                     ),
                   ),
+                ),
               ],
             ),
           ),
-          const SizedBox(width: 12),
-          // Content
+          const SizedBox(width: _timelineSpacing),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(bottom: 16, right: 16),
@@ -258,7 +374,6 @@ class _TimelineContent extends StatelessWidget {
     return const SizedBox.shrink();
   }
 }
-
 
 class _ReportTimelineCard extends StatelessWidget {
   const _ReportTimelineCard({required this.report});

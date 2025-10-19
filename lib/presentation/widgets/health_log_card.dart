@@ -18,7 +18,7 @@ class HealthLogCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final summaries = _buildSummaries(log.vitals);
+    final overview = _buildOverview(log.vitals);
 
     return Dismissible(
       key: Key(log.id),
@@ -96,31 +96,50 @@ class HealthLogCard extends ConsumerWidget {
                     ),
                   ],
                 ),
-                if (summaries.isNotEmpty) ...[
+                if (overview.bp != null || overview.spo2 != null) ...[
                   const SizedBox(height: 12),
-                  ...summaries.map(
-                    (summary) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          _StatusDot(
-                            key: Key('vital-status-${summary.key}'),
-                            status: summary.status,
+                  Row(
+                    children: [
+                      if (overview.bp != null)
+                        Expanded(
+                          child: _VitalLabel(
+                            summary: overview.bp!,
+                            keySuffix: 'bloodPressure',
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              summary.label,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                        ),
+                      if (overview.bp != null && overview.spo2 != null)
+                        const SizedBox(width: 12),
+                      if (overview.spo2 != null)
+                        Expanded(
+                          child: _VitalLabel(
+                            summary: overview.spo2!,
+                            keySuffix: 'oxygenSaturation',
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
+                    ],
+                  ),
+                ],
+                if (overview.hr != null || overview.extraCount > 0) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      if (overview.hr != null)
+                        Expanded(
+                          child: _VitalLabel(
+                            summary: overview.hr!,
+                            keySuffix: 'heartRate',
+                          ),
+                        )
+                      else
+                        const Spacer(),
+                      if (overview.extraCount > 0)
+                        Text(
+                          '+${overview.extraCount}',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                    ],
                   ),
                 ],
               ],
@@ -131,92 +150,81 @@ class HealthLogCard extends ConsumerWidget {
     );
   }
 
-  List<_VitalSummary> _buildSummaries(List<VitalMeasurement> vitals) {
+  _VitalOverview _buildOverview(List<VitalMeasurement> vitals) {
     if (vitals.isEmpty) {
-      return const [];
+      return const _VitalOverview();
     }
 
-    final summaries = <_VitalSummary>[];
-    final visibleVitals =
-        vitals.where((vital) => vital.type.isDefaultVisible).toList();
-
-    VitalMeasurement? safeSystolic;
-    VitalMeasurement? safeDiastolic;
-    for (final vital in visibleVitals) {
-      if (vital.type == VitalType.bloodPressureSystolic && safeSystolic == null) {
-        safeSystolic = vital;
-      } else if (vital.type == VitalType.bloodPressureDiastolic &&
-          safeDiastolic == null) {
-        safeDiastolic = vital;
+    VitalMeasurement? findVital(VitalType type) {
+      for (final measurement in vitals) {
+        if (measurement.type == type) {
+          return measurement;
+        }
       }
+      return null;
     }
 
-    if (safeSystolic != null && safeDiastolic != null) {
-      summaries.add(
-        _VitalSummary(
-          key: 'bloodPressure',
-          label:
-              'BP - ${_formatNumber(safeSystolic.value)}/${_formatNumber(safeDiastolic.value)}',
-          status: _combineStatuses([
-            safeSystolic.status,
-            safeDiastolic.status,
-          ]),
-        ),
+    final systolic = findVital(VitalType.bloodPressureSystolic);
+    final diastolic = findVital(VitalType.bloodPressureDiastolic);
+    final spo2 = findVital(VitalType.oxygenSaturation);
+    final heartRate = findVital(VitalType.heartRate);
+
+    final usedIds = <String?>{
+      systolic?.id,
+      diastolic?.id,
+      spo2?.id,
+      heartRate?.id,
+    }..removeWhere((id) => id == null);
+
+    final extras = vitals
+        .where((measurement) => !usedIds.contains(measurement.id))
+        .toList();
+
+    _VitalHighlight? bp;
+    if (systolic != null && diastolic != null) {
+      bp = _VitalHighlight(
+        label:
+            'BP - ${_formatNumber(systolic.value)}/${_formatNumber(diastolic.value)}',
+        status: _combineStatuses([systolic.status, diastolic.status]),
       );
-    } else {
-      if (safeSystolic != null) {
-        summaries.add(
-          _VitalSummary(
-            key: VitalType.bloodPressureSystolic.name,
-            label:
-                'BP Systolic - ${_formatMeasurementValue(safeSystolic)}',
-            status: safeSystolic.status,
-          ),
-        );
-      }
-      if (safeDiastolic != null) {
-        summaries.add(
-          _VitalSummary(
-            key: VitalType.bloodPressureDiastolic.name,
-            label:
-                'BP Diastolic - ${_formatMeasurementValue(safeDiastolic)}',
-            status: safeDiastolic.status,
-          ),
-        );
-      }
-    }
-
-    for (final measurement in visibleVitals) {
-      if (measurement.type == VitalType.bloodPressureSystolic ||
-          measurement.type == VitalType.bloodPressureDiastolic) {
-        // Already handled above
-        continue;
-      }
-
-      summaries.add(
-        _VitalSummary(
-          key: measurement.type.name,
-          label:
-              '${measurement.type.displayName} - ${_formatMeasurementValue(measurement)}',
-          status: measurement.status,
-        ),
+    } else if (systolic != null) {
+      bp = _VitalHighlight(
+        label: 'BP Systolic - ${_formatMeasurementValue(systolic)}',
+        status: systolic.status,
+      );
+    } else if (diastolic != null) {
+      bp = _VitalHighlight(
+        label: 'BP Diastolic - ${_formatMeasurementValue(diastolic)}',
+        status: diastolic.status,
       );
     }
 
-    if (summaries.isEmpty) {
-      for (final measurement in vitals.take(3)) {
-        summaries.add(
-          _VitalSummary(
-            key: measurement.type.name,
-            label:
-                '${measurement.type.displayName} - ${_formatMeasurementValue(measurement)}',
-            status: measurement.status,
-          ),
-        );
-      }
+    _VitalHighlight? spo2Summary;
+    if (spo2 != null) {
+      spo2Summary = _VitalHighlight(
+        label: 'SpO2 - ${_formatMeasurementValue(spo2)}',
+        status: spo2.status,
+      );
     }
 
-    return summaries.take(3).toList();
+    _VitalHighlight? hrSummary;
+    if (heartRate != null) {
+      hrSummary = _VitalHighlight(
+        label: 'HR - ${_formatMeasurementValue(heartRate)}',
+        status: heartRate.status,
+      );
+    }
+
+    final extraCount = extras.length +
+        ((systolic != null && diastolic == null) ? 1 : 0) +
+        ((diastolic != null && systolic == null) ? 1 : 0);
+
+    return _VitalOverview(
+      bp: bp,
+      spo2: spo2Summary,
+      hr: hrSummary,
+      extraCount: extraCount,
+    );
   }
 
   String _formatMeasurementValue(VitalMeasurement measurement) {
@@ -251,16 +259,56 @@ class HealthLogCard extends ConsumerWidget {
   }
 }
 
-class _VitalSummary {
-  const _VitalSummary({
-    required this.key,
-    required this.label,
-    required this.status,
-  });
+class _VitalHighlight {
+  const _VitalHighlight({required this.label, required this.status});
 
-  final String key;
   final String label;
   final VitalStatus status;
+}
+
+class _VitalOverview {
+  const _VitalOverview({
+    this.bp,
+    this.spo2,
+    this.hr,
+    this.extraCount = 0,
+  });
+
+  final _VitalHighlight? bp;
+  final _VitalHighlight? spo2;
+  final _VitalHighlight? hr;
+  final int extraCount;
+}
+
+class _VitalLabel extends StatelessWidget {
+  const _VitalLabel({required this.summary, required this.keySuffix});
+
+  final _VitalHighlight summary;
+  final String keySuffix;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        _StatusDot(
+          key: Key('vital-status-$keySuffix'),
+          status: summary.status,
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            summary.label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class _StatusDot extends StatelessWidget {

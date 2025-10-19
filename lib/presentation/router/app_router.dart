@@ -9,6 +9,7 @@ import 'package:health_tracker_reports/presentation/pages/health_log/health_log_
 import 'package:health_tracker_reports/presentation/pages/settings/settings_page.dart';
 import 'package:health_tracker_reports/presentation/pages/trends/comparison_view.dart';
 import 'package:health_tracker_reports/presentation/pages/trends/trends_page.dart';
+import 'package:health_tracker_reports/presentation/pages/trends/trends_page_args.dart';
 import 'package:health_tracker_reports/presentation/pages/upload/upload_page.dart';
 import 'package:health_tracker_reports/presentation/pages/upload/review_page.dart';
 import 'package:health_tracker_reports/presentation/router/route_names.dart';
@@ -107,10 +108,14 @@ class AppRouter {
           GoRoute(
             path: RouteNames.trends,
             name: 'trends',
-            pageBuilder: (context, state) => MaterialPage<void>(
-              key: state.pageKey,
-              child: const TrendsPage(),
-            ),
+            pageBuilder: (context, state) {
+              final extra = state.extra;
+              final args = extra is TrendsPageArgs ? extra : null;
+              return MaterialPage<void>(
+                key: state.pageKey,
+                child: TrendsPage(initialArgs: args),
+              );
+            },
           ),
 
           // Comparison Route - Compare biomarkers across reports

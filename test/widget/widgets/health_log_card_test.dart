@@ -37,13 +37,28 @@ void main() {
           status: VitalStatus.warning,
           referenceRange: ReferenceRange(min: 95, max: 100),
         ),
+        VitalMeasurement(
+          id: 'hr',
+          type: VitalType.heartRate,
+          value: 78,
+          unit: 'bpm',
+          status: VitalStatus.normal,
+          referenceRange: ReferenceRange(min: 60, max: 100),
+        ),
+        VitalMeasurement(
+          id: 'weight',
+          type: VitalType.weight,
+          value: 70,
+          unit: 'kg',
+          status: VitalStatus.normal,
+        ),
       ],
-      notes: 'Morning after workout',
       createdAt: timestamp,
       updatedAt: timestamp,
     );
 
-    testWidgets('renders compact vital summaries with status indicators',
+    testWidgets(
+        'renders compact vitals with BP and SpO2 on same row and summary extras',
         (tester) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -59,25 +74,11 @@ void main() {
       );
       expect(find.text('BP - 120/80'), findsOneWidget);
       expect(find.text('SpO2 - 92%'), findsOneWidget);
-      expect(find.byKey(const Key('vital-status-bloodPressure')), findsOneWidget);
-      expect(
-        find.byKey(const Key('vital-status-oxygenSaturation')),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('omits legacy chips and notes for a denser layout',
-        (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: HealthLogCard(log: log),
-          ),
-        ),
-      );
-
+      expect(find.byKey(const Key('vital-status-heartRate')), findsOneWidget);
+      expect(find.byKey(const Key('vital-status-heartRate')), findsOneWidget);
+      expect(find.text('+1'), findsOneWidget);
+      expect(find.text('Heart Rate'), findsNothing);
       expect(find.byType(Chip), findsNothing);
-      expect(find.text('Morning after workout'), findsNothing);
     });
   });
 }

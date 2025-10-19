@@ -34,15 +34,45 @@ void main() {
         timestamp: now,
         vitals: const [
           VitalMeasurement(
-            id: 'v1',
+            id: 'bp-sys',
+            type: VitalType.bloodPressureSystolic,
+            value: 120,
+            unit: 'mmHg',
+            status: VitalStatus.normal,
+            referenceRange: ReferenceRange(min: 90, max: 120),
+          ),
+          VitalMeasurement(
+            id: 'bp-dia',
+            type: VitalType.bloodPressureDiastolic,
+            value: 80,
+            unit: 'mmHg',
+            status: VitalStatus.normal,
+            referenceRange: ReferenceRange(min: 60, max: 80),
+          ),
+          VitalMeasurement(
+            id: 'spo2',
+            type: VitalType.oxygenSaturation,
+            value: 92,
+            unit: '%',
+            status: VitalStatus.warning,
+            referenceRange: ReferenceRange(min: 95, max: 100),
+          ),
+          VitalMeasurement(
+            id: 'hr',
             type: VitalType.heartRate,
             value: 78,
             unit: 'bpm',
             status: VitalStatus.normal,
             referenceRange: ReferenceRange(min: 60, max: 100),
           ),
+          VitalMeasurement(
+            id: 'weight',
+            type: VitalType.weight,
+            value: 70,
+            unit: 'kg',
+            status: VitalStatus.normal,
+          ),
         ],
-        notes: 'Morning',
         createdAt: now,
         updatedAt: now,
       ),
@@ -101,7 +131,10 @@ void main() {
       expect(find.text('Lab Reports'), findsOneWidget);
       expect(find.text('Health Logs'), findsOneWidget);
       expect(find.textContaining('Quest Diagnostics'), findsOneWidget);
-      expect(find.textContaining('Heart Rate - 78 bpm'), findsOneWidget);
+      expect(find.text('BP - 120/80'), findsOneWidget);
+      expect(find.text('SpO2 - 92%'), findsOneWidget);
+      expect(find.text('HR - 78 bpm'), findsOneWidget);
+      expect(find.text('+1'), findsOneWidget);
     });
 
     testWidgets('shows empty state when no entries', (tester) async {
@@ -111,6 +144,23 @@ void main() {
       );
 
       expect(find.text('No entries yet'), findsOneWidget);
+    });
+
+    testWidgets('keeps date header pinned while scrolling', (tester) async {
+      await pumpTimeline(
+        tester,
+        handler: (_) async => Right(entries),
+      );
+
+      final headerFinder = find.textContaining('Today •');
+      expect(headerFinder, findsOneWidget);
+      final initialTop = tester.getTopLeft(headerFinder).dy;
+
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -200));
+      await tester.pump();
+
+      final afterTop = tester.getTopLeft(headerFinder).dy;
+      expect(afterTop, closeTo(initialTop, 1.0));
     });
 
     testWidgets('shows error message when loading fails', (tester) async {

@@ -1,5 +1,8 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:health_tracker_reports/domain/entities/health_log.dart';
 import 'package:health_tracker_reports/domain/entities/reference_range.dart';
 import 'package:health_tracker_reports/domain/entities/vital_measurement.dart';
 import 'package:health_tracker_reports/domain/entities/vital_reference_defaults.dart';
@@ -10,39 +13,42 @@ import 'package:health_tracker_reports/presentation/widgets/vital_input_field.da
 import 'package:intl/intl.dart';
 
 class HealthLogEntrySheet extends ConsumerStatefulWidget {
-  const HealthLogEntrySheet({super.key});
+  const HealthLogEntrySheet({super.key, this.initialLog});
 
-  static Future<void> show(BuildContext context) {
+  final HealthLog? initialLog;
+
+  static Future<void> show(BuildContext context, {HealthLog? initialLog}) {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (_) => const HealthLogEntrySheet(),
+      builder: (_) => HealthLogEntrySheet(initialLog: initialLog),
     );
   }
 
   @override
-  ConsumerState<HealthLogEntrySheet> createState() => _HealthLogEntrySheetState();
+  ConsumerState<HealthLogEntrySheet> createState() =>
+      _HealthLogEntrySheetState();
 }
 
 class _HealthLogEntrySheetState extends ConsumerState<HealthLogEntrySheet> {
   final Map<VitalType, _VitalValue> _values = {};
-  final Set<VitalType> _selectedVitals = {
-    VitalType.bloodPressureSystolic,
-    VitalType.oxygenSaturation,
-    VitalType.heartRate,
-  };
+  late final LinkedHashSet<VitalType> _selectedVitals;
   late DateTime _timestamp;
   final TextEditingController _notesController = TextEditingController();
   bool _isSaving = false;
+  bool get _isEditing => widget.initialLog != null;
 
   @override
   void initState() {
     super.initState();
-    _timestamp = DateTime.now();
-    _ensureValue(VitalType.bloodPressureSystolic);
-    _ensureValue(VitalType.oxygenSaturation);
-    _ensureValue(VitalType.heartRate);
+    _selectedVitals = LinkedHashSet<VitalType>();
+    if (widget.initialLog != null) {
+      _initialiseFromLog(widget.initialLog!);
+    } else {
+      _timestamp = DateTime.now();
+      _addDefaultVitals();
+    }
   }
 
   @override
@@ -113,7 +119,8 @@ class _HealthLogEntrySheetState extends ConsumerState<HealthLogEntrySheet> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Log Vitals', style: Theme.of(context).textTheme.headlineSmall),
+            Text('Log Vitals',
+                style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 4),
             Text(formatted, style: Theme.of(context).textTheme.bodyMedium),
           ],
@@ -223,22 +230,38 @@ class _HealthLogEntrySheetState extends ConsumerState<HealthLogEntrySheet> {
     final messenger = ScaffoldMessenger.of(context);
     if (!_validateInputs()) {
       messenger.showSnackBar(
-        const SnackBar(content: Text('Please enter at least one vital measurement.')),
+        const SnackBar(
+            content: Text('Please enter at least one vital measurement.')),
       );
       return;
     }
 
     setState(() => _isSaving = true);
 
-    final params = CreateHealthLogParams(
-      timestamp: _timestamp,
-      vitals: _buildVitalInputs(),
-      notes: _notesController.text.trim().isEmpty
-          ? null
-          : _notesController.text.trim(),
-    );
+    final notes = _notesController.text.trim().isEmpty
+        ? null
+        : _notesController.text.trim();
+    final inputs = _buildVitalInputs();
+    final notifier = ref.read(healthLogsProvider.notifier);
 
-    await ref.read(healthLogsProvider.notifier).addHealthLog(params);
+    if (_isEditing) {
+      final initial = widget.initialLog!;
+      final params = UpdateHealthLogParams(
+        id: initial.id,
+        timestamp: _timestamp,
+        createdAt: initial.createdAt,
+        vitals: inputs,
+        notes: notes,
+      );
+      await notifier.updateHealthLog(params);
+    } else {
+      final params = CreateHealthLogParams(
+        timestamp: _timestamp,
+        vitals: inputs,
+        notes: notes,
+      );
+      await notifier.addHealthLog(params);
+    }
 
     if (!mounted) return;
 
@@ -249,7 +272,11 @@ class _HealthLogEntrySheetState extends ConsumerState<HealthLogEntrySheet> {
       data: (_) {
         Navigator.of(context).pop();
         messenger.showSnackBar(
-          const SnackBar(content: Text('Health log saved.')),
+          SnackBar(
+            content: Text(
+              _isEditing ? 'Health log updated.' : 'Health log saved.',
+            ),
+          ),
         );
       },
       loading: () {},
@@ -291,20 +318,32 @@ class _HealthLogEntrySheetState extends ConsumerState<HealthLogEntrySheet> {
     for (final type in _selectedVitals) {
       final value = _values[type]!;
       if (type == VitalType.bloodPressureSystolic) {
-        // Only add BP if both systolic and diastolic are provided
         if (value.primary != null && value.secondary != null) {
           inputs.addAll([
-            VitalMeasurementInput(type: VitalType.bloodPressureSystolic, value: value.primary!),
-            VitalMeasurementInput(type: VitalType.bloodPressureDiastolic, value: value.secondary!),
+            VitalMeasurementInput(
+              id: value.primaryId,
+              type: VitalType.bloodPressureSystolic,
+              value: value.primary!,
+              unit: value.unit,
+              referenceRange: value.referenceRange,
+            ),
+            VitalMeasurementInput(
+              id: value.secondaryId,
+              type: VitalType.bloodPressureDiastolic,
+              value: value.secondary!,
+              unit: value.secondaryUnit ?? 'mmHg',
+              referenceRange: value.secondaryReferenceRange,
+            ),
           ]);
         }
       } else {
-        // Only add vital if it has a value
         if (value.primary != null) {
           inputs.add(
             VitalMeasurementInput(
+              id: value.primaryId,
               type: type,
               value: value.primary!,
+              unit: value.unit,
               referenceRange: value.referenceRange,
             ),
           );
@@ -319,23 +358,95 @@ class _HealthLogEntrySheetState extends ConsumerState<HealthLogEntrySheet> {
     _values.putIfAbsent(type, () => _VitalValue(type));
   }
 
-  bool _hasSecondaryField(VitalType type) => type == VitalType.bloodPressureSystolic;
+  bool _hasSecondaryField(VitalType type) =>
+      type == VitalType.bloodPressureSystolic;
 
   VitalStatus _calculateStatus(VitalType type, double value) {
     return VitalReferenceDefaults.calculateStatus(type, value);
   }
+
+  void _addDefaultVitals() {
+    _selectedVitals
+      ..add(VitalType.bloodPressureSystolic)
+      ..add(VitalType.oxygenSaturation)
+      ..add(VitalType.heartRate);
+    for (final type in _selectedVitals) {
+      _ensureValue(type);
+    }
+  }
+
+  void _initialiseFromLog(HealthLog log) {
+    _timestamp = log.timestamp;
+    if (log.notes != null) {
+      _notesController.text = log.notes!;
+    }
+
+    final vitalsByType = <VitalType, VitalMeasurement>{};
+    for (final vital in log.vitals) {
+      vitalsByType[vital.type] = vital;
+    }
+
+    if (vitalsByType.containsKey(VitalType.bloodPressureSystolic) ||
+        vitalsByType.containsKey(VitalType.bloodPressureDiastolic)) {
+      _selectedVitals.add(VitalType.bloodPressureSystolic);
+      _ensureValue(VitalType.bloodPressureSystolic);
+      final systolic = vitalsByType[VitalType.bloodPressureSystolic];
+      final diastolic = vitalsByType[VitalType.bloodPressureDiastolic];
+      final value = _values[VitalType.bloodPressureSystolic]!;
+      if (systolic != null) {
+        value.primary = systolic.value;
+        value.primaryId = systolic.id;
+        value.unit = systolic.unit;
+        value.referenceRange = systolic.referenceRange;
+      }
+      if (diastolic != null) {
+        value.secondary = diastolic.value;
+        value.secondaryId = diastolic.id;
+        value.secondaryUnit = diastolic.unit;
+        value.secondaryReferenceRange = diastolic.referenceRange;
+      }
+    }
+
+    for (final entry in vitalsByType.entries) {
+      final type = entry.key;
+      final vital = entry.value;
+      if (type == VitalType.bloodPressureSystolic ||
+          type == VitalType.bloodPressureDiastolic) {
+        continue;
+      }
+
+      _selectedVitals.add(type);
+      _ensureValue(type);
+      final value = _values[type]!;
+      value.primary = vital.value;
+      value.primaryId = vital.id;
+      value.unit = vital.unit;
+      value.referenceRange = vital.referenceRange;
+    }
+  }
 }
 
 class _VitalValue {
-  _VitalValue(this.type) {
-    referenceRange = VitalReferenceDefaults.getDefault(type);
-    primary = null;
-    secondary = null;
-  }
+  _VitalValue(this.type)
+      : unit = VitalReferenceDefaults.getUnit(type),
+        referenceRange = VitalReferenceDefaults.getDefault(type),
+        secondaryUnit = type == VitalType.bloodPressureSystolic
+            ? VitalReferenceDefaults.getUnit(VitalType.bloodPressureDiastolic)
+            : null,
+        secondaryReferenceRange = type == VitalType.bloodPressureSystolic
+            ? VitalReferenceDefaults.getDefault(
+                VitalType.bloodPressureDiastolic,
+              )
+            : null;
 
   final VitalType type;
   double? primary;
   double? secondary;
+  String? primaryId;
+  String? secondaryId;
+  String unit;
+  String? secondaryUnit;
   ReferenceRange? referenceRange;
+  ReferenceRange? secondaryReferenceRange;
   VitalStatus status = VitalStatus.normal;
 }

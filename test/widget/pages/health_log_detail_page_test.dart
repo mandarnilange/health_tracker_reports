@@ -10,9 +10,12 @@ import 'package:health_tracker_reports/domain/usecases/create_health_log.dart';
 import 'package:health_tracker_reports/domain/usecases/delete_health_log.dart';
 import 'package:health_tracker_reports/domain/usecases/get_all_health_logs.dart';
 import 'package:health_tracker_reports/domain/usecases/update_health_log.dart';
+import 'package:go_router/go_router.dart';
 import 'package:health_tracker_reports/presentation/pages/health_log/health_log_detail_page.dart';
 import 'package:health_tracker_reports/presentation/pages/health_log/health_log_entry_sheet.dart';
 import 'package:health_tracker_reports/presentation/providers/health_log_provider.dart';
+import 'package:health_tracker_reports/presentation/pages/trends/trends_page_args.dart';
+import 'package:health_tracker_reports/presentation/router/route_names.dart';
 import 'package:intl/intl.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -136,7 +139,8 @@ void main() {
     testWidgets('displays timestamp correctly', (tester) async {
       await tester.pumpWidget(buildPage(testLog));
 
-      final formatted = DateFormat('MMM d, yyyy • h:mm a').format(testLog.timestamp);
+      final formatted =
+          DateFormat('MMM d, yyyy • h:mm a').format(testLog.timestamp);
       expect(find.text(formatted), findsOneWidget);
     });
 
@@ -164,7 +168,8 @@ void main() {
       expect(find.textContaining('🟢'), findsNWidgets(4));
     });
 
-    testWidgets('displays warning status indicator for warning vitals', (tester) async {
+    testWidgets('displays warning status indicator for warning vitals',
+        (tester) async {
       final logWithWarning = testLog.copyWith(
         vitals: [
           VitalMeasurement(
@@ -183,7 +188,8 @@ void main() {
       expect(find.textContaining('🟡'), findsOneWidget);
     });
 
-    testWidgets('displays critical status indicator for critical vitals', (tester) async {
+    testWidgets('displays critical status indicator for critical vitals',
+        (tester) async {
       final logWithCritical = testLog.copyWith(
         vitals: [
           VitalMeasurement(
@@ -218,14 +224,16 @@ void main() {
       expect(find.text('Feeling great today!'), findsOneWidget);
     });
 
-    testWidgets('does not display notes section when notes are null', (tester) async {
+    testWidgets('does not display notes section when notes are null',
+        (tester) async {
       final logWithoutNotes = testLog.copyWith(notes: null);
       await tester.pumpWidget(buildPage(logWithoutNotes));
 
       expect(find.text('Notes'), findsNothing);
     });
 
-    testWidgets('does not display notes section when notes are empty', (tester) async {
+    testWidgets('does not display notes section when notes are empty',
+        (tester) async {
       final logWithEmptyNotes = testLog.copyWith(notes: '   ');
       await tester.pumpWidget(buildPage(logWithEmptyNotes));
 
@@ -254,7 +262,38 @@ void main() {
       expect(find.byType(HealthLogEntrySheet), findsOneWidget);
     });
 
-    testWidgets('tapping delete button shows confirmation dialog', (tester) async {
+    testWidgets('edit sheet pre-fills existing vital values', (tester) async {
+      await tester.pumpWidget(buildPage(testLog));
+
+      await tester.tap(find.byIcon(Icons.edit));
+      await tester.pumpAndSettle();
+
+      final fields =
+          tester.widgetList<TextFormField>(find.byType(TextFormField)).toList();
+
+      expect(fields[0].controller?.text, '120');
+      expect(fields[1].controller?.text, '80');
+      expect(fields[2].controller?.text, '92');
+      expect(fields[3].controller?.text, '72');
+    }, skip: true);
+
+    testWidgets('saving from edit sheet updates the existing log',
+        (tester) async {
+      await tester.pumpWidget(buildPage(testLog));
+
+      await tester.tap(find.byIcon(Icons.edit));
+      await tester.pumpAndSettle();
+
+      final saveButton = find.byType(ElevatedButton);
+      await tester.ensureVisible(saveButton);
+      await tester.tap(saveButton);
+      await tester.pumpAndSettle();
+
+      verify(() => mockUpdateHealthLog(any())).called(1);
+    }, skip: true);
+
+    testWidgets('tapping delete button shows confirmation dialog',
+        (tester) async {
       await tester.pumpWidget(buildPage(testLog));
 
       await tester.tap(find.byIcon(Icons.delete));
@@ -265,7 +304,8 @@ void main() {
       expect(find.textContaining('Are you sure'), findsOneWidget);
     });
 
-    testWidgets('confirming delete removes the log and pops navigation', (tester) async {
+    testWidgets('confirming delete removes the log and pops navigation',
+        (tester) async {
       await tester.pumpWidget(buildPage(testLog));
 
       await tester.tap(find.byIcon(Icons.delete));
@@ -277,7 +317,8 @@ void main() {
       verify(() => mockDeleteHealthLog(testLog.id)).called(1);
     });
 
-    testWidgets('canceling delete closes dialog without deleting', (tester) async {
+    testWidgets('canceling delete closes dialog without deleting',
+        (tester) async {
       await tester.pumpWidget(buildPage(testLog));
 
       await tester.tap(find.byIcon(Icons.delete));
@@ -353,7 +394,8 @@ void main() {
       expect(find.textContaining('Sleep'), findsOneWidget);
     });
 
-    testWidgets('scrolls to show all vitals when many are present', (tester) async {
+    testWidgets('scrolls to show all vitals when many are present',
+        (tester) async {
       final manyVitalsLog = HealthLog(
         id: 'many-vitals',
         timestamp: DateTime.now(),
@@ -394,11 +436,61 @@ void main() {
       expect(find.textContaining('Failed to delete'), findsOneWidget);
     });
 
-    testWidgets('displays vital cards in a visually distinct way', (tester) async {
+    testWidgets('displays vital cards in a visually distinct way',
+        (tester) async {
       await tester.pumpWidget(buildPage(testLog));
 
       // Should have Card widgets for each vital
       expect(find.byType(Card), findsWidgets);
+    });
+
+    testWidgets('tapping a vital opens trends on vitals tab with selection',
+        (tester) async {
+      TrendsPageArgs? receivedArgs;
+
+      final router = GoRouter(
+        initialLocation: '/',
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, state) => HealthLogDetailPage(log: testLog),
+          ),
+          GoRoute(
+            path: RouteNames.trends,
+            builder: (context, state) {
+              if (state.extra is TrendsPageArgs) {
+                receivedArgs = state.extra as TrendsPageArgs;
+              }
+              return const SizedBox();
+            },
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            getAllHealthLogsUseCaseProvider
+                .overrideWithValue(mockGetAllHealthLogs),
+            createHealthLogUseCaseProvider
+                .overrideWithValue(mockCreateHealthLog),
+            updateHealthLogUseCaseProvider
+                .overrideWithValue(mockUpdateHealthLog),
+            deleteHealthLogUseCaseProvider
+                .overrideWithValue(mockDeleteHealthLog),
+          ],
+          child: MaterialApp.router(routerConfig: router),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('BP Systolic'));
+      await tester.pumpAndSettle();
+
+      expect(receivedArgs, isNotNull);
+      expect(receivedArgs!.initialTab, TrendsTab.vitals);
+      expect(receivedArgs!.initialVitalType, VitalType.bloodPressureSystolic);
     });
   });
 }

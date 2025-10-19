@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_tracker_reports/domain/entities/health_log.dart';
 import 'package:health_tracker_reports/domain/entities/vital_measurement.dart';
+import 'package:go_router/go_router.dart';
 import 'package:health_tracker_reports/presentation/pages/health_log/health_log_entry_sheet.dart';
+import 'package:health_tracker_reports/presentation/pages/trends/trends_page_args.dart';
 import 'package:health_tracker_reports/presentation/providers/health_log_provider.dart';
+import 'package:health_tracker_reports/presentation/providers/vital_trend_provider.dart';
+import 'package:health_tracker_reports/presentation/router/route_names.dart';
 import 'package:intl/intl.dart';
 
 /// Detail page that displays a complete health log entry with all vitals and their statuses.
@@ -52,7 +56,7 @@ class HealthLogDetailPage extends ConsumerWidget {
           children: [
             _buildTimestampCard(context),
             const SizedBox(height: 16),
-            ..._buildVitalCards(context),
+            ..._buildVitalCards(context, ref),
             if (log.notes != null && log.notes!.trim().isNotEmpty) ...[
               const SizedBox(height: 16),
               _buildNotesCard(context),
@@ -84,63 +88,70 @@ class HealthLogDetailPage extends ConsumerWidget {
   }
 
   /// Builds the list of vital measurement cards
-  List<Widget> _buildVitalCards(BuildContext context) {
-    return log.vitals.map((vital) => _buildVitalCard(context, vital)).toList();
+  List<Widget> _buildVitalCards(BuildContext context, WidgetRef ref) {
+    return log.vitals
+        .map((vital) => _buildVitalCard(context, ref, vital))
+        .toList();
   }
 
   /// Builds a single vital measurement card
-  Widget _buildVitalCard(BuildContext context, VitalMeasurement vital) {
+  Widget _buildVitalCard(
+    BuildContext context,
+    WidgetRef ref,
+    VitalMeasurement vital,
+  ) {
     final theme = Theme.of(context);
     final statusColor = _getStatusColor(vital.status);
     final statusEmoji = _getStatusEmoji(vital.status);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header with icon, name, and status
-            Row(
-              children: [
-                Text(
-                  vital.type.icon,
-                  style: const TextStyle(fontSize: 24),
+      child: InkWell(
+        onTap: () => _openTrendForVital(context, ref, vital),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    vital.type.icon,
+                    style: const TextStyle(fontSize: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      vital.type.displayName,
+                      style: theme.textTheme.titleMedium,
+                    ),
+                  ),
+                  Text(
+                    statusEmoji,
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                '${_formatValue(vital.value)} ${vital.unit}',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  color: statusColor,
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    vital.type.displayName,
-                    style: theme.textTheme.titleMedium,
+              ),
+              if (vital.referenceRange != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Reference: ${_formatValue(vital.referenceRange!.min)}-${_formatValue(vital.referenceRange!.max)} ${vital.unit}',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
-                Text(
-                  statusEmoji,
-                  style: const TextStyle(fontSize: 20),
-                ),
               ],
-            ),
-            const SizedBox(height: 12),
-            // Value and unit
-            Text(
-              '${_formatValue(vital.value)} ${vital.unit}',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                color: statusColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            // Reference range if available
-            if (vital.referenceRange != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                'Reference: ${_formatValue(vital.referenceRange!.min)}-${_formatValue(vital.referenceRange!.max)} ${vital.unit}',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -212,7 +223,22 @@ class HealthLogDetailPage extends ConsumerWidget {
 
   /// Handles edit action
   void _onEdit(BuildContext context) {
-    HealthLogEntrySheet.show(context);
+    HealthLogEntrySheet.show(context, initialLog: log);
+  }
+
+  void _openTrendForVital(
+    BuildContext context,
+    WidgetRef ref,
+    VitalMeasurement vital,
+  ) {
+    ref.read(selectedVitalTypeProvider.notifier).state = vital.type;
+    context.push(
+      RouteNames.trends,
+      extra: TrendsPageArgs(
+        initialTab: TrendsTab.vitals,
+        initialVitalType: vital.type,
+      ),
+    );
   }
 
   /// Handles delete action
