@@ -13,6 +13,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:health_tracker_reports/core/di/injection_container.dart'
     as _i838;
+import 'package:health_tracker_reports/core/utils/clock.dart' as _i31;
 import 'package:health_tracker_reports/data/datasources/external/claude_llm_service.dart'
     as _i26;
 import 'package:health_tracker_reports/data/datasources/external/gemini_llm_service.dart'
@@ -23,6 +24,8 @@ import 'package:health_tracker_reports/data/datasources/external/openai_llm_serv
     as _i549;
 import 'package:health_tracker_reports/data/datasources/local/config_local_datasource.dart'
     as _i537;
+import 'package:health_tracker_reports/data/datasources/local/health_log_local_datasource.dart'
+    as _i154;
 import 'package:health_tracker_reports/data/datasources/local/hive_database.dart'
     as _i648;
 import 'package:health_tracker_reports/data/datasources/local/report_local_datasource.dart'
@@ -31,13 +34,19 @@ import 'package:health_tracker_reports/data/datasources/local/secure_config_stor
     as _i848;
 import 'package:health_tracker_reports/data/models/app_config_model.dart'
     as _i386;
+import 'package:health_tracker_reports/data/models/health_log_model.dart'
+    as _i510;
 import 'package:health_tracker_reports/data/models/report_model.dart' as _i936;
 import 'package:health_tracker_reports/data/repositories/config_repository_impl.dart'
     as _i616;
+import 'package:health_tracker_reports/data/repositories/health_log_repository_impl.dart'
+    as _i250;
 import 'package:health_tracker_reports/data/repositories/llm_extraction_repository_impl.dart'
     as _i836;
 import 'package:health_tracker_reports/data/repositories/report_repository_impl.dart'
     as _i508;
+import 'package:health_tracker_reports/data/repositories/timeline_repository_impl.dart'
+    as _i875;
 import 'package:health_tracker_reports/domain/repositories/config_repository.dart'
     as _i649;
 import 'package:health_tracker_reports/domain/repositories/health_log_repository.dart'
@@ -108,28 +117,52 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i979.Box<_i936.ReportModel>>(() => appModule.reportBox);
     gh.lazySingleton<_i979.Box<_i386.AppConfigModel>>(
         () => appModule.configBox);
+    gh.lazySingleton<_i979.Box<_i510.HealthLogModel>>(
+        () => appModule.healthLogBox);
     gh.lazySingleton<_i361.Dio>(() => appModule.dio);
     gh.lazySingleton<_i558.FlutterSecureStorage>(() => appModule.secureStorage);
+    gh.lazySingleton<_i706.Uuid>(() => appModule.uuid);
     gh.lazySingleton<_i46.ImageProcessingService>(
         () => _i46.ImageProcessingService());
     gh.lazySingleton<_i680.CalculateTrend>(() => _i680.CalculateTrend());
     gh.lazySingleton<_i197.NormalizeBiomarkerName>(
         () => _i197.NormalizeBiomarkerName());
+    gh.lazySingleton<_i542.ValidateVitalMeasurement>(
+        () => _i542.ValidateVitalMeasurement());
+    gh.lazySingleton<_i154.HealthLogLocalDataSource>(() =>
+        _i154.HealthLogLocalDataSourceImpl(
+            box: gh<_i979.Box<_i510.HealthLogModel>>()));
+    gh.lazySingleton<_i31.Clock>(() => _i31.SystemClock());
     gh.lazySingleton<_i273.ReportLocalDataSource>(() =>
         _i273.ReportLocalDataSourceImpl(
             box: gh<_i979.Box<_i936.ReportModel>>()));
-    gh.lazySingleton<_i466.CreateHealthLog>(() => _i466.CreateHealthLog(
-          repository: gh<_i49.HealthLogRepository>(),
-          validateVitalMeasurement: gh<_i542.ValidateVitalMeasurement>(),
-          uuid: gh<_i706.Uuid>(),
-          now: gh<_i466.DateTimeProvider>(),
-        ));
     gh.lazySingleton<_i26.ClaudeLlmService>(
         () => _i26.ClaudeLlmService(gh<_i361.Dio>()));
     gh.lazySingleton<_i549.OpenAiLlmService>(
         () => _i549.OpenAiLlmService(gh<_i361.Dio>()));
     gh.lazySingleton<_i48.GeminiLlmService>(
         () => _i48.GeminiLlmService(gh<_i361.Dio>()));
+    gh.lazySingleton<_i537.ConfigLocalDataSource>(() =>
+        _i537.ConfigLocalDataSourceImpl(
+            box: gh<_i979.Box<_i386.AppConfigModel>>()));
+    gh.lazySingleton<_i767.ReportRepository>(() => _i508.ReportRepositoryImpl(
+        localDataSource: gh<_i273.ReportLocalDataSource>()));
+    gh.lazySingleton<_i567.SaveReport>(
+        () => _i567.SaveReport(repository: gh<_i767.ReportRepository>()));
+    gh.lazySingleton<_i657.GetAllReports>(
+        () => _i657.GetAllReports(repository: gh<_i767.ReportRepository>()));
+    gh.lazySingleton<_i248.DeleteReport>(
+        () => _i248.DeleteReport(repository: gh<_i767.ReportRepository>()));
+    gh.lazySingleton<_i49.HealthLogRepository>(() =>
+        _i250.HealthLogRepositoryImpl(
+            localDataSource: gh<_i154.HealthLogLocalDataSource>()));
+    gh.lazySingleton<_i848.SecureConfigStorage>(
+        () => _i848.SecureConfigStorageImpl(gh<_i558.FlutterSecureStorage>()));
+    gh.lazySingleton<_i880.TimelineRepository>(
+        () => _i875.TimelineRepositoryImpl(
+              reportLocalDataSource: gh<_i273.ReportLocalDataSource>(),
+              healthLogLocalDataSource: gh<_i154.HealthLogLocalDataSource>(),
+            ));
     gh.lazySingleton<_i989.GetAllHealthLogs>(() =>
         _i989.GetAllHealthLogs(repository: gh<_i49.HealthLogRepository>()));
     gh.lazySingleton<_i681.GetVitalTrend>(
@@ -138,30 +171,6 @@ extension GetItInjectableX on _i174.GetIt {
         _i673.GetHealthLogById(repository: gh<_i49.HealthLogRepository>()));
     gh.lazySingleton<_i508.DeleteHealthLog>(() =>
         _i508.DeleteHealthLog(repository: gh<_i49.HealthLogRepository>()));
-    gh.lazySingleton<_i537.ConfigLocalDataSource>(() =>
-        _i537.ConfigLocalDataSourceImpl(
-            box: gh<_i979.Box<_i386.AppConfigModel>>()));
-    gh.lazySingleton<_i767.ReportRepository>(() => _i508.ReportRepositoryImpl(
-        localDataSource: gh<_i273.ReportLocalDataSource>()));
-    gh.lazySingleton<_i374.UpdateHealthLog>(() => _i374.UpdateHealthLog(
-          repository: gh<_i49.HealthLogRepository>(),
-          validateVitalMeasurement: gh<_i542.ValidateVitalMeasurement>(),
-          uuid: gh<_i706.Uuid>(),
-          now: gh<_i374.DateTimeProvider>(),
-        ));
-    gh.lazySingleton<_i567.SaveReport>(
-        () => _i567.SaveReport(repository: gh<_i767.ReportRepository>()));
-    gh.lazySingleton<_i657.GetAllReports>(
-        () => _i657.GetAllReports(repository: gh<_i767.ReportRepository>()));
-    gh.lazySingleton<_i248.DeleteReport>(
-        () => _i248.DeleteReport(repository: gh<_i767.ReportRepository>()));
-    gh.lazySingleton<_i116.CalculateVitalStatistics>(() =>
-        _i116.CalculateVitalStatistics(
-            getVitalTrend: gh<_i681.GetVitalTrend>()));
-    gh.lazySingleton<_i848.SecureConfigStorage>(
-        () => _i848.SecureConfigStorageImpl(gh<_i558.FlutterSecureStorage>()));
-    gh.lazySingleton<_i312.GetUnifiedTimeline>(() =>
-        _i312.GetUnifiedTimeline(repository: gh<_i880.TimelineRepository>()));
     gh.lazySingleton<_i889.CompareBiomarkerAcrossReports>(
         () => _i889.CompareBiomarkerAcrossReports(
               repository: gh<_i767.ReportRepository>(),
@@ -175,6 +184,23 @@ extension GetItInjectableX on _i174.GetIt {
           localDataSource: gh<_i537.ConfigLocalDataSource>(),
           secureStorage: gh<_i848.SecureConfigStorage>(),
         ));
+    gh.lazySingleton<_i116.CalculateVitalStatistics>(() =>
+        _i116.CalculateVitalStatistics(
+            getVitalTrend: gh<_i681.GetVitalTrend>()));
+    gh.lazySingleton<_i466.CreateHealthLog>(() => _i466.CreateHealthLog(
+          repository: gh<_i49.HealthLogRepository>(),
+          validateVitalMeasurement: gh<_i542.ValidateVitalMeasurement>(),
+          clock: gh<_i31.Clock>(),
+          uuid: gh<_i706.Uuid>(),
+        ));
+    gh.lazySingleton<_i374.UpdateHealthLog>(() => _i374.UpdateHealthLog(
+          repository: gh<_i49.HealthLogRepository>(),
+          validateVitalMeasurement: gh<_i542.ValidateVitalMeasurement>(),
+          clock: gh<_i31.Clock>(),
+          uuid: gh<_i706.Uuid>(),
+        ));
+    gh.lazySingleton<_i312.GetUnifiedTimeline>(() =>
+        _i312.GetUnifiedTimeline(repository: gh<_i880.TimelineRepository>()));
     gh.lazySingleton<_i111.LlmExtractionRepository>(
         () => _i836.LlmExtractionRepositoryImpl(
               claudeService: gh<_i26.ClaudeLlmService>(),

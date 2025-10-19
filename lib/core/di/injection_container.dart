@@ -3,7 +3,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:health_tracker_reports/data/datasources/local/hive_database.dart';
 import 'package:health_tracker_reports/data/models/app_config_model.dart';
+import 'package:health_tracker_reports/data/models/health_log_model.dart';
 import 'package:health_tracker_reports/data/models/report_model.dart';
+import 'package:uuid/uuid.dart';
 import 'package:hive/hive.dart';
 import 'package:injectable/injectable.dart';
 
@@ -36,8 +38,16 @@ abstract class AppModule {
       Hive.box<AppConfigModel>(HiveDatabase.configBoxName);
 
   @lazySingleton
+  Box<HealthLogModel> get healthLogBox =>
+      Hive.box<HealthLogModel>(HiveDatabase.healthLogBoxName);
+
+  @lazySingleton
   Dio get dio => Dio();
 
   @lazySingleton
   FlutterSecureStorage get secureStorage => const FlutterSecureStorage();
+
+  @lazySingleton
+  Uuid get uuid => const Uuid();
+
 }

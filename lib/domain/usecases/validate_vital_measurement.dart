@@ -4,6 +4,7 @@ import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/domain/entities/reference_range.dart';
 import 'package:health_tracker_reports/domain/entities/vital_measurement.dart';
 import 'package:health_tracker_reports/domain/entities/vital_reference_defaults.dart';
+import 'package:injectable/injectable.dart';
 
 /// Result of validating a vital measurement input.
 class ValidatedVitalMeasurement extends Equatable {
@@ -35,6 +36,7 @@ class ValidatedVitalMeasurement extends Equatable {
 }
 
 /// Validates raw vital measurement input and determines the resulting status.
+@lazySingleton
 class ValidateVitalMeasurement {
   /// Validates the supplied [value] for the given vital [type].
   ///

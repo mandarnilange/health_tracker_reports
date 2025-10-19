@@ -1127,13 +1127,13 @@ final vitalStatisticsProvider = FutureProvider.family<VitalStatistics, VitalType
 - [ ] COMMIT: Local data source complete
 
 **Day 4-5: Repository Implementations**
-- [ ] TEST: HealthLogRepositoryImpl tests
-- [ ] CODE: HealthLogRepositoryImpl
-- [ ] TEST: TimelineRepositoryImpl tests
-- [ ] CODE: TimelineRepositoryImpl
-- [ ] CODE: Update injection_container.dart
-- [ ] CODE: Run build_runner
-- [ ] VERIFY: All tests pass, 90%+ coverage
+- [x] TEST: HealthLogRepositoryImpl tests
+- [x] CODE: HealthLogRepositoryImpl
+- [x] TEST: TimelineRepositoryImpl tests
+- [x] CODE: TimelineRepositoryImpl
+- [x] CODE: Update injection_container.dart
+- [x] CODE: Run build_runner
+- [x] VERIFY: All tests pass, 90%+ coverage
 - [ ] COMMIT: Repository implementations complete
 
 ### Week 3: Presentation Layer (Providers & Basic UI)

@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
+import 'package:health_tracker_reports/core/utils/clock.dart';
 import 'package:health_tracker_reports/domain/entities/health_log.dart';
 import 'package:health_tracker_reports/domain/entities/reference_range.dart';
 import 'package:health_tracker_reports/domain/entities/vital_measurement.dart';
@@ -7,8 +8,6 @@ import 'package:health_tracker_reports/domain/repositories/health_log_repository
 import 'package:health_tracker_reports/domain/usecases/validate_vital_measurement.dart';
 import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
-
-typedef DateTimeProvider = DateTime Function();
 
 /// Input model representing raw vital data before validation.
 class VitalMeasurementInput {
@@ -59,15 +58,15 @@ class CreateHealthLog {
   final HealthLogRepository repository;
   final ValidateVitalMeasurement validateVitalMeasurement;
   final Uuid _uuid;
-  final DateTimeProvider _now;
+  final Clock _clock;
 
   CreateHealthLog({
     required this.repository,
     required this.validateVitalMeasurement,
+    Clock? clock,
     Uuid? uuid,
-    DateTimeProvider? now,
   })  : _uuid = uuid ?? const Uuid(),
-        _now = now ?? DateTime.now;
+        _clock = clock ?? SystemClock();
 
   Future<Either<Failure, HealthLog>> call(CreateHealthLogParams params) async {
     if (params.vitals.isEmpty) {
@@ -78,7 +77,7 @@ class CreateHealthLog {
 
     final logId = _uuid.v4();
     final timestamp = params.timestamp;
-    final createdAt = _now();
+    final createdAt = _clock.now();
     final notes = _normaliseNotes(params.notes);
     final validatedVitals = <VitalMeasurement>[];
 

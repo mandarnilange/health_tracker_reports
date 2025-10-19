@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Registered the new adapters, introduced a dedicated `health_logs` box, and regenerated DI wiring/build artifacts.
 - Covered serialization logic with unit tests for both models (`test/unit/data/models/*_model_test.dart`).
 
+### Added - Phase 6 Repository Implementations (2025-10-18)
+
+- Implemented `HealthLogRepositoryImpl` with Hive-backed persistence, filtering helpers, and vital trend extraction logic.
+- Delivered `TimelineRepositoryImpl` to merge lab reports and health logs into a unified timeline with filtering options.
+- Expanded DI configuration and unit coverage for the new repositories and their dependencies.
+
 ### Added - Phase 6 Health Log Local Data Source (2025-10-18)
 
 - Created `HealthLogLocalDataSource` for Hive persistence with full CRUD support and defensive cache error handling.

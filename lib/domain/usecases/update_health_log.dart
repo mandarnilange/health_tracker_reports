@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
+import 'package:health_tracker_reports/core/utils/clock.dart';
 import 'package:health_tracker_reports/domain/entities/health_log.dart';
 import 'package:health_tracker_reports/domain/entities/vital_measurement.dart';
 import 'package:health_tracker_reports/domain/repositories/health_log_repository.dart';
@@ -7,8 +8,6 @@ import 'package:health_tracker_reports/domain/usecases/create_health_log.dart';
 import 'package:health_tracker_reports/domain/usecases/validate_vital_measurement.dart';
 import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
-
-typedef DateTimeProvider = DateTime Function();
 
 /// Parameters required to update an existing [HealthLog].
 class UpdateHealthLogParams {
@@ -41,15 +40,15 @@ class UpdateHealthLog {
   final HealthLogRepository repository;
   final ValidateVitalMeasurement validateVitalMeasurement;
   final Uuid _uuid;
-  final DateTimeProvider _now;
+  final Clock _clock;
 
   UpdateHealthLog({
     required this.repository,
     required this.validateVitalMeasurement,
+    Clock? clock,
     Uuid? uuid,
-    DateTimeProvider? now,
   })  : _uuid = uuid ?? const Uuid(),
-        _now = now ?? DateTime.now;
+        _clock = clock ?? SystemClock();
 
   Future<Either<Failure, HealthLog>> call(UpdateHealthLogParams params) async {
     if (params.id.isEmpty) {
@@ -64,7 +63,7 @@ class UpdateHealthLog {
       );
     }
 
-    final updatedAt = _now();
+    final updatedAt = _clock.now();
     final notes = _normaliseNotes(params.notes);
     final validatedVitals = <VitalMeasurement>[];
 

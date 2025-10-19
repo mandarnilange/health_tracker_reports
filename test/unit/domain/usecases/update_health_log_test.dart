@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
+import 'package:health_tracker_reports/core/utils/clock.dart';
 import 'package:health_tracker_reports/domain/entities/health_log.dart';
 import 'package:health_tracker_reports/domain/entities/reference_range.dart';
 import 'package:health_tracker_reports/domain/entities/vital_measurement.dart';
@@ -18,6 +19,8 @@ class MockValidateVitalMeasurement extends Mock
     implements ValidateVitalMeasurement {}
 
 class MockUuid extends Mock implements Uuid {}
+
+class MockClock extends Mock implements Clock {}
 
 void main() {
   late MockHealthLogRepository mockRepository;
@@ -46,16 +49,19 @@ void main() {
     mockRepository = MockHealthLogRepository();
     mockValidate = MockValidateVitalMeasurement();
     mockUuid = MockUuid();
+    final mockClock = MockClock();
 
     var callIndex = 0;
     final generatedIds = ['generated-vital'];
     when(() => mockUuid.v4()).thenAnswer((_) => generatedIds[callIndex++]);
 
+    when(() => mockClock.now()).thenReturn(updatedNow);
+
     usecase = UpdateHealthLog(
       repository: mockRepository,
       validateVitalMeasurement: mockValidate,
       uuid: mockUuid,
-      now: () => updatedNow,
+      clock: mockClock,
     );
   });
 
