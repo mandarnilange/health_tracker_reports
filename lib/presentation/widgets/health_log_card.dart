@@ -79,7 +79,7 @@ class HealthLogCard extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.note_alt, size: 20),
+                    const Text('🩺', style: TextStyle(fontSize: 18)),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(

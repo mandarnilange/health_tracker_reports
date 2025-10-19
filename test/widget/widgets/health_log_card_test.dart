@@ -68,6 +68,7 @@ void main() {
         ),
       );
 
+      expect(find.text('🩺'), findsOneWidget);
       expect(
         find.text(DateFormat('MMM d, yyyy • h:mm a').format(timestamp)),
         findsOneWidget,

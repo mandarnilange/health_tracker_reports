@@ -10,14 +10,14 @@ import 'package:health_tracker_reports/presentation/widgets/health_log_card.dart
 import 'package:intl/intl.dart';
 
 const double _timelineLeftPadding = 16;
-const double _timelineMarkerColumnWidth = 36;
+const double _timelineMarkerColumnWidth = 38;
 const double _timelineSpacing = 12;
 const double _timelineLineWidth = 2;
-const double _markerDiameter = 16;
+const double _markerDiameter = 18;
 
 Color _timelineRailColor(BuildContext context) {
   final theme = Theme.of(context);
-  return theme.colorScheme.outlineVariant.withOpacity(0.35);
+  return theme.colorScheme.outlineVariant.withOpacity(0.22);
 }
 
 class HealthTimeline extends ConsumerWidget {
@@ -305,10 +305,11 @@ class _TimelineItem extends StatelessWidget {
           SizedBox(
             width: _timelineMarkerColumnWidth,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: Align(
-                    alignment: Alignment.topCenter,
+                    alignment: Alignment.topLeft,
                     child: Container(
                       width: _timelineLineWidth,
                       color: model.showTopConnector
@@ -331,7 +332,7 @@ class _TimelineItem extends StatelessWidget {
                 ),
                 Expanded(
                   child: Align(
-                    alignment: Alignment.bottomCenter,
+                    alignment: Alignment.bottomLeft,
                     child: Container(
                       width: _timelineLineWidth,
                       color: model.showBottomConnector
@@ -403,7 +404,7 @@ class _ReportTimelineCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.insert_drive_file_outlined, size: 18),
+                  const Text('📄', style: TextStyle(fontSize: 18)),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
