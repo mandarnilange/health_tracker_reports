@@ -24,8 +24,7 @@ A privacy-first Flutter app that lets people capture or upload their lab reports
   - Unit + widget test coverage for critical flows.
 
 - **Planned / Not Implemented**
-- **Phase 6**: Daily health tracking (vitals logging, unified timeline view). _Domain entities & use cases in progress._
-  - **Phase 5**: Doctor PDF generation, CSV export, Google Drive sync.
+  - **Phase 5**: Doctor PDF generation, CSV export (3 files). _In Progress - Google Drive backup/import deferred._
   - **Phase 4 Hardening**: Image file loading in `ImageProcessingService._readImageBytes`.
   - **Phase 4 Hardening**: Provider parity tests (OpenAI/Gemini services).
   - Local notifications, reminders, onboarding refinements.
@@ -178,7 +177,7 @@ The pipeline currently lacks integration tests for OpenAI/Gemini parsing and rea
 | Provider parity tests | ⚠️ | Only Claude service has unit tests; OpenAI/Gemini missing. |
 | Normalization strategy | ⚠️ | LLM prompts accept hints, but `NormalizeBiomarkerName` is still used in trend use cases. Decide whether to keep or remove. |
 | Legacy constants | ⚠️ | `core/constants/model_config.dart` references deprecated ML models. |
-| Export/Doctor PDF | ❌ | Not implemented; presentation/pages/export contains stubs. |
+| Export/Doctor PDF | ⏳ | In Progress - Phase 5 (Doctor PDF + 3 CSV files). Drive backup/import deferred. |
 | Notifications/Reminders | ⚠️ | Pages exist but functionality incomplete. |
 
 ---
@@ -207,8 +206,8 @@ The pipeline currently lacks integration tests for OpenAI/Gemini parsing and rea
 | Phase 2 – Viewing & Trends | Reports list, trends, search/filter | ✅ Implemented with Riverpod and charts |
 | Phase 3 – Enhancements | Reminders, onboarding | ⏳ Partially done (reminders stubbed) |
 | Phase 4 – LLM Extraction | Dynamic normalization, UI polish, secure storage | ✅ Complete (hardening tasks pending) |
-| **Phase 6 – Daily Health Tracking** | **Vitals logging, unified timeline, vital trends** | ✅ **Complete (2025-10-19)** |
-| Phase 5 – Export & Sharing | Doctor PDF, CSV export, Drive sync, sharing | ❌ Not started |
+| Phase 6 – Daily Health Tracking | Vitals logging, unified timeline, vital trends | ✅ Complete (2025-10-19) |
+| **Phase 5 – Export & Sharing** | **Doctor PDF (2-4 pages), CSV export (3 files)** | ⏳ **In Progress (2026-01-15)** |
 
 **Phase 4 Hardening (Pending)**:
 - Image file loading (`_readImageBytes`)
@@ -223,7 +222,15 @@ The pipeline currently lacks integration tests for OpenAI/Gemini parsing and rea
 - All acceptance criteria met
 - See `spec/phase-6-daily-health-tracking.md` for full implementation details
 
-**Next Priority**: Phase 5 – Export & Sharing (Doctor PDF generation, CSV export, Google Drive sync)
+**Phase 5 – Export & Sharing (In Progress - Started 2026-01-15)**:
+- **Scope (Revised):** Doctor Summary PDF (2-4 pages) + CSV Export (3 denormalized files)
+- **Deferred:** Google Drive backup/restore, CSV import functionality
+- Domain: `DoctorSummaryConfig`, `SummaryStatistics` entities; PDF & CSV export use cases
+- Data: `PdfGeneratorService`, `CsvExportService`, `ChartRenderingService`, `FileWriterService`, `ShareService`
+- Presentation: `ExportPage`, `DoctorPdfConfigPage`; `ExportProvider` for state management
+- PDF Features: Executive summary, biomarker trends with charts, vitals summary, optional full data table
+- CSV Features: 3 separate files (reports_biomarkers, health_logs_vitals, trends_statistics)
+- See `spec/phase-5-export-sharing-tasks.md` for complete task breakdown
 
 ---
 
