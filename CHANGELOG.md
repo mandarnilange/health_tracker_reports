@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ebeb2dd` feat: wire export page navigation — registers `/export` route, adds navigation entry from the home timeline, and introduces argument object for routing (`lib/presentation/router/*`, `lib/presentation/pages/home/reports_list_page.dart`, `lib/presentation/pages/export/export_page_args.dart`).
 - `189357e` fix: guard export navigation while data loads — prevents premature navigation, surfaces error messaging, and seeds baseline trend-series data for exports (`lib/presentation/pages/home/reports_list_page.dart`).
 - `b8e81cd` refactor: lazy load export data — moves CSV generation to fetch data on-demand, disables UI interactions while exporting, and introduces button-level loading indicators (`lib/presentation/providers/export_provider.dart`, `lib/presentation/pages/export/export_page.dart`).
+- `25d8620` fix: ensure export navigation uses named route — resolves blank screen by routing via the GoRouter name instead of path (`lib/presentation/pages/home/reports_list_page.dart`).
 
 ### Fixed - Report Detail Loading Regression (2025-10-19)
 - `ReportsNotifier` now triggers an initial `loadReports()` during construction so timeline navigation opens report detail reliably (`lib/presentation/providers/reports_provider.dart`, `test/unit/presentation/providers/reports_provider_test.dart`, `test/widget/pages/report_detail/report_detail_page_test.dart`).
