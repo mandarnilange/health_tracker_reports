@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:injectable/injectable.dart';
@@ -76,8 +77,7 @@ class ImageProcessingService {
   }
 
   Future<Uint8List> _readImageBytes(String path) async {
-    // This is a simplified implementation
-    // In production, you'd use proper file reading from path_provider
-    throw UnimplementedError('Image reading not yet implemented');
+    final file = File(path);
+    return await file.readAsBytes();
   }
 }

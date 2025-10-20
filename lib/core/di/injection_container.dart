@@ -5,6 +5,11 @@ import 'package:health_tracker_reports/data/datasources/local/hive_database.dart
 import 'package:health_tracker_reports/data/models/app_config_model.dart';
 import 'package:health_tracker_reports/data/models/health_log_model.dart';
 import 'package:health_tracker_reports/data/models/report_model.dart';
+import 'package:health_tracker_reports/domain/entities/llm_extraction.dart';
+import 'package:health_tracker_reports/data/datasources/external/llm_provider_service.dart';
+import 'package:health_tracker_reports/data/datasources/external/gemini_llm_service.dart';
+import 'package:health_tracker_reports/data/datasources/external/openai_llm_service.dart';
+import 'package:health_tracker_reports/data/datasources/external/claude_llm_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:hive/hive.dart';
 import 'package:injectable/injectable.dart';
@@ -49,5 +54,16 @@ abstract class AppModule {
 
   @lazySingleton
   Uuid get uuid => const Uuid();
+
+  @Named('llmProviderServices')
+  Map<LlmProvider, LlmProviderService> llmProviderServices(
+    GeminiLlmService geminiLlmService,
+    OpenAiLlmService openAiLlmService,
+    ClaudeLlmService claudeLlmService,
+  ) => {
+        LlmProvider.gemini: geminiLlmService,
+        LlmProvider.openai: openAiLlmService,
+        LlmProvider.claude: claudeLlmService,
+      };
 
 }
