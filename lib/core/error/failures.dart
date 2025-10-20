@@ -130,3 +130,9 @@ class InvalidResponseFailure extends Failure {
   /// Creates an [InvalidResponseFailure] with a required error message
   const InvalidResponseFailure({required String message}) : super(message);
 }
+
+/// Failure that occurs during sharing operations
+class ShareFailure extends Failure {
+  /// Creates a [ShareFailure] with a required error message
+  const ShareFailure({required String message}) : super(message);
+}

@@ -24,7 +24,7 @@ class PdfGeneratorServiceImpl implements PdfGeneratorService {
     doc.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        theme: pw.ThemeData.with  Default(font: pw.Font.helvetica()),
+        theme: pw.ThemeData.withDefault(font: pw.Font.helvetica()),
         header: (pw.Context context) {
           return pw.Container(
             alignment: pw.Alignment.centerRight,
@@ -64,6 +64,7 @@ class PdfGeneratorServiceImpl implements PdfGeneratorService {
             pages.add(_buildFullDataTablePage(stats));
           }
           return pages;
+        },
       ),
     );
 

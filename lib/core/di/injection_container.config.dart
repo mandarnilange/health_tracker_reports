@@ -36,6 +36,8 @@ import 'package:health_tracker_reports/data/datasources/external/openai_llm_serv
     as _i549;
 import 'package:health_tracker_reports/data/datasources/external/pdf_generator_service.dart'
     as _i917;
+import 'package:health_tracker_reports/data/datasources/external/share_service.dart'
+    as _i60;
 import 'package:health_tracker_reports/data/datasources/local/config_local_datasource.dart'
     as _i537;
 import 'package:health_tracker_reports/data/datasources/local/health_log_local_datasource.dart'
@@ -186,6 +188,8 @@ extension GetItInjectableX on _i174.GetIt {
             box: gh<_i979.Box<_i386.AppConfigModel>>()));
     gh.lazySingleton<_i767.ReportRepository>(() => _i508.ReportRepositoryImpl(
         localDataSource: gh<_i273.ReportLocalDataSource>()));
+    gh.lazySingleton<_i60.ShareService>(
+        () => _i60.ShareServiceImpl(shareWrapper: gh<_i60.ShareWrapper>()));
     gh.lazySingleton<_i567.SaveReport>(
         () => _i567.SaveReport(repository: gh<_i767.ReportRepository>()));
     gh.lazySingleton<_i657.GetAllReports>(
