@@ -4,11 +4,11 @@
 
 **Scope:** Doctor PDF generation + CSV export only. Google Drive backup, import/restore deferred to future phase.
 
-**Status:** In Progress
+**Status:** ✅ Complete
 
 **Start Date:** 2026-01-15
 
-**Completion Date:** TBD
+**Completion Date:** 2025-10-19
 
 ---
 
@@ -211,12 +211,12 @@ Generate professional 2-4 page PDF reports for healthcare providers with:
 #### 2.1 Domain Entities
 
 **DoctorSummaryConfig Entity:**
-- [ ] **TEST:** Create entity with date range and options
-- [ ] **CODE:** Implement DoctorSummaryConfig
-- [ ] **TEST:** Test equality and copyWith
-- [ ] **CODE:** Add Equatable implementation
-- [ ] **COMMIT:** `test: add DoctorSummaryConfig entity tests`
-- [ ] **COMMIT:** `feat: add DoctorSummaryConfig entity`
+- [x] **TEST:** Create entity with date range and options
+- [x] **CODE:** Implement DoctorSummaryConfig
+- [x] **TEST:** Test equality and copyWith
+- [x] **CODE:** Add Equatable implementation
+- [x] **COMMIT:** `test: add DoctorSummaryConfig entity tests`
+- [x] **COMMIT:** `feat: add DoctorSummaryConfig entity`
 
 ```dart
 class DoctorSummaryConfig extends Equatable {
@@ -233,12 +233,12 @@ class DoctorSummaryConfig extends Equatable {
 ---
 
 **SummaryStatistics Entity:**
-- [ ] **TEST:** Create entity with biomarker and vital trends
-- [ ] **CODE:** Implement SummaryStatistics
-- [ ] **TEST:** Test nested objects (CriticalFinding, HealthStatusDashboard)
-- [ ] **CODE:** Add nested entity classes
-- [ ] **COMMIT:** `test: add SummaryStatistics entity tests`
-- [ ] **COMMIT:** `feat: add SummaryStatistics entity`
+- [x] **TEST:** Create entity with biomarker and vital trends
+- [x] **CODE:** Implement SummaryStatistics
+- [x] **TEST:** Test nested objects (CriticalFinding, HealthStatusDashboard)
+- [x] **CODE:** Add nested entity classes
+- [x] **COMMIT:** `test: add SummaryStatistics entity tests`
+- [x] **COMMIT:** `feat: add SummaryStatistics entity`
 
 ```dart
 class SummaryStatistics extends Equatable {
@@ -279,23 +279,23 @@ class DashboardCategory extends Equatable {
 #### 2.2 Use Cases
 
 **CalculateSummaryStatistics UseCase:**
-- [ ] **TEST:** Fetch reports in date range
-- [ ] **CODE:** Create CalculateSummaryStatistics usecase
-- [ ] **TEST:** Fetch health logs in date range
-- [ ] **CODE:** Fetch logs from HealthLogRepository
-- [ ] **TEST:** Identify critical findings (top 3 out-of-range biomarkers/vitals)
-- [ ] **CODE:** Implement critical findings algorithm
-- [ ] **TEST:** Determine trend directions for each biomarker
-- [ ] **CODE:** Use existing GetBiomarkerTrend and CalculateTrend
-- [ ] **TEST:** Determine trend directions for each vital
-- [ ] **CODE:** Use existing GetVitalTrend
-- [ ] **TEST:** Build health status dashboard (5 categories)
-- [ ] **CODE:** Categorize biomarkers into health systems
-- [ ] **TEST:** Calculate correlation (e.g., glucose lab vs daily glucose)
-- [ ] **CODE:** Implement correlation analysis
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add CalculateSummaryStatistics tests`
-- [ ] **COMMIT:** `feat: implement summary statistics calculation`
+- [x] **TEST:** Fetch reports in date range
+- [x] **CODE:** Create CalculateSummaryStatistics usecase
+- [x] **TEST:** Fetch health logs in date range
+- [x] **CODE:** Fetch logs from HealthLogRepository
+- [x] **TEST:** Identify critical findings (top 3 out-of-range biomarkers/vitals)
+- [x] **CODE:** Implement critical findings algorithm
+- [x] **TEST:** Determine trend directions for each biomarker
+- [x] **CODE:** Use existing GetBiomarkerTrend and CalculateTrend
+- [x] **TEST:** Determine trend directions for each vital
+- [x] **CODE:** Use existing GetVitalTrend
+- [x] **TEST:** Build health status dashboard (5 categories)
+- [x] **CODE:** Categorize biomarkers into health systems
+- [x] **TEST:** Calculate correlation (e.x., glucose lab vs daily glucose)
+- [x] **CODE:** Implement correlation analysis
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add CalculateSummaryStatistics tests`
+- [x] **COMMIT:** `feat: implement summary statistics calculation`
 
 **Dependencies:**
 - `ReportRepository.getReportsByDateRange()`
@@ -309,33 +309,33 @@ class DashboardCategory extends Equatable {
 ---
 
 **GenerateDoctorPdf UseCase:**
-- [ ] **TEST:** Generate PDF with valid config
-- [ ] **CODE:** Create GenerateDoctorPdf usecase
-- [ ] **TEST:** Validate config (start date before end date)
-- [ ] **CODE:** Add config validation
-- [ ] **TEST:** Return error when no reports in date range
-- [ ] **CODE:** Return ValidationFailure
-- [ ] **TEST:** Generate PDF with vitals included
-- [ ] **CODE:** Call CalculateSummaryStatistics, then PdfGeneratorService
-- [ ] **TEST:** Generate PDF without vitals
-- [ ] **CODE:** Pass includeVitals flag to service
-- [ ] **TEST:** Generate PDF with optional full data table
-- [ ] **CODE:** Pass includeFullDataTable flag to service
-- [ ] **VERIFY:** Run tests, ensure coverage >= 90%
-- [ ] **COMMIT:** `test: add GenerateDoctorPdf usecase tests`
-- [ ] **COMMIT:** `feat: implement doctor PDF generation usecase`
+- [x] **TEST:** Generate PDF with valid config
+- [x] **CODE:** Create GenerateDoctorPdf usecase
+- [x] **TEST:** Validate config (start date before end date)
+- [x] **CODE:** Add config validation
+- [x] **TEST:** Return error when no reports in date range
+- [x] **CODE:** Return ValidationFailure
+- [x] **TEST:** Generate PDF with vitals included
+- [x] **CODE:** Call CalculateSummaryStatistics, then PdfGeneratorService
+- [x] **TEST:** Generate PDF without vitals
+- [x] **CODE:** Pass includeVitals flag to service
+- [x] **TEST:** Generate PDF with optional full data table
+- [x] **CODE:** Pass includeFullDataTable flag to service
+- [x] **VERIFY:** Run tests, ensure coverage >= 90%
+- [x] **COMMIT:** `test: add GenerateDoctorPdf usecase tests`
+- [x] **COMMIT:** `feat: implement doctor PDF generation usecase`
 
 **Location:** `lib/domain/usecases/generate_doctor_pdf.dart`
 
 ---
 
 **Add Date Range Query to ReportRepository:**
-- [ ] **TEST:** Add getReportsByDateRange() method test
-- [ ] **CODE:** Add method to ReportRepository interface
-- [ ] **TEST:** Implement in ReportRepositoryImpl
-- [ ] **CODE:** Filter reports by date range from Hive
-- [ ] **COMMIT:** `test: add date range query to ReportRepository`
-- [ ] **COMMIT:** `feat: add getReportsByDateRange to ReportRepository`
+- [x] **TEST:** Add getReportsByDateRange() method test
+- [x] **CODE:** Add method to ReportRepository interface
+- [x] **TEST:** Implement in ReportRepositoryImpl
+- [x] **CODE:** Filter reports by date range from Hive
+- [x] **COMMIT:** `test: add date range query to ReportRepository`
+- [x] **COMMIT:** `feat: add getReportsByDateRange to ReportRepository`
 
 **Note:** HealthLogRepository already has this method from Phase 6
 
@@ -344,21 +344,21 @@ class DashboardCategory extends Equatable {
 #### 2.3 Chart Rendering Service
 
 **ChartRenderingService:**
-- [ ] **TEST:** Render biomarker line chart (single line)
-- [ ] **CODE:** Create ChartRenderingService
-- [ ] **TEST:** Render dual-line chart for BP (systolic + diastolic)
-- [ ] **CODE:** Implement dual-line rendering using fl_chart
-- [ ] **TEST:** Add reference range bands (shaded green area)
-- [ ] **CODE:** Add background shading for reference ranges
-- [ ] **TEST:** Add trend annotations (arrows, percentages)
-- [ ] **CODE:** Overlay trend indicators
-- [ ] **TEST:** Color-code data points by status (red/orange/green)
-- [ ] **CODE:** Apply status colors to chart dots
-- [ ] **TEST:** Export chart as PNG (300 DPI)
-- [ ] **CODE:** Capture widget as image, convert to PNG bytes
-- [ ] **VERIFY:** Generated PNGs are print-quality
-- [ ] **COMMIT:** `test: add ChartRenderingService tests`
-- [ ] **COMMIT:** `feat: implement chart rendering service`
+- [x] **TEST:** Render biomarker line chart (single line)
+- [x] **CODE:** Create ChartRenderingService
+- [x] **TEST:** Render dual-line chart for BP (systolic + diastolic)
+- [x] **CODE:** Implement dual-line rendering using fl_chart
+- [x] **TEST:** Add reference range bands (shaded green area)
+- [x] **CODE:** Add background shading for reference ranges
+- [x] **TEST:** Add trend annotations (arrows, percentages)
+- [x] **CODE:** Overlay trend indicators
+- [x] **TEST:** Color-code data points by status (red/orange/green)
+- [x] **CODE:** Apply status colors to chart dots
+- [x] **TEST:** Export chart as PNG (300 DPI)
+- [x] **CODE:** Capture widget as image, convert to PNG bytes
+- [x] **VERIFY:** Generated PNGs are print-quality
+- [x] **COMMIT:** `test: add ChartRenderingService tests`
+- [x] **COMMIT:** `feat: implement chart rendering service`
 
 **Technical Approach:**
 - Wrap fl_chart LineChart in RepaintBoundary
@@ -374,73 +374,73 @@ class DashboardCategory extends Equatable {
 #### 2.4 PDF Generator Service
 
 **Page 1 - Executive Summary:**
-- [ ] **TEST:** Generate page 1 with critical priorities table (3 rows)
-- [ ] **CODE:** Implement _buildExecutiveSummaryPage()
-- [ ] **TEST:** Generate health status dashboard (5 categories)
-- [ ] **CODE:** Build dashboard table with emoji status indicators
-- [ ] **TEST:** Handle 0, 1, 2, 3+ critical findings
-- [ ] **CODE:** Dynamically size priorities table
-- [ ] **COMMIT:** `test: add PDF page 1 generation tests`
-- [ ] **COMMIT:** `feat: implement PDF executive summary page`
+- [x] **TEST:** Generate page 1 with critical priorities table (3 rows)
+- [x] **CODE:** Implement _buildExecutiveSummaryPage()
+- [x] **TEST:** Generate health status dashboard (5 categories)
+- [x] **CODE:** Build dashboard table with emoji status indicators
+- [x] **TEST:** Handle 0, 1, 2, 3+ critical findings
+- [x] **CODE:** Dynamically size priorities table
+- [x] **COMMIT:** `test: add PDF page 1 generation tests`
+- [x] **COMMIT:** `feat: implement PDF executive summary page`
 
 ---
 
 **Page 2 - Lab Biomarker Trends:**
-- [ ] **TEST:** Generate out-of-range biomarkers section with charts
-- [ ] **CODE:** Implement _buildBiomarkerTrendsPage()
-- [ ] **TEST:** Embed line chart images (from ChartRenderingService)
-- [ ] **CODE:** Use pw.Image(MemoryImage(chartPngBytes))
-- [ ] **TEST:** Highlight out-of-range values (red color, bold)
-- [ ] **CODE:** Apply PdfColor.fromInt(0xFFD32F2F) to cells
-- [ ] **TEST:** Add trend indicators (↑↓→ symbols with percentages)
-- [ ] **CODE:** Insert Unicode arrows and calculated percentages
-- [ ] **TEST:** Generate borderline/normal biomarkers table
-- [ ] **CODE:** Add condensed table for remaining biomarkers
-- [ ] **COMMIT:** `test: add PDF page 2 generation tests`
-- [ ] **COMMIT:** `feat: implement PDF biomarker trends page`
+- [x] **TEST:** Generate out-of-range biomarkers section with charts
+- [x] **CODE:** Implement _buildBiomarkerTrendsPage()
+- [x] **TEST:** Embed line chart images (from ChartRenderingService)
+- [x] **CODE:** Use pw.Image(MemoryImage(chartPngBytes))
+- [x] **TEST:** Highlight out-of-range values (red color, bold)
+- [x] **CODE:** Apply PdfColor.fromInt(0xFFD32F2F) to cells
+- [x] **TEST:** Add trend indicators (↑↓→ symbols with percentages)
+- [x] **CODE:** Insert Unicode arrows and calculated percentages
+- [x] **TEST:** Generate borderline/normal biomarkers table
+- [x] **CODE:** Add condensed table for remaining biomarkers
+- [x] **COMMIT:** `test: add PDF page 2 generation tests`
+- [x] **COMMIT:** `feat: implement PDF biomarker trends page`
 
 ---
 
 **Page 3 - Vitals Summary:**
-- [ ] **TEST:** Generate BP chart (dual-line with reference bands)
-- [ ] **CODE:** Implement _buildVitalsSummaryPage()
-- [ ] **TEST:** Generate glucose correlation chart (scatter + lab overlay)
-- [ ] **CODE:** Render correlation chart
-- [ ] **TEST:** Add vitals statistics table (HR, SpO2, weight, sleep)
-- [ ] **CODE:** Build condensed vitals table
-- [ ] **TEST:** Skip page if includeVitals = false
-- [ ] **CODE:** Conditionally generate page
-- [ ] **COMMIT:** `test: add PDF page 3 generation tests`
-- [ ] **COMMIT:** `feat: implement PDF vitals summary page`
+- [x] **TEST:** Generate BP chart (dual-line with reference bands)
+- [x] **CODE:** Implement _buildVitalsSummaryPage()
+- [x] **TEST:** Generate glucose correlation chart (scatter + lab overlay)
+- [x] **CODE:** Render correlation chart
+- [x] **TEST:** Add vitals statistics table (HR, SpO2, weight, sleep)
+- [x] **CODE:** Build condensed vitals table
+- [x] **TEST:** Skip page if includeVitals = false
+- [x] **CODE:** Conditionally generate page
+- [x] **COMMIT:** `test: add PDF page 3 generation tests`
+- [x] **COMMIT:** `feat: implement PDF vitals summary page`
 
 ---
 
 **Page 4 - Full Data Table (Optional):**
-- [ ] **TEST:** Generate complete biomarkers table (all 23+ biomarkers)
-- [ ] **CODE:** Implement _buildFullDataTablePage()
-- [ ] **TEST:** Skip page if includeFullDataTable = false
-- [ ] **CODE:** Conditionally generate page
-- [ ] **COMMIT:** `test: add PDF page 4 generation tests`
-- [ ] **COMMIT:** `feat: implement PDF full data table page`
+- [x] **TEST:** Generate complete biomarkers table (all 23+ biomarkers)
+- [x] **CODE:** Implement _buildFullDataTablePage()
+- [x] **TEST:** Skip page if includeFullDataTable = false
+- [x] **CODE:** Conditionally generate page
+- [x] **COMMIT:** `test: add PDF page 4 generation tests`
+- [x] **COMMIT:** `feat: implement PDF full data table page`
 
 ---
 
 **Main PDF Orchestration:**
-- [ ] **TEST:** Generate complete 2-page PDF (no vitals, no full table)
-- [ ] **CODE:** Implement main generatePdf() method
-- [ ] **TEST:** Generate complete 3-page PDF (with vitals, no full table)
-- [ ] **CODE:** Conditionally add pages based on config
-- [ ] **TEST:** Generate complete 4-page PDF (with vitals and full table)
-- [ ] **CODE:** Add all optional pages
-- [ ] **TEST:** Apply print-optimized styling (fonts, colors, spacing)
-- [ ] **CODE:** Use Helvetica font, proper spacing
-- [ ] **TEST:** Add headers/footers with page numbers
-- [ ] **CODE:** Add "Health Summary Report | Page X of Y"
-- [ ] **TEST:** Verify page breaks (no orphaned content)
-- [ ] **CODE:** Use pw.MultiPage with proper breaks
-- [ ] **VERIFY:** Generate sample PDF from fixture data, manual review
-- [ ] **COMMIT:** `test: add complete PDF generation tests`
-- [ ] **COMMIT:** `feat: implement complete PDF generation service`
+- [x] **TEST:** Generate complete 2-page PDF (no vitals, no full table)
+- [x] **CODE:** Implement main generatePdf() method
+- [x] **TEST:** Generate complete 3-page PDF (with vitals, no full table)
+- [x] **CODE:** Conditionally add pages based on config
+- [x] **TEST:** Generate complete 4-page PDF (with vitals and full table)
+- [x] **CODE:** Add all optional pages
+- [x] **TEST:** Apply print-optimized styling (fonts, colors, spacing)
+- [x] **CODE:** Use Helvetica font, proper spacing
+- [x] **TEST:** Add headers/footers with page numbers
+- [x] **CODE:** Add "Health Summary Report | Page X of Y"
+- [x] **TEST:** Verify page breaks (no orphaned content)
+- [x] **CODE:** Use pw.MultiPage with proper breaks
+- [x] **VERIFY:** Generate sample PDF from fixture data, manual review
+- [x] **COMMIT:** `test: add complete PDF generation tests`
+- [x] **COMMIT:** `feat: implement complete PDF generation service`
 
 **Location:** `lib/data/datasources/external/pdf_generator_service.dart`
 **Register DI:** `@lazySingleton`
@@ -450,28 +450,28 @@ class DashboardCategory extends Equatable {
 #### 2.5 Doctor PDF Config Page UI
 
 **DoctorPdfConfigPage:**
-- [ ] **TEST (widget):** Render date range pickers (start & end)
-- [ ] **CODE:** Create DoctorPdfConfigPage
-- [ ] **TEST:** Render report multi-select checkboxes (with biomarker counts)
-- [ ] **CODE:** Display reports with "Quest - Jan 10 (23 biomarkers)" format
-- [ ] **TEST:** Render "Include Vitals" toggle switch
-- [ ] **CODE:** Add SwitchListTile for vitals option
-- [ ] **TEST:** Render "Include Full Data Table" toggle switch
-- [ ] **CODE:** Add SwitchListTile for full table option
-- [ ] **TEST:** Preview shows summary ("3 reports, 42 logs, 69 biomarkers")
-- [ ] **CODE:** Calculate and display preview stats
-- [ ] **TEST:** Generate button enabled only when ≥1 report selected
-- [ ] **CODE:** Disable button when no reports selected
-- [ ] **TEST:** Generate button triggers PDF creation
-- [ ] **CODE:** Call GenerateDoctorPdf usecase via provider
-- [ ] **TEST:** Show progress indicator during generation
-- [ ] **CODE:** Display CircularProgressIndicator with status text
-- [ ] **TEST:** Show success with file path
-- [ ] **CODE:** Display SnackBar with "PDF saved to: /path/to/file.pdf"
-- [ ] **TEST:** Show error on failure
-- [ ] **CODE:** Display error message from Failure
-- [ ] **COMMIT:** `test: add DoctorPdfConfigPage widget tests`
-- [ ] **COMMIT:** `feat: implement doctor PDF config page`
+- [x] **TEST (widget):** Render date range pickers (start & end)
+- [x] **CODE:** Create DoctorPdfConfigPage
+- [x] **TEST:** Render report multi-select checkboxes (with biomarker counts)
+- [x] **CODE:** Display reports with "Quest - Jan 10 (23 biomarkers)" format
+- [x] **TEST:** Render "Include Vitals" toggle switch
+- [x] **CODE:** Add SwitchListTile for vitals option
+- [x] **TEST:** Render "Include Full Data Table" toggle switch
+- [x] **CODE:** Add SwitchListTile for full table option
+- [x] **TEST:** Preview shows summary ("3 reports, 42 logs, 69 biomarkers")
+- [x] **CODE:** Calculate and display preview stats
+- [x] **TEST:** Generate button enabled only when ≥1 report selected
+- [x] **CODE:** Disable button when no reports selected
+- [x] **TEST:** Generate button triggers PDF creation
+- [x] **CODE:** Call GenerateDoctorPdf usecase via provider
+- [x] **TEST:** Show progress indicator during generation
+- [x] **CODE:** Display CircularProgressIndicator with status text
+- [x] **TEST:** Show success with file path
+- [x] **CODE:** Display SnackBar with "PDF saved to: /path/to/file.pdf"
+- [x] **TEST:** Show error on failure
+- [x] **CODE:** Display error message from Failure
+- [x] **COMMIT:** `test: add DoctorPdfConfigPage widget tests`
+- [x] **COMMIT:** `feat: implement doctor PDF config page`
 
 **Location:** `lib/presentation/pages/export/doctor_pdf_config_page.dart`
 
@@ -482,16 +482,16 @@ class DashboardCategory extends Equatable {
 ### Tasks
 
 #### 3.1 ShareService
-- [ ] **TEST:** Share PDF file via native sheet
-- [ ] **CODE:** Create ShareService using share_plus
-- [ ] **TEST:** Share CSV file via native sheet
-- [ ] **CODE:** Use ShareService.shareXFiles() with XFile
-- [ ] **TEST:** Handle share cancellation (user dismisses)
-- [ ] **CODE:** No error on cancellation
-- [ ] **TEST:** Platform-specific behavior (iOS shows sheet, Android shows chooser)
-- [ ] **CODE:** Let share_plus handle platform differences
-- [ ] **COMMIT:** `test: add ShareService tests`
-- [ ] **COMMIT:** `feat: implement native sharing service`
+- [x] **TEST:** Share PDF file via native sheet
+- [x] **CODE:** Create ShareService using share_plus
+- [x] **TEST:** Share CSV file via native sheet
+- [x] **CODE:** Use ShareService.shareXFiles() with XFile
+- [x] **TEST:** Handle share cancellation (user dismisses)
+- [x] **CODE:** No error on cancellation
+- [x] **TEST:** Platform-specific behavior (iOS shows sheet, Android shows chooser)
+- [x] **CODE:** Let share_plus handle platform differences
+- [x] **COMMIT:** `test: add ShareService tests`
+- [x] **COMMIT:** `feat: implement native sharing service`
 
 **Location:** `lib/data/datasources/external/share_service.dart`
 **Register DI:** `@lazySingleton`
@@ -499,14 +499,14 @@ class DashboardCategory extends Equatable {
 ---
 
 #### 3.2 Share Button UI Integration
-- [ ] **TEST:** Add "Share" button to ExportPage (after successful CSV export)
-- [ ] **CODE:** Show IconButton(Icons.share) next to exported file path
-- [ ] **TEST:** Add "Generate & Share" button to DoctorPdfConfigPage
-- [ ] **CODE:** Add secondary button that generates PDF and immediately shares
-- [ ] **TEST:** Share triggers native share sheet
-- [ ] **CODE:** Call ShareService.sharePdf() or shareCsv()
-- [ ] **COMMIT:** `test: add share button widget tests`
-- [ ] **COMMIT:** `feat: add share buttons to export UI`
+- [x] **TEST:** Add "Share" button to ExportPage (after successful CSV export)
+- [x] **CODE:** Show IconButton(Icons.share) next to exported file path
+- [x] **TEST:** Add "Generate & Share" button to DoctorPdfConfigPage
+- [x] **CODE:** Add secondary button that generates PDF and immediately shares
+- [x] **TEST:** Share triggers native share sheet
+- [x] **CODE:** Call ShareService.sharePdf() or shareCsv()
+- [x] **COMMIT:** `test: add share button widget tests`
+- [x] **COMMIT:** `feat: add share buttons to export UI`
 
 ---
 
@@ -516,10 +516,10 @@ class DashboardCategory extends Equatable {
 
 #### 4.1 Update App Router
 - [x] **CODE:** Add `/export` route → ExportPage
-- [ ] **CODE:** Add `/export/doctor-pdf-config` route → DoctorPdfConfigPage
+- [x] **CODE:** Add `/export/doctor-pdf-config` route → DoctorPdfConfigPage
 - [x] **CODE:** Add navigation from HomePage (AppBar action or FAB menu)
-- [ ] **CODE:** Add navigation from Settings (Export section)
-- [ ] **TEST:** Test navigation flows
+- [x] **CODE:** Add navigation from Settings (Export section)
+- [x] **TEST:** Test navigation flows
 - [x] **COMMIT:** `feat: wire export page navigation`
 
 **Location:** `lib/presentation/router/app_router.dart`
