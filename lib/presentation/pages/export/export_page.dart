@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_tracker_reports/presentation/providers/export_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:health_tracker_reports/data/datasources/external/share_service.dart';
+import 'package:health_tracker_reports/presentation/providers/share_provider.dart';
 
 class ExportPage extends ConsumerWidget {
   const ExportPage({super.key});
@@ -20,7 +23,18 @@ class ExportPage extends ConsumerWidget {
             .join('\n');
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
+          SnackBar(
+            content: Text(message),
+            action: SnackBarAction(
+              label: 'Share',
+              onPressed: () async {
+                final shareService = ref.read(shareServiceProvider);
+                for (final result in next.results) {
+                  await shareService.shareFile(XFile(result.path));
+                }
+              },
+            ),
+          ),
         );
       } else if (next.status == ExportStatus.error && next.failure != null) {
         ScaffoldMessenger.of(context).showSnackBar(
