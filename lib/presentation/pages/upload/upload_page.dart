@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
+import 'package:health_tracker_reports/presentation/pages/upload/widgets/extraction_loading_widget.dart';
 import 'package:health_tracker_reports/presentation/providers/extraction_provider.dart';
 import 'package:health_tracker_reports/presentation/providers/file_picker_provider.dart';
 
@@ -24,7 +25,7 @@ class UploadPage extends ConsumerWidget {
       ),
       body: extractionState.when(
         data: (_) => _buildInitialState(context, ref),
-        loading: _buildLoadingState,
+        loading: () => const ExtractionLoadingWidget(),
         error: (error, _) => _buildErrorState(context, ref, error),
       ),
     );
@@ -87,24 +88,6 @@ class UploadPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildLoadingState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const CircularProgressIndicator(),
-          const SizedBox(height: 16),
-          Text(
-            'Extracting biomarkers...',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[600],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildErrorState(
     BuildContext context,
