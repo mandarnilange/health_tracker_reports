@@ -85,6 +85,7 @@ void main() {
     expect(find.text('Export Vitals CSV'), findsOneWidget);
     expect(find.text('Export Trends CSV'), findsOneWidget);
     expect(find.text('Export All CSVs'), findsOneWidget);
+    expect(find.text('Doctor PDF Summary'), findsOneWidget);
   });
 
   testWidgets('tapping Export All triggers provider', (tester) async {

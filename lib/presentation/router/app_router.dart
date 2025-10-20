@@ -14,6 +14,7 @@ import 'package:health_tracker_reports/presentation/pages/upload/upload_page.dar
 import 'package:health_tracker_reports/presentation/pages/upload/review_page.dart';
 import 'package:health_tracker_reports/presentation/router/route_names.dart';
 import 'package:health_tracker_reports/presentation/pages/export/export_page.dart';
+import 'package:health_tracker_reports/presentation/pages/export/doctor_pdf_config_page.dart';
 
 /// Application router configuration using go_router.
 ///
@@ -170,6 +171,16 @@ class AppRouter {
             pageBuilder: (context, state) => MaterialPage<void>(
               key: state.pageKey,
               child: const ExportPage(),
+            ),
+          ),
+
+          // Doctor PDF configuration
+          GoRoute(
+            path: RouteNames.doctorPdfConfig,
+            name: RouteNames.doctorPdfConfigName,
+            pageBuilder: (context, state) => MaterialPage<void>(
+              key: state.pageKey,
+              child: const DoctorPdfConfigPage(),
             ),
           ),
         ],

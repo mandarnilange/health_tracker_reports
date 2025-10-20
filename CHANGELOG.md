@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added - Doctor PDF Actions (2026-01-18)
 - Surfaced explicit “Generate PDF” and “Generate & Share” actions with configurable vitals/data table toggles so the Doctor PDF workflow now supports direct downloads alongside sharing (`lib/presentation/pages/export/doctor_pdf_config_page.dart`, `test/widget/pages/export/doctor_pdf_config_page_test.dart`).
+- Added Export page navigation entry to reach the Doctor PDF configuration screen, making the download/share options discoverable from the main export hub (`lib/presentation/pages/export/export_page.dart`, `lib/presentation/router/app_router.dart`, `lib/presentation/router/route_names.dart`, `test/widget/pages/export/export_page_test.dart`).
 
 ### Added - Phase 5 CSV Export Foundations (2026-01-15)
 - `85cc00d` feat: implement CSV export usecases — adds report, vitals, and trends CSV exporters with UTF-8 BOM, fixed decimal formatting, and exhaustive unit coverage (`lib/domain/usecases/export_*`, `test/unit/domain/usecases/export_*_test.dart`).

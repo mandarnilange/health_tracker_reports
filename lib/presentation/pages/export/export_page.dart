@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:health_tracker_reports/presentation/providers/export_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:health_tracker_reports/data/datasources/external/share_service.dart';
 import 'package:health_tracker_reports/presentation/providers/share_provider.dart';
+import 'package:health_tracker_reports/presentation/router/route_names.dart';
 
 class ExportPage extends ConsumerWidget {
   const ExportPage({super.key});
@@ -18,9 +20,8 @@ class ExportPage extends ConsumerWidget {
       }
 
       if (next.status == ExportStatus.success && next.results.isNotEmpty) {
-        final message = next.results
-            .map((result) => 'Saved to: ${result.path}')
-            .join('\n');
+        final message =
+            next.results.map((result) => 'Saved to: ${result.path}').join('\n');
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -88,7 +89,28 @@ class ExportPage extends ConsumerWidget {
               onPressed: notifier.exportAll,
             ),
             const SizedBox(height: 24),
-            if (isBusy) _ProgressIndicator(state: exportState),
+            if (isBusy) ...[
+              _ProgressIndicator(state: exportState),
+              const SizedBox(height: 24),
+            ],
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Doctor Summary PDF',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.picture_as_pdf_outlined),
+                label: const Text('Doctor PDF Summary'),
+                onPressed: isBusy
+                    ? null
+                    : () => context.push(RouteNames.doctorPdfConfig),
+              ),
+            ),
           ],
         ),
       ),
