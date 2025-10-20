@@ -18,9 +18,18 @@ void main() {
       expect(service, isA<ChartRenderingService>());
     });
 
-    testWidgets('should render a single line chart and return PNG bytes', (WidgetTester tester) async {
+    testWidgets('should render a single line chart and return PNG bytes',
+        (WidgetTester tester) async {
       // Arrange
-      final biomarkers = [Biomarker(id: '1', name: 'g', value: 1, unit: 'u', referenceRange: ReferenceRange(min: 0, max: 2), measuredAt: DateTime.now())];
+      final biomarkers = [
+        Biomarker(
+            id: '1',
+            name: 'g',
+            value: 1,
+            unit: 'u',
+            referenceRange: ReferenceRange(min: 0, max: 2),
+            measuredAt: DateTime.now())
+      ];
       final GlobalKey repaintKey = GlobalKey();
 
       await tester.pumpWidget(
@@ -34,8 +43,16 @@ void main() {
         ),
       );
 
-      // Act
-      final result = await service.capturePng(repaintKey);
+      // Allow the widget tree to render. Use fixed pumps instead of
+      // `pumpAndSettle()` to avoid waiting forever if the chart schedules
+      // continuous frames (some chart libs use internal animations).
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pump(const Duration(milliseconds: 50));
+
+      // Act - run the capture in runAsync so the async image ops can complete
+      final result = await tester
+          .runAsync(() async => await service.capturePng(repaintKey));
 
       // Assert
       expect(result, isA<Uint8List>());
@@ -44,8 +61,24 @@ void main() {
 
     testWidgets('should render a dual-line chart', (WidgetTester tester) async {
       // Arrange
-      final biomarkers1 = [Biomarker(id: '1', name: 'g', value: 120, unit: 'u', referenceRange: ReferenceRange(min: 0, max: 200), measuredAt: DateTime.now())];
-      final biomarkers2 = [Biomarker(id: '2', name: 'g', value: 80, unit: 'u', referenceRange: ReferenceRange(min: 0, max: 100), measuredAt: DateTime.now())];
+      final biomarkers1 = [
+        Biomarker(
+            id: '1',
+            name: 'g',
+            value: 120,
+            unit: 'u',
+            referenceRange: ReferenceRange(min: 0, max: 200),
+            measuredAt: DateTime.now())
+      ];
+      final biomarkers2 = [
+        Biomarker(
+            id: '2',
+            name: 'g',
+            value: 80,
+            unit: 'u',
+            referenceRange: ReferenceRange(min: 0, max: 100),
+            measuredAt: DateTime.now())
+      ];
       final GlobalKey repaintKey = GlobalKey();
 
       await tester.pumpWidget(
@@ -59,8 +92,14 @@ void main() {
         ),
       );
 
-      // Act
-      final result = await service.capturePng(repaintKey);
+      // Allow the widget tree to render.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pump(const Duration(milliseconds: 50));
+
+      // Act - run the capture in runAsync so the async image ops can complete
+      final result = await tester
+          .runAsync(() async => await service.capturePng(repaintKey));
 
       // Assert
       expect(result, isA<Uint8List>());
@@ -69,12 +108,21 @@ void main() {
 
     test('should include reference range bands in the chart', () {
       // Arrange
-      final biomarkers = [Biomarker(id: '1', name: 'g', value: 100, unit: 'u', referenceRange: ReferenceRange(min: 80, max: 120), measuredAt: DateTime.now())];
+      final biomarkers = [
+        Biomarker(
+            id: '1',
+            name: 'g',
+            value: 100,
+            unit: 'u',
+            referenceRange: ReferenceRange(min: 80, max: 120),
+            measuredAt: DateTime.now())
+      ];
       final range = ReferenceRange(min: 80, max: 120);
 
       // Act
-      final chart = service.getLineChart(biomarkers, range, null) as Stack;
-      final lineChart = chart.children.first as LineChart;
+      final stack = service.getLineChart(biomarkers, range, null) as Stack;
+      final sizedBox = stack.children.first as SizedBox;
+      final lineChart = sizedBox.child as LineChart;
       final lineChartData = lineChart.data;
 
       // Assert
@@ -84,6 +132,5 @@ void main() {
       expect(shading.fromIndex, 1);
       expect(shading.toIndex, 2);
     });
-
   });
 }

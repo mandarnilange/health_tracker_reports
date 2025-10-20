@@ -10,9 +10,12 @@ import 'package:health_tracker_reports/data/datasources/external/llm_provider_se
 import 'package:health_tracker_reports/data/datasources/external/gemini_llm_service.dart';
 import 'package:health_tracker_reports/data/datasources/external/openai_llm_service.dart';
 import 'package:health_tracker_reports/data/datasources/external/claude_llm_service.dart';
+import 'package:health_tracker_reports/data/datasources/external/share_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:hive/hive.dart';
 import 'package:injectable/injectable.dart';
+import 'package:health_tracker_reports/data/datasources/external/chart_rendering_service.dart';
+import 'package:health_tracker_reports/data/datasources/external/pdf_generator_service.dart';
 
 import 'injection_container.config.dart';
 
@@ -55,15 +58,25 @@ abstract class AppModule {
   @lazySingleton
   Uuid get uuid => const Uuid();
 
+  @lazySingleton
+  ChartRenderingService get chartRenderingService =>
+      ChartRenderingServiceImpl();
+
+  @lazySingleton
+  PdfDocumentWrapper get pdfDocumentWrapper => PdfDocumentWrapperImpl();
+
+  @lazySingleton
+  ShareWrapper get shareWrapper => ShareWrapperImpl();
+
   @Named('llmProviderServices')
   Map<LlmProvider, LlmProviderService> llmProviderServices(
     GeminiLlmService geminiLlmService,
     OpenAiLlmService openAiLlmService,
     ClaudeLlmService claudeLlmService,
-  ) => {
+  ) =>
+      {
         LlmProvider.gemini: geminiLlmService,
         LlmProvider.openai: openAiLlmService,
         LlmProvider.claude: claudeLlmService,
       };
-
 }

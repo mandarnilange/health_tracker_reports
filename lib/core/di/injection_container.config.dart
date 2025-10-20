@@ -14,6 +14,8 @@ import 'package:get_it/get_it.dart' as _i174;
 import 'package:health_tracker_reports/core/di/injection_container.dart'
     as _i838;
 import 'package:health_tracker_reports/core/utils/clock.dart' as _i31;
+import 'package:health_tracker_reports/data/datasources/external/chart_rendering_service.dart'
+    as _i560;
 import 'package:health_tracker_reports/data/datasources/external/claude_llm_service.dart'
     as _i26;
 import 'package:health_tracker_reports/data/datasources/external/csv_export_service.dart'
@@ -146,6 +148,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i361.Dio>(() => appModule.dio);
     gh.lazySingleton<_i558.FlutterSecureStorage>(() => appModule.secureStorage);
     gh.lazySingleton<_i706.Uuid>(() => appModule.uuid);
+    gh.lazySingleton<_i560.ChartRenderingService>(
+        () => appModule.chartRenderingService);
+    gh.lazySingleton<_i917.PdfDocumentWrapper>(
+        () => appModule.pdfDocumentWrapper);
+    gh.lazySingleton<_i60.ShareWrapper>(() => appModule.shareWrapper);
     gh.lazySingleton<_i46.ImageProcessingService>(
         () => _i46.ImageProcessingService());
     gh.lazySingleton<_i361.ExportVitalsToCsv>(() => _i361.ExportVitalsToCsv());
@@ -248,6 +255,12 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.lazySingleton<_i312.GetUnifiedTimeline>(() =>
         _i312.GetUnifiedTimeline(repository: gh<_i880.TimelineRepository>()));
+    gh.lazySingleton<_i917.PdfGeneratorService>(
+        () => _i917.PdfGeneratorServiceImpl(
+              pdfDocumentWrapper: gh<_i917.PdfDocumentWrapper>(),
+              chartRenderingService: gh<_i560.ChartRenderingService>(),
+              fileWriterService: gh<_i446.FileWriterService>(),
+            ));
     gh.lazySingleton<_i111.LlmExtractionRepository>(
         () => _i836.LlmExtractionRepositoryImpl(
               claudeService: gh<_i26.ClaudeLlmService>(),

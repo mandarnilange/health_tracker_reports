@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/data/datasources/external/csv_export_service.dart';
 import 'package:health_tracker_reports/data/datasources/external/file_writer_service.dart';
+import 'package:health_tracker_reports/data/datasources/external/share_service.dart';
 import 'package:health_tracker_reports/domain/entities/health_log.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/domain/usecases/export_reports_to_csv.dart';
@@ -12,6 +13,8 @@ import 'package:health_tracker_reports/domain/usecases/export_trends_to_csv.dart
 import 'package:health_tracker_reports/domain/usecases/export_vitals_to_csv.dart';
 import 'package:health_tracker_reports/presentation/providers/export_provider.dart';
 import 'package:health_tracker_reports/presentation/pages/export/export_page.dart';
+import 'package:health_tracker_reports/presentation/providers/share_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class _SpyExportProvider extends ExportProvider {
   _SpyExportProvider()
@@ -23,7 +26,8 @@ class _SpyExportProvider extends ExportProvider {
           ),
           fileWriterService: FileWriterService.test(
             downloadsPathProvider: _StubDownloadsPathProvider(),
-            fileWriter: (_, __) async {},
+            stringWriter: (_, __) async {},
+            bytesWriter: (_, __) async {},
           ),
           reportsLoader: () async => Right<Failure, List<Report>>([]),
           healthLogsLoader: () async => Right<Failure, List<HealthLog>>([]),
@@ -60,15 +64,30 @@ class _StubDownloadsPathProvider implements DownloadsPathProvider {
   Future<String> getDownloadsPath() async => '.';
 }
 
+class _StubShareService implements ShareService {
+  bool called = false;
+  final sharedFiles = <String>[];
+
+  @override
+  Future<Either<Failure, void>> shareFile(XFile file) async {
+    called = true;
+    sharedFiles.add(file.path);
+    return const Right(null);
+  }
+}
+
 void main() {
   Future<void> _pumpPage(
     WidgetTester tester, {
     required _SpyExportProvider provider,
+    ShareService? shareService,
   }) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           exportNotifierProvider.overrideWith((ref) => provider),
+          if (shareService != null)
+            shareServiceProvider.overrideWithValue(shareService),
         ],
         child: const MaterialApp(
           home: ExportPage(),
@@ -150,5 +169,32 @@ void main() {
     await tester.pump();
 
     expect(find.text('Permission denied'), findsOneWidget);
+  });
+
+  testWidgets('share action shares exported files', (tester) async {
+    final provider = _SpyExportProvider();
+    final shareService = _StubShareService();
+    await _pumpPage(tester, provider: provider, shareService: shareService);
+
+    provider.state = provider.state.asSuccess(
+      const [
+        ExportResult(
+          target: ExportTarget.reports,
+          path: '/tmp/reports.csv',
+        ),
+      ],
+      total: 1,
+    );
+    await tester.pump();
+
+    final shareActionFinder = find.byType(SnackBarAction);
+    expect(shareActionFinder, findsOneWidget);
+    final SnackBarAction action =
+        tester.widget<SnackBarAction>(shareActionFinder);
+    action.onPressed();
+    await tester.pumpAndSettle();
+
+    expect(shareService.called, isTrue);
+    expect(shareService.sharedFiles, contains('/tmp/reports.csv'));
   });
 }

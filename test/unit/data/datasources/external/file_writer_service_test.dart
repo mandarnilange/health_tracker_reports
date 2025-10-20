@@ -39,11 +39,65 @@ void main() {
   });
 
   group('FileWriterService', () {
+    test('writes binary file and returns path', () async {
+      final writtenBytes = <int>[];
+      String? writtenPath;
+      final service = FileWriterService.test(
+        downloadsPathProvider: _StubDownloadsPathProvider(tempDir.path),
+        nowOverride: () => fixedNow,
+        bytesWriter: (path, bytes) async {
+          writtenPath = path;
+          writtenBytes.clear();
+          writtenBytes.addAll(bytes);
+        },
+      );
+
+      final bytes = List<int>.generate(4, (index) => index + 1);
+      final result = await service.writeBytes(
+        filenamePrefix: 'doctor_summary',
+        bytes: bytes,
+        extension: 'pdf',
+      );
+
+      expect(result, isA<Right>());
+      expect(writtenBytes, bytes);
+      expect(writtenPath, isNotNull);
+      result.fold(
+        (failure) => fail('expected success'),
+        (path) {
+          expect(path, writtenPath);
+          expect(path, endsWith('doctor_summary_2026-01-15_07-45-30.pdf'));
+        },
+      );
+    });
+
+    test('writeBytes maps FileSystemException to failures', () async {
+      final service = FileWriterService.test(
+        downloadsPathProvider: _StubDownloadsPathProvider(tempDir.path),
+        nowOverride: () => fixedNow,
+        bytesWriter: (path, _) async {
+          throw FileSystemException('Permission denied', path);
+        },
+      );
+
+      final result = await service.writeBytes(
+        filenamePrefix: 'doctor_summary',
+        bytes: const [1, 2, 3],
+        extension: 'pdf',
+      );
+
+      expect(result, isA<Left>());
+      result.fold(
+        (failure) => expect(failure, isA<PermissionFailure>()),
+        (_) => fail('expected failure'),
+      );
+    });
+
     test('writes CSV file to downloads directory and returns path', () async {
       final service = FileWriterService.test(
         downloadsPathProvider: _StubDownloadsPathProvider(tempDir.path),
         nowOverride: () => fixedNow,
-        fileWriter: (path, contents) async {
+        stringWriter: (path, contents) async {
           final file = File(path);
           await file.create(recursive: true);
           await file.writeAsString(contents);
@@ -77,7 +131,7 @@ void main() {
       final service = FileWriterService.test(
         downloadsPathProvider: _StubDownloadsPathProvider(tempDir.path),
         nowOverride: () => fixedNow,
-        fileWriter: (path, _) async {
+        stringWriter: (path, _) async {
           throw FileSystemException('Permission denied', path);
         },
       );
@@ -99,7 +153,7 @@ void main() {
       final service = FileWriterService.test(
         downloadsPathProvider: _StubDownloadsPathProvider(tempDir.path),
         nowOverride: () => fixedNow,
-        fileWriter: (path, _) async {
+        stringWriter: (path, _) async {
           throw FileSystemException('No space left on device', path);
         },
       );

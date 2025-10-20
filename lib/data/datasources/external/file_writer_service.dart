@@ -15,6 +15,11 @@ typedef FileWriterCallback = Future<void> Function(
   String contents,
 );
 
+typedef BinaryWriterCallback = Future<void> Function(
+  String path,
+  List<int> bytes,
+);
+
 /// Provides the absolute downloads directory path for the current platform.
 abstract class DownloadsPathProvider {
   /// Returns the absolute path to the preferred downloads directory.
@@ -55,24 +60,34 @@ class FileWriterService {
   FileWriterService({
     required this.downloadsPathProvider,
   })  : now = DateTime.now,
-        _fileWriter = _defaultFileWriter;
+        _stringWriter = _defaultStringWriter,
+        _bytesWriter = _defaultBytesWriter;
 
   @visibleForTesting
   FileWriterService.test({
     required this.downloadsPathProvider,
     DateTimeProvider? nowOverride,
-    FileWriterCallback? fileWriter,
+    FileWriterCallback? stringWriter,
+    BinaryWriterCallback? bytesWriter,
   })  : now = nowOverride ?? DateTime.now,
-        _fileWriter = fileWriter ?? _defaultFileWriter;
+        _stringWriter = stringWriter ?? _defaultStringWriter,
+        _bytesWriter = bytesWriter ?? _defaultBytesWriter;
 
   final DownloadsPathProvider downloadsPathProvider;
   final DateTimeProvider now;
-  final FileWriterCallback _fileWriter;
+  final FileWriterCallback _stringWriter;
+  final BinaryWriterCallback _bytesWriter;
 
-  static Future<void> _defaultFileWriter(String path, String contents) async {
+  static Future<void> _defaultStringWriter(String path, String contents) async {
     final file = File(path);
     await file.create(recursive: true);
     await file.writeAsString(contents);
+  }
+
+  static Future<void> _defaultBytesWriter(String path, List<int> bytes) async {
+    final file = File(path);
+    await file.create(recursive: true);
+    await file.writeAsBytes(bytes);
   }
 
   /// Writes the provided CSV contents to disk and returns the saved file path.
@@ -80,30 +95,87 @@ class FileWriterService {
     required String filenamePrefix,
     required String contents,
   }) async {
+    return _writeString(
+      filenamePrefix: filenamePrefix,
+      extension: 'csv',
+      contents: contents,
+    );
+  }
+
+  Future<Either<Failure, String>> writeBytes({
+    required String filenamePrefix,
+    required List<int> bytes,
+    String extension = 'bin',
+  }) async {
     final downloadPath = await _resolveDownloadsPath();
     return downloadPath.fold(
       Left.new,
       (basePath) async {
-        final timestamp = DateFormat('yyyy-MM-dd_HH-mm-ss').format(now());
-        final sanitizedPrefix =
-            filenamePrefix.replaceAll(RegExp(r'[^A-Za-z0-9_\-]'), '_');
-        final fileName = '$sanitizedPrefix\_$timestamp.csv';
-        final fullPath = p.join(basePath, fileName);
+        final fullPath = _buildFilePath(
+          basePath,
+          filenamePrefix: filenamePrefix,
+          extension: extension,
+        );
 
         try {
-          await _fileWriter(fullPath, contents);
+          await _bytesWriter(fullPath, bytes);
           return Right(fullPath);
         } on FileSystemException catch (e) {
           return Left(_mapFileSystemException(e));
         } catch (e) {
           return Left(
             FileSystemFailure(
-              message: 'Failed to save CSV: ${e.toString()}',
+              message: 'Failed to save file: ${e.toString()}',
             ),
           );
         }
       },
     );
+  }
+
+  Future<Either<Failure, String>> _writeString({
+    required String filenamePrefix,
+    required String extension,
+    required String contents,
+  }) async {
+    final downloadPath = await _resolveDownloadsPath();
+    return downloadPath.fold(
+      Left.new,
+      (basePath) async {
+        final fullPath = _buildFilePath(
+          basePath,
+          filenamePrefix: filenamePrefix,
+          extension: extension,
+        );
+
+        try {
+          await _stringWriter(fullPath, contents);
+          return Right(fullPath);
+        } on FileSystemException catch (e) {
+          return Left(_mapFileSystemException(e));
+        } catch (e) {
+          return Left(
+            FileSystemFailure(
+              message: 'Failed to save file: ${e.toString()}',
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  String _buildFilePath(
+    String basePath, {
+    required String filenamePrefix,
+    required String extension,
+  }) {
+    final timestamp = DateFormat('yyyy-MM-dd_HH-mm-ss').format(now());
+    final sanitizedPrefix =
+        filenamePrefix.replaceAll(RegExp(r'[^A-Za-z0-9_\-]'), '_');
+    final sanitizedExtension =
+        extension.replaceAll(RegExp(r'[^A-Za-z0-9]'), '').toLowerCase();
+    final fileName = '$sanitizedPrefix\_$timestamp.$sanitizedExtension';
+    return p.join(basePath, fileName);
   }
 
   Future<Either<Failure, String>> _resolveDownloadsPath() async {

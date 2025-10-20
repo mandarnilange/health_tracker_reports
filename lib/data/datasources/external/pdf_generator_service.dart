@@ -3,73 +3,117 @@ import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/domain/entities/summary_statistics.dart';
 import 'package:health_tracker_reports/domain/entities/doctor_summary_config.dart';
 import 'package:health_tracker_reports/data/datasources/external/chart_rendering_service.dart';
+import 'package:health_tracker_reports/data/datasources/external/file_writer_service.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'dart:typed_data';
+import 'package:intl/intl.dart';
+import 'package:injectable/injectable.dart';
 
 abstract class PdfGeneratorService {
-  Future<Either<Failure, String>> generatePdf(SummaryStatistics stats, DoctorSummaryConfig config);
+  Future<Either<Failure, String>> generatePdf(
+    SummaryStatistics stats,
+    DoctorSummaryConfig config,
+  );
 }
 
+@LazySingleton(as: PdfGeneratorService)
 class PdfGeneratorServiceImpl implements PdfGeneratorService {
   final PdfDocumentWrapper pdfDocumentWrapper;
   final ChartRenderingService chartRenderingService;
+  final FileWriterService fileWriterService;
 
-  PdfGeneratorServiceImpl({required this.pdfDocumentWrapper, required this.chartRenderingService});
+  PdfGeneratorServiceImpl({
+    required this.pdfDocumentWrapper,
+    required this.chartRenderingService,
+    required this.fileWriterService,
+  });
 
   @override
-  Future<Either<Failure, String>> generatePdf(SummaryStatistics stats, DoctorSummaryConfig config) async {
-    final doc = pdfDocumentWrapper.document;
+  Future<Either<Failure, String>> generatePdf(
+    SummaryStatistics stats,
+    DoctorSummaryConfig config,
+  ) async {
+    try {
+      final doc = pdfDocumentWrapper.document;
 
-    doc.addPage(
-      pw.MultiPage(
-        pageFormat: PdfPageFormat.a4,
-        theme: pw.ThemeData.withFont(base: pw.Font.helvetica()),
-        header: (pw.Context context) {
-          return pw.Container(
-            alignment: pw.Alignment.centerRight,
-            margin: const pw.EdgeInsets.only(bottom: 3.0 * PdfPageFormat.mm),
-            padding: const pw.EdgeInsets.only(bottom: 3.0 * PdfPageFormat.mm),
-            decoration: const pw.BoxDecoration(
-              border: pw.Border(bottom: pw.BorderSide(width: 0.5, color: PdfColors.grey)),
-            ),
-            child: pw.Text(
-              'Health Summary Report | Page ${context.pageNumber} of ${context.pagesCount}',
-              style: pw.Theme.of(context).defaultTextStyle.copyWith(color: PdfColors.grey),
-            ),
-          );
-        },
-        footer: (pw.Context context) {
-          return pw.Container(
-            alignment: pw.Alignment.centerRight,
-            margin: const pw.EdgeInsets.only(top: 3.0 * PdfPageFormat.mm),
-            padding: const pw.EdgeInsets.only(top: 3.0 * PdfPageFormat.mm),
-            decoration: const pw.BoxDecoration(
-              border: pw.Border(top: pw.BorderSide(width: 0.5, color: PdfColors.grey)),
-            ),
-            child: pw.Text(
-              'Generated on ${DateTime.now().toLocal().toString().split(' ').first}',
-              style: pw.Theme.of(context).defaultTextStyle.copyWith(color: PdfColors.grey, fontSize: 8),
-            ),
-          );
-        },
-        build: (pw.Context context) {
-          final pages = <pw.Widget>[];
-          pages.add(_buildExecutiveSummaryPage(stats));
-          pages.add(_buildBiomarkerTrendsPage(stats));
-          if (config.includeVitals) {
-            pages.add(_buildVitalsSummaryPage(stats));
-          }
-          if (config.includeFullDataTable) {
-            pages.add(_buildFullDataTablePage(stats));
-          }
-          return pages;
-        },
-      ),
-    );
+      doc.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          theme: pw.ThemeData.withFont(base: pw.Font.helvetica()),
+          header: (pw.Context context) {
+            return pw.Container(
+              alignment: pw.Alignment.centerRight,
+              margin: const pw.EdgeInsets.only(bottom: 3.0 * PdfPageFormat.mm),
+              padding: const pw.EdgeInsets.only(bottom: 3.0 * PdfPageFormat.mm),
+              decoration: const pw.BoxDecoration(
+                border:
+                    pw.Border(bottom: pw.BorderSide(width: 0.5, color: PdfColors.grey)),
+              ),
+              child: pw.Text(
+                'Health Summary Report | Page ${context.pageNumber} of ${context.pagesCount}',
+                style: pw.Theme.of(context)
+                    .defaultTextStyle
+                    .copyWith(color: PdfColors.grey),
+              ),
+            );
+          },
+          footer: (pw.Context context) {
+            return pw.Container(
+              alignment: pw.Alignment.centerRight,
+              margin: const pw.EdgeInsets.only(top: 3.0 * PdfPageFormat.mm),
+              padding: const pw.EdgeInsets.only(top: 3.0 * PdfPageFormat.mm),
+              decoration: const pw.BoxDecoration(
+                border:
+                    pw.Border(top: pw.BorderSide(width: 0.5, color: PdfColors.grey)),
+              ),
+              child: pw.Text(
+                'Generated on ${DateFormat('yyyy-MM-dd').format(DateTime.now())}',
+                style: pw.Theme.of(context)
+                    .defaultTextStyle
+                    .copyWith(color: PdfColors.grey, fontSize: 8),
+              ),
+            );
+          },
+          build: (pw.Context context) {
+            final pages = <pw.Widget>[];
+            pages.add(_buildExecutiveSummaryPage(stats));
+            pages.add(_buildBiomarkerTrendsPage(stats));
+            if (config.includeVitals) {
+              pages.add(_buildVitalsSummaryPage(stats));
+            }
+            if (config.includeFullDataTable) {
+              pages.add(_buildFullDataTablePage(stats));
+            }
+            return pages;
+          },
+        ),
+      );
 
-    // For now, we don't save the file, just return a path
-    return const Right('/path/to/pdf');
+      final bytes = await pdfDocumentWrapper.save();
+      final prefix = _buildFilenamePrefix(config);
+
+      final savedPath = await fileWriterService.writeBytes(
+        filenamePrefix: prefix,
+        bytes: bytes,
+        extension: 'pdf',
+      );
+
+      return savedPath;
+    } catch (e) {
+      return Left(
+        FileSystemFailure(
+          message: 'Failed to generate PDF: ${e.toString()}',
+        ),
+      );
+    }
+  }
+
+  String _buildFilenamePrefix(DoctorSummaryConfig config) {
+    final formatter = DateFormat('yyyyMMdd');
+    final start = formatter.format(config.startDate);
+    final end = formatter.format(config.endDate);
+    return 'doctor_summary_${start}_$end';
   }
 
   pw.Widget _buildBiomarkerTrendsPage(SummaryStatistics stats) {
