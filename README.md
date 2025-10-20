@@ -4,6 +4,42 @@ A privacy-focused Flutter application for tracking your personal health data. Al
 
 Upload blood reports (PDF/images) for automatic biomarker extraction, log daily vitals (e.g., heart rate, blood pressure), and monitor trends over time. Export your raw data or generate shareable summaries for your healthcare providers.
 
+## Getting Started & Building the Project
+
+To get a local copy up and running, follow these simple steps.
+
+### Prerequisites
+
+Ensure you have the [Flutter SDK](https://docs.flutter.dev/get-started/install) installed on your machine.
+
+### Installation & Setup
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/mandarnilange/health_tracker_reports.git
+    ```
+2.  **Navigate to the project directory:**
+    ```bash
+    cd health_tracker_reports
+    ```
+3.  **Install dependencies:**
+    ```bash
+    flutter pub get
+    ```
+4.  **Run the code generator:**
+    This project uses code generation for dependency injection. Run this command before building.
+    ```bash
+    dart run build_runner build --delete-conflicting-outputs
+    ```
+5.  **Run the app:**
+    ```bash
+    # Run on your connected device or emulator
+    flutter run
+
+    # Or run on a specific platform
+    flutter run -d chrome
+    ```
+
 ## Usage Guidelines
 
 This guide explains how to use the app from a user's perspective.
@@ -84,3 +120,15 @@ The project follows **Clean Architecture** principles, strictly separating the c
 
 ### Development Process
 The project adheres to a strict **Test-Driven Development (TDD)** workflow. All business logic and features are accompanied by a comprehensive suite of unit and widget tests before the implementation is written.
+
+## AI-Assisted Development
+
+This project leverages an AI agent for assistance with development tasks. The agent's behavior and knowledge base are guided by the following files:
+
+- **`AGENTS.md`**: This is the primary context file for the AI agent. It contains the project overview, architecture, technology stack, design patterns, and testing strategy.
+- **`spec/` folder**: This directory contains high-level planning documents, feature breakdowns, and design specifications that are used to guide the agent's implementation process.
+
+## Tooling & Development Environment
+
+- **IDE:** VS Code
+- **AI Assistants:** Gemini Code Assist, GitHub Copilot, Claude, OpenAI Codex
