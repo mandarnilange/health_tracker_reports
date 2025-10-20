@@ -19,9 +19,40 @@ class PdfGeneratorServiceImpl implements PdfGeneratorService {
 
   @override
   Future<Either<Failure, String>> generatePdf(SummaryStatistics stats, DoctorSummaryConfig config) async {
-    pdfDocumentWrapper.addPage(
+    final doc = pdfDocumentWrapper.document;
+
+    doc.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
+        theme: pw.ThemeData.with  Default(font: pw.Font.helvetica()),
+        header: (pw.Context context) {
+          return pw.Container(
+            alignment: pw.Alignment.centerRight,
+            margin: const pw.EdgeInsets.only(bottom: 3.0 * PdfPageFormat.mm),
+            padding: const pw.EdgeInsets.only(bottom: 3.0 * PdfPageFormat.mm),
+            decoration: const pw.BoxDecoration(
+              border: pw.Border(bottom: pw.BorderSide(width: 0.5, color: PdfColors.grey)),
+            ),
+            child: pw.Text(
+              'Health Summary Report | Page ${context.pageNumber} of ${context.pagesCount}',
+              style: pw.Theme.of(context).defaultTextStyle.copyWith(color: PdfColors.grey),
+            ),
+          );
+        },
+        footer: (pw.Context context) {
+          return pw.Container(
+            alignment: pw.Alignment.centerRight,
+            margin: const pw.EdgeInsets.only(top: 3.0 * PdfPageFormat.mm),
+            padding: const pw.EdgeInsets.only(top: 3.0 * PdfPageFormat.mm),
+            decoration: const pw.BoxDecoration(
+              border: pw.Border(top: pw.BorderSide(width: 0.5, color: PdfColors.grey)),
+            ),
+            child: pw.Text(
+              'Generated on ${DateTime.now().toLocal().toString().split(' ').first}',
+              style: pw.Theme.of(context).defaultTextStyle.copyWith(color: PdfColors.grey, fontSize: 8),
+            ),
+          );
+        },
         build: (pw.Context context) {
           final pages = <pw.Widget>[];
           pages.add(_buildExecutiveSummaryPage(stats));
@@ -33,7 +64,6 @@ class PdfGeneratorServiceImpl implements PdfGeneratorService {
             pages.add(_buildFullDataTablePage(stats));
           }
           return pages;
-        },
       ),
     );
 
@@ -121,6 +151,7 @@ class PdfGeneratorServiceImpl implements PdfGeneratorService {
 }
 
 abstract class PdfDocumentWrapper {
+  pw.Document get document;
   void addPage(pw.Page page);
   Future<Uint8List> save();
 }
@@ -129,6 +160,9 @@ class PdfDocumentWrapperImpl implements PdfDocumentWrapper {
   final pw.Document _doc;
 
   PdfDocumentWrapperImpl() : _doc = pw.Document();
+
+  @override
+  pw.Document get document => _doc;
 
   @override
   void addPage(pw.Page page) {
