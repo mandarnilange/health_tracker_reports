@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/domain/entities/summary_statistics.dart';
+import 'package:health_tracker_reports/data/datasources/external/chart_rendering_service.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'dart:typed_data';
@@ -11,8 +12,9 @@ abstract class PdfGeneratorService {
 
 class PdfGeneratorServiceImpl implements PdfGeneratorService {
   final PdfDocumentWrapper pdfDocumentWrapper;
+  final ChartRenderingService chartRenderingService;
 
-  PdfGeneratorServiceImpl({required this.pdfDocumentWrapper});
+  PdfGeneratorServiceImpl({required this.pdfDocumentWrapper, required this.chartRenderingService});
 
   @override
   Future<Either<Failure, String>> generatePdf(SummaryStatistics stats) async {

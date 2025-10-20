@@ -1,11 +1,15 @@
 import 'dart:typed_data';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:health_tracker_reports/data/datasources/external/pdf_generator_service.dart';
 import 'package:health_tracker_reports/domain/entities/summary_statistics.dart';
+import 'package:health_tracker_reports/data/datasources/external/chart_rendering_service.dart';
+import 'package:health_tracker_reports/domain/entities/biomarker_trend_summary.dart';
 
 class MockPdfDocument extends Mock implements PdfDocumentWrapper {}
+class MockChartRenderingService extends Mock implements ChartRenderingService {}
 
 class FakePage extends Fake implements pw.Page {}
 
@@ -19,7 +23,8 @@ void main() {
 
   setUp(() {
     mockPdfDocument = MockPdfDocument();
-    service = PdfGeneratorServiceImpl(pdfDocumentWrapper: mockPdfDocument);
+    final chartRenderingService = MockChartRenderingService();
+    service = PdfGeneratorServiceImpl(pdfDocumentWrapper: mockPdfDocument, chartRenderingService: chartRenderingService);
   });
 
   group('PdfGeneratorService', () {
@@ -71,6 +76,30 @@ void main() {
       // This is a simplified check. A better test would be a golden file test.
       // For now, we just check that a page was added.
       expect(capturer.captured, hasLength(1));
+    });
+
+    test('should generate a biomarker trends page with a chart', () async {
+      // Arrange
+      final chartImage = Uint8List(1);
+      final chartRenderingService = MockChartRenderingService();
+      final serviceWithChart = PdfGeneratorServiceImpl(pdfDocumentWrapper: mockPdfDocument, chartRenderingService: chartRenderingService);
+      final stats = tSummaryStatistics.copyWith(biomarkerTrends: [BiomarkerTrendSummary(biomarkerName: 'Glucose', trend: null)]);
+
+      when(() => chartRenderingService.getLineChart(any(), any(), any()))
+          .thenReturn(Container());
+      when(() => chartRenderingService.capturePng(any()))
+          .thenAnswer((_) async => chartImage);
+      when(() => mockPdfDocument.addPage(any()))
+          .thenReturn(null);
+      when(() => mockPdfDocument.save())
+          .thenAnswer((_) async => Uint8List(0));
+
+      // Act
+      await serviceWithChart.generatePdf(stats);
+
+      // Assert
+      // Just checking that a page was added for now.
+      verify(() => mockPdfDocument.addPage(any())).called(1);
     });
   });
 }

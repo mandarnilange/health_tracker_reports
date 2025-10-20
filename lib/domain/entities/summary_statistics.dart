@@ -29,6 +29,24 @@ class SummaryStatistics extends Equatable {
         totalReports,
         totalHealthLogs,
       ];
+
+  SummaryStatistics copyWith({
+    List<BiomarkerTrendSummary>? biomarkerTrends,
+    List<VitalTrendSummary>? vitalTrends,
+    List<CriticalFinding>? criticalFindings,
+    HealthStatusDashboard? dashboard,
+    int? totalReports,
+    int? totalHealthLogs,
+  }) {
+    return SummaryStatistics(
+      biomarkerTrends: biomarkerTrends ?? this.biomarkerTrends,
+      vitalTrends: vitalTrends ?? this.vitalTrends,
+      criticalFindings: criticalFindings ?? this.criticalFindings,
+      dashboard: dashboard ?? this.dashboard,
+      totalReports: totalReports ?? this.totalReports,
+      totalHealthLogs: totalHealthLogs ?? this.totalHealthLogs,
+    );
+  }
 }
 
 class CriticalFinding extends Equatable {
