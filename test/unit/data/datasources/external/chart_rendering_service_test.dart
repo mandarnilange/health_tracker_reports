@@ -78,9 +78,11 @@ void main() {
       final lineChartData = lineChart.data;
 
       // Assert
+      expect(lineChartData.lineBarsData.length, 3);
       expect(lineChartData.betweenBarsData, isNotEmpty);
-      expect(lineChartData.betweenBarsData.first.fromY, 80);
-      expect(lineChartData.betweenBarsData.first.toY, 120);
+      final shading = lineChartData.betweenBarsData.first;
+      expect(shading.fromIndex, 1);
+      expect(shading.toIndex, 2);
     });
 
   });

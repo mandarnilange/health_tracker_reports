@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:health_tracker_reports/data/models/vital_measurement_model.dart';
 import 'package:health_tracker_reports/domain/entities/health_log.dart';
 import 'package:hive/hive.dart';
@@ -5,28 +6,22 @@ import 'package:hive/hive.dart';
 part 'health_log_model.g.dart';
 
 @HiveType(typeId: 11)
-class HealthLogModel extends HealthLog {
-  @override
+class HealthLogModel extends Equatable {
   @HiveField(0)
   final String id;
 
-  @override
   @HiveField(1)
   final DateTime timestamp;
 
-  @override
   @HiveField(2)
   final List<VitalMeasurementModel> vitals;
 
-  @override
   @HiveField(3)
   final String? notes;
 
-  @override
   @HiveField(4)
   final DateTime createdAt;
 
-  @override
   @HiveField(5)
   final DateTime updatedAt;
 
@@ -37,21 +32,14 @@ class HealthLogModel extends HealthLog {
     this.notes,
     required this.createdAt,
     required this.updatedAt,
-  }) : super(
-          id: id,
-          timestamp: timestamp,
-          vitals: vitals,
-          notes: notes,
-          createdAt: createdAt,
-          updatedAt: updatedAt,
-        );
+  });
 
   factory HealthLogModel.fromEntity(HealthLog entity) {
     return HealthLogModel(
       id: entity.id,
       timestamp: entity.timestamp,
       vitals: entity.vitals
-          .map((measurement) => VitalMeasurementModel.fromEntity(measurement))
+          .map(VitalMeasurementModel.fromEntity)
           .toList(),
       notes: entity.notes,
       createdAt: entity.createdAt,
@@ -97,4 +85,7 @@ class HealthLogModel extends HealthLog {
       updatedAt: updatedAt,
     );
   }
+
+  @override
+  List<Object?> get props => [id, timestamp, vitals, notes, createdAt, updatedAt];
 }

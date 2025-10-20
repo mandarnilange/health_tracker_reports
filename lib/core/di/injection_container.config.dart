@@ -24,14 +24,8 @@ import 'package:health_tracker_reports/data/datasources/external/gemini_llm_serv
     as _i48;
 import 'package:health_tracker_reports/data/datasources/external/image_processing_service.dart'
     as _i46;
-import 'package:health_tracker_reports/data/datasources/external/llm_extraction_service.dart'
-    as _i212;
-import 'package:health_tracker_reports/data/datasources/external/llm_extraction_service_impl.dart'
-    as _i951;
 import 'package:health_tracker_reports/data/datasources/external/llm_provider_service.dart'
     as _i693;
-import 'package:health_tracker_reports/data/datasources/external/ocr_service.dart'
-    as _i829;
 import 'package:health_tracker_reports/data/datasources/external/openai_llm_service.dart'
     as _i549;
 import 'package:health_tracker_reports/data/datasources/external/pdf_generator_service.dart'
@@ -152,37 +146,32 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i361.Dio>(() => appModule.dio);
     gh.lazySingleton<_i558.FlutterSecureStorage>(() => appModule.secureStorage);
     gh.lazySingleton<_i706.Uuid>(() => appModule.uuid);
-    gh.lazySingleton<_i26.ClaudeLlmService>(() => _i26.ClaudeLlmService());
     gh.lazySingleton<_i46.ImageProcessingService>(
         () => _i46.ImageProcessingService());
-    gh.lazySingleton<_i549.OpenAiLlmService>(() => _i549.OpenAiLlmService());
-    gh.lazySingleton<_i48.GeminiLlmService>(() => _i48.GeminiLlmService());
-    gh.lazySingleton<_i680.CalculateTrend>(() => _i680.CalculateTrend());
-    gh.lazySingleton<_i197.NormalizeBiomarkerName>(
-        () => _i197.NormalizeBiomarkerName());
-    gh.lazySingleton<_i542.ValidateVitalMeasurement>(
-        () => _i542.ValidateVitalMeasurement());
     gh.lazySingleton<_i361.ExportVitalsToCsv>(() => _i361.ExportVitalsToCsv());
+    gh.lazySingleton<_i680.CalculateTrend>(() => _i680.CalculateTrend());
     gh.lazySingleton<_i733.ExportTrendsToCsv>(() => _i733.ExportTrendsToCsv());
     gh.lazySingleton<_i249.ExportReportsToCsv>(
         () => _i249.ExportReportsToCsv());
+    gh.lazySingleton<_i542.ValidateVitalMeasurement>(
+        () => _i542.ValidateVitalMeasurement());
+    gh.lazySingleton<_i197.NormalizeBiomarkerName>(
+        () => _i197.NormalizeBiomarkerName());
     gh.lazySingleton<_i154.HealthLogLocalDataSource>(() =>
         _i154.HealthLogLocalDataSourceImpl(
             box: gh<_i979.Box<_i510.HealthLogModel>>()));
     gh.lazySingleton<_i31.Clock>(() => _i31.SystemClock());
-    gh.factory<Map<_i229.LlmProvider, _i693.LlmProviderService>>(
-      () => appModule.llmProviderServices(
-        gh<_i48.GeminiLlmService>(),
-        gh<_i549.OpenAiLlmService>(),
-        gh<_i26.ClaudeLlmService>(),
-      ),
-      instanceName: 'llmProviderServices',
-    );
     gh.lazySingleton<_i446.DownloadsPathProvider>(
         () => const _i446.PathProviderDownloadsPath());
     gh.lazySingleton<_i273.ReportLocalDataSource>(() =>
         _i273.ReportLocalDataSourceImpl(
             box: gh<_i979.Box<_i936.ReportModel>>()));
+    gh.lazySingleton<_i26.ClaudeLlmService>(
+        () => _i26.ClaudeLlmService(gh<_i361.Dio>()));
+    gh.lazySingleton<_i549.OpenAiLlmService>(
+        () => _i549.OpenAiLlmService(gh<_i361.Dio>()));
+    gh.lazySingleton<_i48.GeminiLlmService>(
+        () => _i48.GeminiLlmService(gh<_i361.Dio>()));
     gh.lazySingleton<_i537.ConfigLocalDataSource>(() =>
         _i537.ConfigLocalDataSourceImpl(
             box: gh<_i979.Box<_i386.AppConfigModel>>()));
@@ -196,9 +185,6 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i657.GetAllReports(repository: gh<_i767.ReportRepository>()));
     gh.lazySingleton<_i248.DeleteReport>(
         () => _i248.DeleteReport(repository: gh<_i767.ReportRepository>()));
-    gh.lazySingleton<_i116.CalculateVitalStatistics>(() =>
-        _i116.CalculateVitalStatistics(
-            getVitalTrend: gh<_i681.GetVitalTrend>()));
     gh.lazySingleton<_i49.HealthLogRepository>(() =>
         _i250.HealthLogRepositoryImpl(
             localDataSource: gh<_i154.HealthLogLocalDataSource>()));
@@ -211,6 +197,14 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.lazySingleton<_i446.FileWriterService>(() => _i446.FileWriterService(
         downloadsPathProvider: gh<_i446.DownloadsPathProvider>()));
+    gh.factory<Map<_i229.LlmProvider, _i693.LlmProviderService>>(
+      () => appModule.llmProviderServices(
+        gh<_i48.GeminiLlmService>(),
+        gh<_i549.OpenAiLlmService>(),
+        gh<_i26.ClaudeLlmService>(),
+      ),
+      instanceName: 'llmProviderServices',
+    );
     gh.lazySingleton<_i880.TimelineRepository>(
         () => _i875.TimelineRepositoryImpl(
               reportLocalDataSource: gh<_i273.ReportLocalDataSource>(),
@@ -218,6 +212,8 @@ extension GetItInjectableX on _i174.GetIt {
             ));
     gh.lazySingleton<_i989.GetAllHealthLogs>(() =>
         _i989.GetAllHealthLogs(repository: gh<_i49.HealthLogRepository>()));
+    gh.lazySingleton<_i681.GetVitalTrend>(
+        () => _i681.GetVitalTrend(repository: gh<_i49.HealthLogRepository>()));
     gh.lazySingleton<_i673.GetHealthLogById>(() =>
         _i673.GetHealthLogById(repository: gh<_i49.HealthLogRepository>()));
     gh.lazySingleton<_i508.DeleteHealthLog>(() =>
@@ -235,6 +231,9 @@ extension GetItInjectableX on _i174.GetIt {
           localDataSource: gh<_i537.ConfigLocalDataSource>(),
           secureStorage: gh<_i848.SecureConfigStorage>(),
         ));
+    gh.lazySingleton<_i116.CalculateVitalStatistics>(() =>
+        _i116.CalculateVitalStatistics(
+            getVitalTrend: gh<_i681.GetVitalTrend>()));
     gh.lazySingleton<_i466.CreateHealthLog>(() => _i466.CreateHealthLog(
           repository: gh<_i49.HealthLogRepository>(),
           validateVitalMeasurement: gh<_i542.ValidateVitalMeasurement>(),
@@ -266,13 +265,6 @@ extension GetItInjectableX on _i174.GetIt {
             ));
     gh.factory<_i1005.UpdateConfig>(
         () => _i1005.UpdateConfig(gh<_i649.ConfigRepository>()));
-    gh.lazySingleton<_i212.LlmExtractionService>(
-        () => _i951.LlmExtractionServiceImpl(
-              configRepository: gh<_i649.ConfigRepository>(),
-              providerServices:
-                  gh<Map<_i229.LlmProvider, _i693.LlmProviderService>>(
-                      instanceName: 'llmProviderServices'),
-            ));
     gh.factory<_i990.ExtractReportFromFileLlm>(
         () => _i990.ExtractReportFromFileLlm(
               llmRepository: gh<_i111.LlmExtractionRepository>(),
@@ -283,13 +275,9 @@ extension GetItInjectableX on _i174.GetIt {
           calculateSummaryStatistics: gh<_i549.CalculateSummaryStatistics>(),
           pdfGeneratorService: gh<_i917.PdfGeneratorService>(),
         ));
-    gh.lazySingleton<_i839.ExtractReportFromFile>(
-        () => _i839.ExtractReportFromFile(
-              ocrService: gh<_i829.OcrService>(),
-              llmService: gh<_i212.LlmExtractionService>(),
-              normalizeBiomarker: gh<_i197.NormalizeBiomarkerName>(),
-              uuid: gh<_i706.Uuid>(),
-            ));
+    gh.lazySingleton<_i839.ExtractReportFromFile>(() =>
+        _i839.ExtractReportFromFile(
+            delegate: gh<_i990.ExtractReportFromFileLlm>()));
     return this;
   }
 }

@@ -28,7 +28,7 @@ class GenerateDoctorPdf {
         if (stats.totalReports == 0) {
           return const Left(ValidationFailure(message: 'No reports found in the selected date range'));
         }
-        return await pdfGeneratorService.generatePdf(stats);
+        return await pdfGeneratorService.generatePdf(stats, config);
       },
     );
   }

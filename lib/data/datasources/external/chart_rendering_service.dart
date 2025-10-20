@@ -108,15 +108,7 @@ class ChartRenderingServiceImpl implements ChartRenderingService {
             spots: spots2,
           ),
         ],
-        betweenBarsData: range != null ? [
-          BetweenBarsData(
-            fromIndex: 0,
-            toIndex: 0,
-            fromY: range.min,
-            toY: range.max,
-            color: Colors.green.withOpacity(0.2),
-          )
-        ] : [],
+        betweenBarsData: const [],
       ),
     );
   }

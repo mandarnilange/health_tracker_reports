@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed - LLM PDF Extraction Regression (2026-01-18)
+- Restored full vision-based provider implementations after placeholder regression so Claude/OpenAI/Gemini services once again call their respective HTTP APIs and parse biomarker metadata (see `lib/data/datasources/external/*_llm_service.dart`, `lib/data/datasources/external/llm_provider_service.dart`).
+- Simplified `ExtractReportFromFile` to delegate to the LLM pipeline use case, ensuring Riverpod upload flows use the multi-page image workflow again (`lib/domain/usecases/extract_report_from_file.dart`, `test/unit/domain/usecases/extract_report_from_file_test.dart`).
+- Removed unused `StructuredData` abstraction and obsolete `LlmExtractionService` shim introduced by the regression; DI graph regenerated to reflect the restored provider strategy (`lib/core/di/injection_container.dart`, `lib/core/di/injection_container.config.dart`).
+- Dropped accidental `google_generative_ai` dependency that accompanied the regression patch (`pubspec.yaml`, `pubspec.lock`).
+
 ### Added - Phase 5 CSV Export Foundations (2026-01-15)
 - `85cc00d` feat: implement CSV export usecases — adds report, vitals, and trends CSV exporters with UTF-8 BOM, fixed decimal formatting, and exhaustive unit coverage (`lib/domain/usecases/export_*`, `test/unit/domain/usecases/export_*_test.dart`).
 - `201cd21` feat: implement CSV export services — introduces shared CSV export service, file writer with failure mapping, and supporting tests (`lib/data/datasources/external/*`, `lib/core/error/failures.dart`, `test/unit/data/datasources/external/*_test.dart`).

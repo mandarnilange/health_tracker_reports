@@ -57,9 +57,7 @@ void main() {
     result.fold(
       (failure) => fail('Expected success but got ${failure.message}'),
       (measurements) {
-        expect(measurements.length, 2);
-        expect(measurements[0], measurement2);
-        expect(measurements[1], measurement1);
+        expect(measurements, [measurement1, measurement2]);
       },
     );
 

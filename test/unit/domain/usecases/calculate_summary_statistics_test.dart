@@ -47,6 +47,13 @@ void main() {
 
     when(() => mockCalculateTrend(any()))
         .thenAnswer((_) => const Left(ValidationFailure(message: 'Not enough data')));
+    when(
+      () => mockGetVitalTrend(
+        any<VitalType>(),
+        startDate: any(named: 'startDate'),
+        endDate: any(named: 'endDate'),
+      ),
+    ).thenAnswer((_) async => const Right([]));
   });
 
   final tConfig = DoctorSummaryConfig(
