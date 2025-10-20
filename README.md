@@ -1,8 +1,8 @@
 # Health Tracker Reports
 
-A privacy-focused Flutter application for tracking your personal health data. All data is stored locally on your device and the app works completely offline.
+A privacy-focused Flutter application for tracking your personal health data. All data is stored locally on your device.
 
-Upload blood reports (PDF/images) for automatic biomarker extraction, log daily vitals (e.g., heart rate, blood pressure), and monitor trends over time. Export your raw data or generate shareable summaries for your healthcare providers.
+Upload your medical reports in PDF format for AI-powered biomarker extraction, log daily vitals (e.g., heart rate, blood pressure), and monitor trends over time. Export your raw data or generate shareable summaries for your healthcare providers.
 
 ## Getting Started & Building the Project
 
@@ -46,10 +46,10 @@ This guide explains how to use the app from a user's perspective.
 
 ### 1. Upload a Report
 - Tap the '+' or 'Upload' button on the main screen.
-- Select a PDF or image file of your blood test report from your device.
+- Select any medical report in PDF format to have it scanned.
 
 ### 2. Review and Confirm Data
-- The app will automatically scan the report using OCR to extract biomarkers.
+- The app will automatically process the report using an AI model to extract biomarkers.
 - A review screen will appear with the extracted data.
 - Verify the accuracy of the names, values, and units. You can tap on any field to make corrections.
 - Once confirmed, save the report.
@@ -71,11 +71,11 @@ This guide explains how to use the app from a user's perspective.
 
 ## Configuration
 
-### Setting up the Gemini API Key (Optional)
+### Setting up Your AI API Key (Required)
 
-The app uses on-device OCR by default, which is free and private. For more advanced biomarker extraction, you can optionally use the Gemini AI model. This requires an API key.
+This application requires an API key from a supported AI service (Google Gemini, Anthropic Claude, or OpenAI) to power the automatic biomarker extraction from your reports. The app does **not** use on-device OCR and relies on one of these powerful models for accuracy.
 
-**How to get your Gemini API Key:**
+**Example: Getting a Google Gemini API Key:**
 
 1.  **Go to Google AI Studio:** Open your web browser and navigate to [Google AI Studio](https://aistudio.google.com/).
 2.  **Sign In:** Sign in with your Google account.
@@ -85,12 +85,13 @@ The app uses on-device OCR by default, which is free and private. For more advan
 6.  **Add to App:**
     *   Open the Health Tracker app and go to the **Settings** page.
     *   Find the section for **LLM Configuration**.
-    *   Paste your copied Gemini API key into the designated field and save.
+    *   Paste your copied API key into the designated field and save.
 
 ## Current Limitations
 
 This is a project in active development. The following are known open items:
 
+- Uploading reports from image files (PNG, JPG) has not been thoroughly tested yet.
 - The LLM extraction feature has not been tested with OpenAI or Claude models yet.
 - The PDF export for doctors needs improved formatting for better readability.
 - The application has not been thoroughly tested on Android devices yet.
@@ -107,14 +108,14 @@ The project follows **Clean Architecture** principles, strictly separating the c
 
 ### Data and Privacy
 - **Local-Only Storage:** All user data is stored exclusively on the device using the **Hive** database. No data is sent to any cloud server, ensuring 100% privacy.
-- **Offline First:** The app is fully functional without an internet connection.
+- **Offline First:** The app is fully functional without an internet connection for most features, but requires it for AI data extraction.
 
 ### Core Technologies
 - **Framework:** Flutter
 - **State Management:** `flutter_riverpod`
 - **Local Database:** `hive`
 - **Routing:** `go_router`
-- **Data Extraction:** `google_mlkit_text_recognition` for on-device OCR.
+- **Data Extraction:** AI-powered biomarker extraction via external LLMs (e.g., Google Gemini).
 - **Charting:** `fl_chart`
 - **Dependency Injection:** `get_it` and `injectable`
 
