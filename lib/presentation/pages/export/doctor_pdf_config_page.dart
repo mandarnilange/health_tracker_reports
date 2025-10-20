@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:intl/intl.dart';
+import 'package:health_tracker_reports/domain/usecases/generate_doctor_pdf.dart';
+import 'package:health_tracker_reports/data/datasources/external/share_service.dart';
+import 'package:health_tracker_reports/domain/entities/doctor_summary_config.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:health_tracker_reports/presentation/providers/share_provider.dart';
+import 'package:health_tracker_reports/core/di/injection_container.dart';
+import 'package:health_tracker_reports/presentation/providers/generate_doctor_pdf_provider.dart';
 
 class DoctorPdfConfigPage extends ConsumerStatefulWidget {
   const DoctorPdfConfigPage({super.key});
@@ -21,6 +27,37 @@ class _DoctorPdfConfigPageState extends ConsumerState<DoctorPdfConfigPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Doctor PDF Config'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: () async {
+              final generatePdf = ref.read(generateDoctorPdfProvider);
+              final shareService = ref.read(shareServiceProvider);
+              final config = DoctorSummaryConfig(
+                startDate: _startDate,
+                endDate: _endDate,
+                selectedReportIds: [], // TODO: Implement report selection
+                includeVitals: true, // TODO: Implement toggle
+                includeFullDataTable: false, // TODO: Implement toggle
+              );
+
+              final result = await generatePdf(config);
+              result.fold(
+                (failure) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(failure.message)),
+                  );
+                },
+                (filePath) async {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('PDF saved to: $filePath')),
+                  );
+                  await shareService.shareFile(XFile(filePath));
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
