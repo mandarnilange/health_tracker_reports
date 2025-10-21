@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0-beta] - 2025-10-21
+
 ### Fixed - LLM PDF Extraction Regression (2026-01-18)
 - Restored full vision-based provider implementations after placeholder regression so Claude/OpenAI/Gemini services once again call their respective HTTP APIs and parse biomarker metadata (see `lib/data/datasources/external/*_llm_service.dart`, `lib/data/datasources/external/llm_provider_service.dart`).
 - Simplified `ExtractReportFromFile` to delegate to the LLM pipeline use case, ensuring Riverpod upload flows use the multi-page image workflow again (`lib/domain/usecases/extract_report_from_file.dart`, `test/unit/domain/usecases/extract_report_from_file_test.dart`).
@@ -695,6 +697,7 @@ All tests passing. Coverage: 100%.
 
 ---
 
-[Unreleased]: https://github.com/yourusername/health_tracker_reports/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/yourusername/health_tracker_reports/compare/v0.1.0-beta...HEAD
+[0.1.0-beta]: https://github.com/yourusername/health_tracker_reports/releases/tag/v0.1.0-beta
 [0.1.0]: https://github.com/yourusername/health_tracker_reports/releases/tag/v0.1.0
 - `3372a98` fix: restore biomarker name contrast in review — ensures biomarker titles remain visible across themes (`lib/presentation/pages/upload/review_page.dart`).
