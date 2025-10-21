@@ -187,8 +187,8 @@ class VitalTrendChart extends StatelessWidget {
       lineBarsData: _buildLineBarsData(colorScheme),
       extraLinesData: _buildExtraLinesData(colorScheme),
       lineTouchData: _buildTouchData(colorScheme),
-      minX: 0,
-      maxX: (dates.length - 1).toDouble(),
+      minX: dates.first.millisecondsSinceEpoch.toDouble(),
+      maxX: dates.last.millisecondsSinceEpoch.toDouble(),
       minY: _calculateMinY(),
       maxY: _calculateMaxY(),
     );
@@ -204,12 +204,7 @@ class VitalTrendChart extends StatelessWidget {
           reservedSize: 40,
           interval: _calculateXInterval(),
           getTitlesWidget: (value, meta) {
-            final index = value.toInt();
-            if (index < 0 || index >= dates.length) {
-              return const SizedBox.shrink();
-            }
-
-            final date = dates[index];
+            final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
             final formattedDate = DateFormat('MM/dd').format(date);
 
             return Padding(
@@ -266,7 +261,7 @@ class VitalTrendChart extends StatelessWidget {
   LineChartBarData _buildSingleLine(ColorScheme colorScheme) {
     final spots = <FlSpot>[];
     for (int i = 0; i < measurements.length; i++) {
-      spots.add(FlSpot(i.toDouble(), measurements[i].value));
+      spots.add(FlSpot(dates[i].millisecondsSinceEpoch.toDouble(), measurements[i].value));
     }
 
     return LineChartBarData(
@@ -298,13 +293,14 @@ class VitalTrendChart extends StatelessWidget {
 
   /// Builds the systolic line for blood pressure.
   LineChartBarData _buildSystolicLine(ColorScheme colorScheme) {
-    final systolicMeasurements = measurements
-        .where((m) => m.type == VitalType.bloodPressureSystolic)
-        .toList();
-
     final spots = <FlSpot>[];
-    for (int i = 0; i < systolicMeasurements.length; i++) {
-      spots.add(FlSpot(i.toDouble(), systolicMeasurements[i].value));
+    for (int i = 0; i < measurements.length; i++) {
+      if (measurements[i].type == VitalType.bloodPressureSystolic) {
+        spots.add(FlSpot(
+          dates[i].millisecondsSinceEpoch.toDouble(),
+          measurements[i].value,
+        ));
+      }
     }
 
     return LineChartBarData(
@@ -332,13 +328,14 @@ class VitalTrendChart extends StatelessWidget {
 
   /// Builds the diastolic line for blood pressure.
   LineChartBarData _buildDiastolicLine(ColorScheme colorScheme) {
-    final diastolicMeasurements = measurements
-        .where((m) => m.type == VitalType.bloodPressureDiastolic)
-        .toList();
-
     final spots = <FlSpot>[];
-    for (int i = 0; i < diastolicMeasurements.length; i++) {
-      spots.add(FlSpot(i.toDouble(), diastolicMeasurements[i].value));
+    for (int i = 0; i < measurements.length; i++) {
+      if (measurements[i].type == VitalType.bloodPressureDiastolic) {
+        spots.add(FlSpot(
+          dates[i].millisecondsSinceEpoch.toDouble(),
+          measurements[i].value,
+        ));
+      }
     }
 
     return LineChartBarData(
@@ -450,33 +447,17 @@ class VitalTrendChart extends StatelessWidget {
         ),
         getTooltipItems: (touchedSpots) {
           return touchedSpots.map((touchedSpot) {
-            final index = touchedSpot.x.toInt();
-            final date = dates[index];
+            final timestamp = touchedSpot.x;
+            final date = DateTime.fromMillisecondsSinceEpoch(timestamp.toInt());
             final formattedDate = DateFormat('MMM dd, yyyy').format(date);
+            final value = touchedSpot.y;
 
-            String value;
-            if (_isBloodPressure) {
-              final systolicMeasurements = measurements
-                  .where((m) => m.type == VitalType.bloodPressureSystolic)
-                  .toList();
-              final diastolicMeasurements = measurements
-                  .where((m) => m.type == VitalType.bloodPressureDiastolic)
-                  .toList();
-
-              if (touchedSpot.barIndex == 0) {
-                value =
-                    '${systolicMeasurements[index].value.toStringAsFixed(0)} ${systolicMeasurements[index].unit}';
-              } else {
-                value =
-                    '${diastolicMeasurements[index].value.toStringAsFixed(0)} ${diastolicMeasurements[index].unit}';
-              }
-            } else {
-              value =
-                  '${measurements[index].value.toStringAsFixed(1)} ${measurements[index].unit}';
-            }
+            final unit = _isBloodPressure ? 'mmHg' : measurements.first.unit;
+            final valueStr =
+                '${value.toStringAsFixed(_isBloodPressure ? 0 : 1)} $unit';
 
             return LineTooltipItem(
-              '$value\n$formattedDate',
+              '$valueStr\n$formattedDate',
               TextStyle(
                 color: colorScheme.onInverseSurface,
                 fontWeight: FontWeight.bold,
@@ -537,14 +518,19 @@ class VitalTrendChart extends StatelessWidget {
 
   /// Calculates the X-axis interval for date labels.
   double _calculateXInterval() {
-    if (dates.length <= 7) {
-      return 1;
-    } else if (dates.length <= 14) {
-      return 2;
-    } else if (dates.length <= 30) {
-      return 5;
+    if (dates.length < 2) {
+      return const Duration(days: 1).inMilliseconds.toDouble();
+    }
+    final duration = dates.last.difference(dates.first);
+
+    if (duration.inDays <= 7) {
+      return const Duration(days: 1).inMilliseconds.toDouble();
+    } else if (duration.inDays <= 14) {
+      return const Duration(days: 2).inMilliseconds.toDouble();
+    } else if (duration.inDays <= 30) {
+      return const Duration(days: 5).inMilliseconds.toDouble();
     } else {
-      return 7;
+      return const Duration(days: 7).inMilliseconds.toDouble();
     }
   }
 

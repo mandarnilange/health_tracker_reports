@@ -83,7 +83,7 @@ class _ExtractionLoadingWidgetState extends State<ExtractionLoadingWidget> {
                       style: theme.textTheme.displayMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
-                      textAlign: TextAlign.center,
+                      textAlign: TextAlign.start,
                     ),
                   ),
                 ),
