@@ -56,7 +56,7 @@ Here's a quick look at the Health Tracker in action:
 
 ### Video Demo
 
-[![Watch the demo](app_preview/Screen_Recording.MP4)](app_preview/Screen_Recording.MP4)
+[![Watch the demo](https://img.youtube.com/vi/GFM1JJVlt7I/hqdefault.jpg)](https://www.youtube.com/watch?v=GFM1JJVlt7I)
 
 ## For End User
 
