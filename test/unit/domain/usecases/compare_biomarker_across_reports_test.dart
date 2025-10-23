@@ -7,18 +7,13 @@ import 'package:health_tracker_reports/domain/entities/reference_range.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/domain/repositories/report_repository.dart';
 import 'package:health_tracker_reports/domain/usecases/compare_biomarker_across_reports.dart';
-import 'package:health_tracker_reports/domain/usecases/normalize_biomarker_name.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockReportRepository extends Mock implements ReportRepository {}
 
-class MockNormalizeBiomarkerName extends Mock
-    implements NormalizeBiomarkerName {}
-
 void main() {
   late CompareBiomarkerAcrossReports usecase;
   late MockReportRepository mockReportRepository;
-  late MockNormalizeBiomarkerName mockNormalizeBiomarkerName;
 
   setUpAll(() {
     registerFallbackValue('');
@@ -26,15 +21,8 @@ void main() {
 
   setUp(() {
     mockReportRepository = MockReportRepository();
-    mockNormalizeBiomarkerName = MockNormalizeBiomarkerName();
     usecase = CompareBiomarkerAcrossReports(
       repository: mockReportRepository,
-      normalizeBiomarkerName: mockNormalizeBiomarkerName,
-    );
-
-    // Default behavior: return input as-is
-    when(() => mockNormalizeBiomarkerName(any())).thenAnswer(
-      (invocation) => invocation.positionalArguments[0] as String,
     );
   });
 
@@ -106,8 +94,6 @@ void main() {
       // Arrange
       const biomarkerName = 'Hemoglobin';
       final reportIds = ['r1', 'r2'];
-      when(() => mockNormalizeBiomarkerName(biomarkerName))
-          .thenReturn(biomarkerName);
       when(() => mockReportRepository.getReportById('r1'))
           .thenAnswer((_) async => Right(report1));
       when(() => mockReportRepository.getReportById('r2'))
@@ -135,7 +121,6 @@ void main() {
         },
       );
 
-      verify(() => mockNormalizeBiomarkerName(biomarkerName));
       verify(() => mockReportRepository.getReportById('r1'));
       verify(() => mockReportRepository.getReportById('r2'));
     });
@@ -144,8 +129,6 @@ void main() {
       // Arrange
       const biomarkerName = 'Hemoglobin';
       final reportIds = ['r1', 'r2', 'r3'];
-      when(() => mockNormalizeBiomarkerName(biomarkerName))
-          .thenReturn(biomarkerName);
       when(() => mockReportRepository.getReportById('r1'))
           .thenAnswer((_) async => Right(report1));
       when(() => mockReportRepository.getReportById('r2'))
@@ -175,8 +158,6 @@ void main() {
       // Arrange - provide reports in wrong order
       const biomarkerName = 'Hemoglobin';
       final reportIds = ['r3', 'r1', 'r2']; // Out of order
-      when(() => mockNormalizeBiomarkerName(biomarkerName))
-          .thenReturn(biomarkerName);
       when(() => mockReportRepository.getReportById('r1'))
           .thenAnswer((_) async => Right(report1));
       when(() => mockReportRepository.getReportById('r2'))
@@ -213,8 +194,6 @@ void main() {
       // Report 2 doesn't have Hemoglobin
       final report2WithoutHb = report2.copyWith(biomarkers: []);
 
-      when(() => mockNormalizeBiomarkerName(biomarkerName))
-          .thenReturn(biomarkerName);
       when(() => mockReportRepository.getReportById('r1'))
           .thenAnswer((_) async => Right(report1));
       when(() => mockReportRepository.getReportById('r2'))
@@ -240,40 +219,11 @@ void main() {
       );
     });
 
-    test('should normalize biomarker name before comparison', () async {
-      // Arrange
-      const inputName = 'HB';
-      const normalizedName = 'Hemoglobin';
-      final reportIds = ['r1', 'r2'];
-      when(() => mockNormalizeBiomarkerName(inputName))
-          .thenReturn(normalizedName);
-      when(() => mockReportRepository.getReportById('r1'))
-          .thenAnswer((_) async => Right(report1));
-      when(() => mockReportRepository.getReportById('r2'))
-          .thenAnswer((_) async => Right(report2));
-
-      // Act
-      final result = await usecase(inputName, reportIds);
-
-      // Assert
-      result.fold(
-        (l) => fail('should not return a failure'),
-        (comparison) {
-          expect(comparison.biomarkerName, normalizedName);
-          expect(comparison.comparisons.length, 2);
-        },
-      );
-
-      verify(() => mockNormalizeBiomarkerName(inputName));
-    });
-
     test('should calculate correct deltas between consecutive reports',
         () async {
       // Arrange
       const biomarkerName = 'Hemoglobin';
       final reportIds = ['r1', 'r2', 'r3'];
-      when(() => mockNormalizeBiomarkerName(biomarkerName))
-          .thenReturn(biomarkerName);
       when(() => mockReportRepository.getReportById('r1'))
           .thenAnswer((_) async => Right(report1));
       when(() => mockReportRepository.getReportById('r2'))
@@ -330,8 +280,6 @@ void main() {
       // Arrange
       const biomarkerName = 'Vitamin D';
       final reportIds = ['r1', 'r2'];
-      when(() => mockNormalizeBiomarkerName(biomarkerName))
-          .thenReturn(biomarkerName);
       when(() => mockReportRepository.getReportById('r1'))
           .thenAnswer((_) async => Right(report1));
       when(() => mockReportRepository.getReportById('r2'))
@@ -360,8 +308,6 @@ void main() {
 
       const biomarkerName = 'Hemoglobin';
       final reportIds = ['r1', 'r2', 'r3'];
-      when(() => mockNormalizeBiomarkerName(biomarkerName))
-          .thenReturn(biomarkerName);
       when(() => mockReportRepository.getReportById('r1'))
           .thenAnswer((_) async => Right(incReport1));
       when(() => mockReportRepository.getReportById('r2'))
@@ -393,8 +339,6 @@ void main() {
 
       const biomarkerName = 'Hemoglobin';
       final reportIds = ['r1', 'r2', 'r3'];
-      when(() => mockNormalizeBiomarkerName(biomarkerName))
-          .thenReturn(biomarkerName);
       when(() => mockReportRepository.getReportById('r1'))
           .thenAnswer((_) async => Right(decReport1));
       when(() => mockReportRepository.getReportById('r2'))
@@ -426,8 +370,6 @@ void main() {
 
       const biomarkerName = 'Hemoglobin';
       final reportIds = ['r1', 'r2', 'r3'];
-      when(() => mockNormalizeBiomarkerName(biomarkerName))
-          .thenReturn(biomarkerName);
       when(() => mockReportRepository.getReportById('r1'))
           .thenAnswer((_) async => Right(stableReport1));
       when(() => mockReportRepository.getReportById('r2'))
@@ -452,8 +394,6 @@ void main() {
       // Arrange - already have fluctuating data in default test data
       const biomarkerName = 'Hemoglobin';
       final reportIds = ['r1', 'r2', 'r3'];
-      when(() => mockNormalizeBiomarkerName(biomarkerName))
-          .thenReturn(biomarkerName);
       when(() => mockReportRepository.getReportById('r1'))
           .thenAnswer((_) async => Right(report1));
       when(() => mockReportRepository.getReportById('r2'))
@@ -478,8 +418,6 @@ void main() {
       // Arrange
       const biomarkerName = 'Hemoglobin';
       final reportIds = ['r1'];
-      when(() => mockNormalizeBiomarkerName(biomarkerName))
-          .thenReturn(biomarkerName);
       when(() => mockReportRepository.getReportById('r1'))
           .thenAnswer((_) async => Right(report1));
 
@@ -499,8 +437,6 @@ void main() {
       // Arrange
       const biomarkerName = 'Hemoglobin';
       final reportIds = ['r1', 'r2'];
-      when(() => mockNormalizeBiomarkerName(biomarkerName))
-          .thenReturn(biomarkerName);
       when(() => mockReportRepository.getReportById('r1'))
           .thenAnswer((_) async => Left(CacheFailure()));
 
@@ -521,8 +457,6 @@ void main() {
 
       const biomarkerName = 'Hemoglobin';
       final reportIds = ['r1', 'r2'];
-      when(() => mockNormalizeBiomarkerName(biomarkerName))
-          .thenReturn(biomarkerName);
       when(() => mockReportRepository.getReportById('r1'))
           .thenAnswer((_) async => Right(lowReport));
       when(() => mockReportRepository.getReportById('r2'))

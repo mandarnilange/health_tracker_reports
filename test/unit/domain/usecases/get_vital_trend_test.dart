@@ -36,7 +36,7 @@ void main() {
     usecase = GetVitalTrend(repository: mockRepository);
   });
 
-  test('should fetch vital trend from repository and sort by id ascending', () async {
+  test('should fetch vital trend from repository and sort by date ascending', () async {
     // Arrange
     when(
       () => mockRepository.getVitalTrend(
@@ -57,7 +57,8 @@ void main() {
     result.fold(
       (failure) => fail('Expected success but got ${failure.message}'),
       (measurements) {
-        expect(measurements, [measurement1, measurement2]);
+        // Results should be sorted by date ascending (earliest first)
+        expect(measurements, [measurement2, measurement1]);
       },
     );
 

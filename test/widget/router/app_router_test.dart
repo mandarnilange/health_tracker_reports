@@ -65,6 +65,11 @@ class _DummyReportRepository implements ReportRepository {
   @override
   Future<Either<Failure, List<String>>> getDistinctBiomarkerNames() async =>
       Right(<String>[]);
+
+  @override
+  Future<Either<Failure, List<Report>>> getReportsByDateRange(
+          DateTime startDate, DateTime endDate) async =>
+      Right(<Report>[]);
 }
 
 class _DummyGetAllReports extends GetAllReports {

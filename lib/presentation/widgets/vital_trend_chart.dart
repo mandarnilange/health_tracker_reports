@@ -294,12 +294,15 @@ class VitalTrendChart extends StatelessWidget {
   /// Builds the systolic line for blood pressure.
   LineChartBarData _buildSystolicLine(ColorScheme colorScheme) {
     final spots = <FlSpot>[];
+    final systolicMeasurements = <VitalMeasurement>[];
+
     for (int i = 0; i < measurements.length; i++) {
       if (measurements[i].type == VitalType.bloodPressureSystolic) {
         spots.add(FlSpot(
           dates[i].millisecondsSinceEpoch.toDouble(),
           measurements[i].value,
         ));
+        systolicMeasurements.add(measurements[i]);
       }
     }
 
@@ -329,12 +332,15 @@ class VitalTrendChart extends StatelessWidget {
   /// Builds the diastolic line for blood pressure.
   LineChartBarData _buildDiastolicLine(ColorScheme colorScheme) {
     final spots = <FlSpot>[];
+    final diastolicMeasurements = <VitalMeasurement>[];
+
     for (int i = 0; i < measurements.length; i++) {
       if (measurements[i].type == VitalType.bloodPressureDiastolic) {
         spots.add(FlSpot(
           dates[i].millisecondsSinceEpoch.toDouble(),
           measurements[i].value,
         ));
+        diastolicMeasurements.add(measurements[i]);
       }
     }
 

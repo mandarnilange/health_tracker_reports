@@ -109,8 +109,6 @@ import 'package:health_tracker_reports/domain/usecases/get_unified_timeline.dart
     as _i312;
 import 'package:health_tracker_reports/domain/usecases/get_vital_trend.dart'
     as _i681;
-import 'package:health_tracker_reports/domain/usecases/normalize_biomarker_name.dart'
-    as _i197;
 import 'package:health_tracker_reports/domain/usecases/save_report.dart'
     as _i567;
 import 'package:health_tracker_reports/domain/usecases/update_config.dart'
@@ -162,8 +160,6 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i249.ExportReportsToCsv());
     gh.lazySingleton<_i542.ValidateVitalMeasurement>(
         () => _i542.ValidateVitalMeasurement());
-    gh.lazySingleton<_i197.NormalizeBiomarkerName>(
-        () => _i197.NormalizeBiomarkerName());
     gh.lazySingleton<_i154.HealthLogLocalDataSource>(() =>
         _i154.HealthLogLocalDataSourceImpl(
             box: gh<_i979.Box<_i510.HealthLogModel>>()));
@@ -186,10 +182,15 @@ extension GetItInjectableX on _i174.GetIt {
         localDataSource: gh<_i273.ReportLocalDataSource>()));
     gh.lazySingleton<_i60.ShareService>(
         () => _i60.ShareServiceImpl(shareWrapper: gh<_i60.ShareWrapper>()));
+    gh.lazySingleton<_i889.CompareBiomarkerAcrossReports>(() =>
+        _i889.CompareBiomarkerAcrossReports(
+            repository: gh<_i767.ReportRepository>()));
     gh.lazySingleton<_i567.SaveReport>(
         () => _i567.SaveReport(repository: gh<_i767.ReportRepository>()));
     gh.lazySingleton<_i657.GetAllReports>(
         () => _i657.GetAllReports(repository: gh<_i767.ReportRepository>()));
+    gh.lazySingleton<_i926.GetBiomarkerTrend>(() =>
+        _i926.GetBiomarkerTrend(repository: gh<_i767.ReportRepository>()));
     gh.lazySingleton<_i248.DeleteReport>(
         () => _i248.DeleteReport(repository: gh<_i767.ReportRepository>()));
     gh.lazySingleton<_i49.HealthLogRepository>(() =>
@@ -225,15 +226,6 @@ extension GetItInjectableX on _i174.GetIt {
         _i673.GetHealthLogById(repository: gh<_i49.HealthLogRepository>()));
     gh.lazySingleton<_i508.DeleteHealthLog>(() =>
         _i508.DeleteHealthLog(repository: gh<_i49.HealthLogRepository>()));
-    gh.lazySingleton<_i889.CompareBiomarkerAcrossReports>(
-        () => _i889.CompareBiomarkerAcrossReports(
-              repository: gh<_i767.ReportRepository>(),
-              normalizeBiomarkerName: gh<_i197.NormalizeBiomarkerName>(),
-            ));
-    gh.lazySingleton<_i926.GetBiomarkerTrend>(() => _i926.GetBiomarkerTrend(
-          repository: gh<_i767.ReportRepository>(),
-          normalizeBiomarkerName: gh<_i197.NormalizeBiomarkerName>(),
-        ));
     gh.lazySingleton<_i649.ConfigRepository>(() => _i616.ConfigRepositoryImpl(
           localDataSource: gh<_i537.ConfigLocalDataSource>(),
           secureStorage: gh<_i848.SecureConfigStorage>(),

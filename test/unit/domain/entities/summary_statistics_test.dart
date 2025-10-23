@@ -65,7 +65,7 @@ void main() {
   });
 
   group('SummaryStatistics', () {
-    const tBiomarkerTrend = BiomarkerTrendSummary();
+    const tBiomarkerTrend = BiomarkerTrendSummary(biomarkerName: 'Glucose');
     const tVitalTrend = VitalTrendSummary();
     const tCriticalFinding = CriticalFinding(priority: 1, category: 'Test', finding: 'High', actionNeeded: 'Action');
     const tDashboard = HealthStatusDashboard(

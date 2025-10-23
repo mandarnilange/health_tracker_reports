@@ -121,7 +121,14 @@ void main() {
 
       test('should handle null notes', () {
         // Arrange
-        final entityWithoutNotes = tEntity.copyWith(notes: null);
+        final entityWithoutNotes = HealthLog(
+          id: tLogId,
+          timestamp: tTimestamp,
+          vitals: tVitals,
+          notes: null,
+          createdAt: tCreatedAt,
+          updatedAt: tUpdatedAt,
+        );
 
         // Act
         final result = HealthLogModel.fromEntity(entityWithoutNotes);

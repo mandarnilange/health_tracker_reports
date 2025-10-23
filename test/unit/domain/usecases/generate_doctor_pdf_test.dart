@@ -57,7 +57,7 @@ void main() {
     // Arrange
     when(() => mockCalculateSummaryStatistics(any()))
         .thenAnswer((_) async => Right(tSummaryStatistics));
-    when(() => mockPdfGeneratorService.generatePdf(any()))
+    when(() => mockPdfGeneratorService.generatePdf(any(), any()))
         .thenAnswer((_) async => const Right('/path/to/pdf'));
 
     // Act
@@ -65,14 +65,14 @@ void main() {
 
     // Assert
     verify(() => mockCalculateSummaryStatistics(tConfig)).called(1);
-    verify(() => mockPdfGeneratorService.generatePdf(tSummaryStatistics)).called(1);
+    verify(() => mockPdfGeneratorService.generatePdf(tSummaryStatistics, tConfig)).called(1);
   });
 
   test('should return a file path on success', () async {
     // Arrange
     when(() => mockCalculateSummaryStatistics(any()))
         .thenAnswer((_) async => Right(tSummaryStatistics));
-    when(() => mockPdfGeneratorService.generatePdf(any()))
+    when(() => mockPdfGeneratorService.generatePdf(any(), any()))
         .thenAnswer((_) async => const Right('/path/to/pdf'));
 
     // Act
@@ -138,7 +138,7 @@ void main() {
     final noVitalsConfig = tConfig.copyWith(includeVitals: false);
     when(() => mockCalculateSummaryStatistics(any()))
         .thenAnswer((_) async => Right(tSummaryStatistics));
-    when(() => mockPdfGeneratorService.generatePdf(any()))
+    when(() => mockPdfGeneratorService.generatePdf(any(), any()))
         .thenAnswer((_) async => const Right('/path/to/pdf'));
 
     // Act
@@ -153,7 +153,7 @@ void main() {
     final fullTableConfig = tConfig.copyWith(includeFullDataTable: true);
     when(() => mockCalculateSummaryStatistics(any()))
         .thenAnswer((_) async => Right(tSummaryStatistics));
-    when(() => mockPdfGeneratorService.generatePdf(any()))
+    when(() => mockPdfGeneratorService.generatePdf(any(), any()))
         .thenAnswer((_) async => const Right('/path/to/pdf'));
 
     // Act

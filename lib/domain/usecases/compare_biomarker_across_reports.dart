@@ -3,23 +3,20 @@ import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/domain/entities/biomarker_comparison.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/domain/repositories/report_repository.dart';
-import 'package:health_tracker_reports/domain/usecases/normalize_biomarker_name.dart';
 import 'package:injectable/injectable.dart';
 
 @lazySingleton
 class CompareBiomarkerAcrossReports {
   final ReportRepository repository;
-  final NormalizeBiomarkerName normalizeBiomarkerName;
 
   CompareBiomarkerAcrossReports({
     required this.repository,
-    required this.normalizeBiomarkerName,
   });
 
   /// Compares a specific biomarker across multiple reports.
   ///
-  /// The biomarker name is normalized before searching to handle variations
-  /// in naming (e.g., "HB" -> "Hemoglobin").
+  /// Biomarker names are expected to be already normalized by the LLM
+  /// during extraction, so no additional normalization is needed.
   ///
   /// Returns a [BiomarkerComparison] containing:
   /// - All comparison data points sorted chronologically by report date
@@ -39,9 +36,6 @@ class CompareBiomarkerAcrossReports {
         ValidationFailure(message: 'At least one report must be selected'),
       );
     }
-
-    // Normalize biomarker name
-    final normalizedName = normalizeBiomarkerName(biomarkerName);
 
     // Fetch all reports
     final reports = <Report>[];
@@ -73,7 +67,7 @@ class CompareBiomarkerAcrossReports {
       // Try to find biomarker in this report
       try {
         final biomarker = report.biomarkers.firstWhere(
-          (b) => normalizeBiomarkerName(b.name) == normalizedName,
+          (b) => b.name == biomarkerName,
         );
 
         // Calculate delta and percentage change from previous report
@@ -105,7 +99,7 @@ class CompareBiomarkerAcrossReports {
     if (comparisons.isEmpty) {
       return Left(
         NotFoundFailure(
-          message: 'Biomarker "$normalizedName" not found in any report',
+          message: 'Biomarker "$biomarkerName" not found in any report',
         ),
       );
     }
@@ -115,7 +109,7 @@ class CompareBiomarkerAcrossReports {
 
     return Right(
       BiomarkerComparison(
-        biomarkerName: normalizedName,
+        biomarkerName: biomarkerName,
         comparisons: comparisons,
         overallTrend: trend,
       ),

@@ -81,7 +81,7 @@ void main() {
       expect(find.textContaining('20.0'), findsOneWidget);
     });
 
-    testWidgets('shows green background for normal biomarker',
+    testWidgets('shows gradient background for normal biomarker',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -94,17 +94,21 @@ void main() {
       final container = tester.widget<Container>(
         find
             .descendant(
-              of: find.byType(Card),
+              of: find.byType(InkWell),
               matching: find.byType(Container),
             )
             .first,
       );
 
-      expect(
-          (container.decoration as BoxDecoration).color, Colors.green.shade50);
+      final decoration = container.decoration as BoxDecoration;
+      expect(decoration.gradient, isA<LinearGradient>());
+      final gradient = decoration.gradient as LinearGradient;
+      expect(gradient.colors.length, 2);
+      expect(gradient.colors[0], Colors.white);
+      expect(gradient.colors[1], Colors.green.withOpacity(0.03));
     });
 
-    testWidgets('shows red background for high biomarker',
+    testWidgets('shows gradient background for high biomarker',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -117,16 +121,21 @@ void main() {
       final container = tester.widget<Container>(
         find
             .descendant(
-              of: find.byType(Card),
+              of: find.byType(InkWell),
               matching: find.byType(Container),
             )
             .first,
       );
 
-      expect((container.decoration as BoxDecoration).color, Colors.red.shade50);
+      final decoration = container.decoration as BoxDecoration;
+      expect(decoration.gradient, isA<LinearGradient>());
+      final gradient = decoration.gradient as LinearGradient;
+      expect(gradient.colors.length, 2);
+      expect(gradient.colors[0], Colors.white);
+      expect(gradient.colors[1], Colors.red.withOpacity(0.03));
     });
 
-    testWidgets('shows yellow background for low biomarker',
+    testWidgets('shows gradient background for low biomarker',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -139,14 +148,18 @@ void main() {
       final container = tester.widget<Container>(
         find
             .descendant(
-              of: find.byType(Card),
+              of: find.byType(InkWell),
               matching: find.byType(Container),
             )
             .first,
       );
 
-      expect(
-          (container.decoration as BoxDecoration).color, Colors.yellow.shade50);
+      final decoration = container.decoration as BoxDecoration;
+      expect(decoration.gradient, isA<LinearGradient>());
+      final gradient = decoration.gradient as LinearGradient;
+      expect(gradient.colors.length, 2);
+      expect(gradient.colors[0], Colors.white);
+      expect(gradient.colors[1], Colors.orange.withOpacity(0.03));
     });
 
     testWidgets('displays status indicator for normal',
@@ -198,9 +211,77 @@ void main() {
       );
 
       final card = tester.widget<Card>(find.byType(Card));
-      expect(card.elevation, 2.0);
-      expect(card.margin,
-          const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0));
+      expect(card.elevation, 0);
+      expect(card.margin, const EdgeInsets.symmetric(vertical: 6.0));
+    });
+
+    testWidgets('status badge has correct color for normal',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BiomarkerCard(biomarker: normalBiomarker),
+          ),
+        ),
+      );
+
+      final statusBadge = tester.widget<Container>(
+        find
+            .ancestor(
+              of: find.text('Normal'),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+
+      final decoration = statusBadge.decoration as BoxDecoration;
+      expect(decoration.color, Colors.green);
+    });
+
+    testWidgets('status badge has correct color for high',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BiomarkerCard(biomarker: highBiomarker),
+          ),
+        ),
+      );
+
+      final statusBadge = tester.widget<Container>(
+        find
+            .ancestor(
+              of: find.text('High'),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+
+      final decoration = statusBadge.decoration as BoxDecoration;
+      expect(decoration.color, Colors.red);
+    });
+
+    testWidgets('status badge has correct color for low',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BiomarkerCard(biomarker: lowBiomarker),
+          ),
+        ),
+      );
+
+      final statusBadge = tester.widget<Container>(
+        find
+            .ancestor(
+              of: find.text('Low'),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+
+      final decoration = statusBadge.decoration as BoxDecoration;
+      expect(decoration.color, Colors.orange);
     });
   });
 }

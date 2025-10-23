@@ -5,18 +5,13 @@ import 'package:health_tracker_reports/domain/entities/biomarker.dart';
 import 'package:health_tracker_reports/domain/entities/trend_data_point.dart';
 import 'package:health_tracker_reports/domain/repositories/report_repository.dart';
 import 'package:health_tracker_reports/domain/usecases/get_biomarker_trend.dart';
-import 'package:health_tracker_reports/domain/usecases/normalize_biomarker_name.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockReportRepository extends Mock implements ReportRepository {}
 
-class MockNormalizeBiomarkerName extends Mock
-    implements NormalizeBiomarkerName {}
-
 void main() {
   late GetBiomarkerTrend usecase;
   late MockReportRepository mockReportRepository;
-  late MockNormalizeBiomarkerName mockNormalizeBiomarkerName;
 
   setUpAll(() {
     registerFallbackValue('');
@@ -24,14 +19,8 @@ void main() {
 
   setUp(() {
     mockReportRepository = MockReportRepository();
-    mockNormalizeBiomarkerName = MockNormalizeBiomarkerName();
     usecase = GetBiomarkerTrend(
       repository: mockReportRepository,
-      normalizeBiomarkerName: mockNormalizeBiomarkerName,
-    );
-    // Set up default behavior for normalizeBiomarkerName to return the input as-is
-    when(() => mockNormalizeBiomarkerName(any())).thenAnswer(
-      (invocation) => invocation.positionalArguments[0] as String,
     );
   });
 
@@ -70,8 +59,6 @@ void main() {
     test('should get trend data for a specific biomarker name', () async {
       // Arrange
       const tBiomarkerName = 'Hemoglobin';
-      when(() => mockNormalizeBiomarkerName(tBiomarkerName))
-          .thenReturn(tBiomarkerName);
       when(
         () => mockReportRepository.getBiomarkerTrend(
           tBiomarkerName,
@@ -92,7 +79,6 @@ void main() {
           expect(r[1].reportId, 'r2');
         },
       );
-      verify(() => mockNormalizeBiomarkerName(tBiomarkerName));
       verify(
         () => mockReportRepository.getBiomarkerTrend(
           tBiomarkerName,
@@ -102,44 +88,10 @@ void main() {
       );
     });
 
-    test('should normalize biomarker name before querying', () async {
-      // Arrange
-      const tInputName = 'HB';
-      const tNormalizedName = 'Hemoglobin';
-      when(() => mockNormalizeBiomarkerName(tInputName))
-          .thenReturn(tNormalizedName);
-      when(
-        () => mockReportRepository.getBiomarkerTrend(
-          tNormalizedName,
-          startDate: null,
-          endDate: null,
-        ),
-      ).thenAnswer((_) async => Right([tTrendPoint1, tTrendPoint2]));
-
-      // Act
-      final result = await usecase(tInputName);
-
-      // Assert
-      result.fold(
-        (l) => fail('should not return a failure'),
-        (r) => expect(r.length, 2),
-      );
-      verify(() => mockNormalizeBiomarkerName(tInputName)).called(1);
-      verify(
-        () => mockReportRepository.getBiomarkerTrend(
-          tNormalizedName,
-          startDate: null,
-          endDate: null,
-        ),
-      ).called(1);
-    });
-
     test('should filter by date range when start date is provided', () async {
       // Arrange
       const tBiomarkerName = 'Hemoglobin';
       final tStartDate = DateTime(2023, 1, 15);
-      when(() => mockNormalizeBiomarkerName(tBiomarkerName))
-          .thenReturn(tBiomarkerName);
       when(
         () => mockReportRepository.getBiomarkerTrend(
           tBiomarkerName,
@@ -169,8 +121,6 @@ void main() {
       // Arrange
       const tBiomarkerName = 'Hemoglobin';
       final tEndDate = DateTime(2023, 2, 15);
-      when(() => mockNormalizeBiomarkerName(tBiomarkerName))
-          .thenReturn(tBiomarkerName);
       when(
         () => mockReportRepository.getBiomarkerTrend(
           tBiomarkerName,
@@ -203,8 +153,6 @@ void main() {
       const tBiomarkerName = 'Hemoglobin';
       final tStartDate = DateTime(2023, 1, 15);
       final tEndDate = DateTime(2023, 2, 15);
-      when(() => mockNormalizeBiomarkerName(tBiomarkerName))
-          .thenReturn(tBiomarkerName);
       when(
         () => mockReportRepository.getBiomarkerTrend(
           tBiomarkerName,
@@ -238,8 +186,6 @@ void main() {
         () async {
       // Arrange
       const tBiomarkerName = 'Hemoglobin';
-      when(() => mockNormalizeBiomarkerName(tBiomarkerName))
-          .thenReturn(tBiomarkerName);
       when(
         () => mockReportRepository.getBiomarkerTrend(
           tBiomarkerName,
@@ -264,8 +210,6 @@ void main() {
         () async {
       // Arrange
       const tBiomarkerName = 'Vitamin D';
-      when(() => mockNormalizeBiomarkerName(tBiomarkerName))
-          .thenReturn(tBiomarkerName);
       when(
         () => mockReportRepository.getBiomarkerTrend(
           tBiomarkerName,
@@ -287,8 +231,6 @@ void main() {
     test('should propagate cache failure from repository', () async {
       // Arrange
       const tBiomarkerName = 'Hemoglobin';
-      when(() => mockNormalizeBiomarkerName(tBiomarkerName))
-          .thenReturn(tBiomarkerName);
       when(() => mockReportRepository.getBiomarkerTrend(
             tBiomarkerName,
             startDate: null,
@@ -300,7 +242,6 @@ void main() {
 
       // Assert
       expect(result, Left(CacheFailure()));
-      verify(() => mockNormalizeBiomarkerName(tBiomarkerName));
       verify(
         () => mockReportRepository.getBiomarkerTrend(
           tBiomarkerName,
@@ -314,8 +255,6 @@ void main() {
         () async {
       // Arrange
       const tBiomarkerName = 'Hemoglobin';
-      when(() => mockNormalizeBiomarkerName(tBiomarkerName))
-          .thenReturn(tBiomarkerName);
       when(
         () => mockReportRepository.getBiomarkerTrend(
           tBiomarkerName,

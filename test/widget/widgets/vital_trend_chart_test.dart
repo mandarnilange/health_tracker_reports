@@ -206,6 +206,8 @@ void main() {
               vitalType: VitalType.bloodPressureSystolic,
               dates: [
                 baseDate,
+                baseDate,
+                baseDate.add(const Duration(days: 7)),
                 baseDate.add(const Duration(days: 7)),
               ],
             ),
@@ -333,6 +335,8 @@ void main() {
               vitalType: VitalType.bloodPressureSystolic,
               dates: [
                 baseDate,
+                baseDate,
+                baseDate.add(const Duration(days: 7)),
                 baseDate.add(const Duration(days: 7)),
               ],
             ),
@@ -716,6 +720,8 @@ void main() {
               vitalType: VitalType.bloodPressureSystolic,
               dates: [
                 baseDate,
+                baseDate,
+                baseDate.add(const Duration(days: 7)),
                 baseDate.add(const Duration(days: 7)),
               ],
             ),
@@ -912,6 +918,8 @@ void main() {
               vitalType: VitalType.bloodPressureSystolic,
               dates: [
                 baseDate,
+                baseDate,
+                baseDate.add(const Duration(days: 7)),
                 baseDate.add(const Duration(days: 7)),
               ],
             ),

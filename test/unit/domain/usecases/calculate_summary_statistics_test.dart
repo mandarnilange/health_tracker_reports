@@ -15,6 +15,7 @@ import 'package:health_tracker_reports/domain/usecases/calculate_summary_statist
 import 'package:health_tracker_reports/domain/usecases/get_biomarker_trend.dart';
 import 'package:health_tracker_reports/domain/usecases/get_vital_trend.dart';
 import 'package:health_tracker_reports/domain/usecases/calculate_trend.dart';
+import 'package:health_tracker_reports/domain/entities/vital_measurement.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
 
 class MockReportRepository extends Mock implements ReportRepository {}

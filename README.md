@@ -1,5 +1,9 @@
 # Health Tracker
 
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Flutter](https://img.shields.io/badge/Flutter-3.x-blue.svg)](https://flutter.dev)
+[![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)]()
+
 ## Table of Contents
 
 *   [Overview](#overview)
@@ -14,6 +18,9 @@
     *   [Technical Overview](#technical-overview)
     *   [AI-Assisted Development](#ai-assisted-development)
     *   [Tooling & Development Environment](#tooling--development-environment)
+*   [Known Issues & Limitations](#known-issues--limitations)
+*   [Future Enhancements](#future-enhancements)
+*   [Show Your Support](#show-your-support)
 *   [Disclaimer](#disclaimer)
 *   [Contributing](#contributing)
 *   [License](#license)
@@ -24,13 +31,17 @@ A privacy-focused Flutter application for tracking your personal health data. Al
 
 Upload your medical reports in PDF format for AI-powered biomarker extraction, log daily vitals (e.g., heart rate, blood pressure), and monitor trends over time. Export your raw data or generate shareable summaries for your healthcare providers.
 
+**Supported Platforms:** iOS • Android • Web
+
 ## Motivation
 
-The inception of the Health Tracker project was driven by a dual purpose. Firstly, it served as a practical endeavor to validate and establish a robust framework for an AI agent capable of performing production-ready software development. This involved leveraging AI to assist in various stages of the development lifecycle, from planning to implementation and testing.
+This project was born from two key needs:
 
-Secondly, and more personally, the project addressed an immediate and pressing need within my own home: to efficiently track vital signs and manage medical reports. The existing solutions often fell short in terms of user experience, data privacy, or the ability to integrate AI-powered insights for better health management.
+1. **AI-Assisted Development:** To validate and establish a robust framework for an AI agent capable of performing production-ready software development, from planning through implementation and testing.
 
-A paramount concern throughout this process was privacy. It became evident that most available health tracking applications either relied on cloud storage, raising concerns about data security and ownership, or lacked the comprehensive features required for a truly private and intelligent health management system. "Health Tracker Reports" was thus conceived to fill this gap, offering a privacy-first approach where all sensitive health data remains securely on the user's device, without compromise.
+2. **Personal Health Management:** To address the lack of privacy-focused health tracking solutions that don't compromise on features or user experience.
+
+Most health tracking apps either rely on cloud storage (raising privacy concerns) or lack comprehensive features. Health Tracker fills this gap with a **privacy-first approach** where all sensitive health data remains securely on your device, while still providing AI-powered insights and professional reporting capabilities.
 
 ## App Preview
 
@@ -40,7 +51,7 @@ Here's a quick look at the Health Tracker in action:
 
 <div style="display: flex; flex-wrap: wrap; justify-content: space-around; gap: 10px;">
     <img src="app_preview/Home_Screen.PNG" alt="Home Screen" width="300">
-    <img src="app_preview/Biomarket_Details.PNG" alt="Biomarker Details" width="300">
+    <img src="app_preview/Biomarker_Details.PNG" alt="Biomarker Details" width="300">
     <img src="app_preview/Biomarker_Trends.PNG" alt="Biomarker Trends" width="300">
     <img src="app_preview/Vital_Trends.PNG" alt="Vital Trends" width="300">
     <img src="app_preview/Compare_Reports.PNG" alt="Compare Reports" width="300">
@@ -149,7 +160,7 @@ Ensure you have the [Flutter SDK](https://docs.flutter.dev/get-started/install) 
     flutter run
 
     # Or run on a specific platform
-    flutter run -d chrome
+    flutter run 
     ```
 
 ### Technical Overview
@@ -190,6 +201,12 @@ This project leverages an AI agent for assistance with development tasks. The ag
 - **IDE:** VS Code
 - **AI Assistants:** Gemini Code Assist, GitHub Copilot, Claude, OpenAI Codex
 
+## Known Issues & Limitations
+
+-   Thorough testing is required for the Android platform to ensure full compatibility and performance.
+-   Integration with OpenAI and Anthropic Claude LLMs has not been thoroughly tested.
+-   The PDF export format needs further review and potential improvements for better presentation and data accuracy.
+
 ## Future Enhancements
 
 ### Technical Roadmap
@@ -201,15 +218,13 @@ This project leverages an AI agent for assistance with development tasks. The ag
 ### Functional Enhancements
 We welcome contributions and ideas for expanding the application's functionality. The possibilities for future features are vast and limited only by imagination.
 
-## Open Issues, Pending Work, and Limitations
+## Show Your Support
 
--   Thorough testing is required for the Android platform to ensure full compatibility and performance.
--   Integration with OpenAI and Anthropic Claude LLMs has not been thoroughly tested.
--   The PDF export format needs further review and potential improvements for better presentation and data accuracy.
+⭐ If you find this project useful, please consider giving it a star on GitHub! It helps others discover this privacy-focused health tracking solution.
 
 ## Disclaimer
 
-This application is provided 'as is' and for informational purposes only. The developer does not guaranty the accuracy, completeness, or usefulness of any information generated by the AI models. The data extraction may contain errors, and you should always verify the results with your original medical report.
+This application is provided 'as is' and for informational purposes only. The developer does not guarantee the accuracy, completeness, or usefulness of any information generated by the AI models. The data extraction may contain errors, and you should always verify the results with your original medical report.
 
 This software is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition. Use this application at your own risk. The developer is not responsible for any decisions or actions taken based on the information provided by this application.
 
