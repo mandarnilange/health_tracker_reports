@@ -109,36 +109,89 @@ class _FilterChip extends StatelessWidget {
   }
 }
 
-class _TimelineScroll extends StatelessWidget {
+class _TimelineScroll extends StatefulWidget {
   const _TimelineScroll({required this.entries});
 
   final List<HealthEntry> entries;
 
   @override
-  Widget build(BuildContext context) {
-    final groups = _TimelineGroup.fromEntries(entries);
+  State<_TimelineScroll> createState() => _TimelineScrollState();
+}
 
-    return CustomScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      slivers: [
-        const SliverToBoxAdapter(child: SizedBox(height: 4)),
-        for (var i = 0; i < groups.length; i++) ...[
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _DateHeaderDelegate(
-              label: groups[i].label,
-              isFirstGroup: i == 0,
+class _TimelineScrollState extends State<_TimelineScroll> {
+  int _pinnedGroupIndex = -1; // -1 means no header pinned
+
+  void _onScroll(ScrollNotification notification) {
+    if (notification is ScrollUpdateNotification ||
+        notification is ScrollEndNotification) {
+      final groups = _TimelineGroup.fromEntries(widget.entries);
+      if (groups.isEmpty) return;
+
+      final offset = notification.metrics.pixels;
+
+      // Find which section's header has scrolled out of view (hidden at top)
+      const headerHeight = 44.0;
+      const avgItemHeight = 100.0;
+
+      double headerPosition = 0; // Position where current header starts
+      int newPinnedIndex = _pinnedGroupIndex; // Keep current if none found
+
+      for (int i = 0; i < groups.length; i++) {
+        final contentHeight = groups[i].items.length * avgItemHeight;
+        final headerEnd = headerPosition + headerHeight;
+
+        // If the header has completely scrolled past (hidden), pin it
+        if (offset >= headerEnd) {
+          newPinnedIndex = i;
+        } else {
+          // Stop once we find a visible header
+          break;
+        }
+
+        // Move to next section's header position
+        headerPosition = headerEnd + contentHeight;
+      }
+
+      if (_pinnedGroupIndex != newPinnedIndex) {
+        setState(() {
+          _pinnedGroupIndex = newPinnedIndex;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final groups = _TimelineGroup.fromEntries(widget.entries);
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        _onScroll(notification);
+        return false;
+      },
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          const SliverToBoxAdapter(child: SizedBox(height: 4)),
+          for (var i = 0; i < groups.length; i++) ...[
+            SliverPersistentHeader(
+              // Only pin the header of the oldest hidden section
+              pinned: i == _pinnedGroupIndex,
+              delegate: _DateHeaderDelegate(
+                label: groups[i].label,
+                isFirstGroup: i == 0,
+              ),
             ),
-          ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) => _TimelineItem(model: groups[i].items[index]),
-              childCount: groups[i].items.length,
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => _TimelineItem(model: groups[i].items[index]),
+                childCount: groups[i].items.length,
+              ),
             ),
-          ),
+          ],
+          const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
         ],
-        const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
-      ],
+      ),
     );
   }
 }
