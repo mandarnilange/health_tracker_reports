@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.0-beta] - 2025-01-23
+## [0.2.0-beta] - 2025-10-23
 
 ### Fixed - Test Suite Improvements
 - Fixed all compilation errors in test suite by removing obsolete `NormalizeBiomarkerName` feature (replaced by LLM-based normalization in extraction prompts)
