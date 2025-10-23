@@ -114,48 +114,29 @@ class _TimelineScroll extends StatelessWidget {
 
   final List<HealthEntry> entries;
 
-  static const int _maxVisibleGroups = 2;
-
   @override
   Widget build(BuildContext context) {
     final groups = _TimelineGroup.fromEntries(entries);
-    // Limit to 2 most recent date groups to prevent sticky header clutter
-    final visibleGroups = groups.take(_maxVisibleGroups).toList();
-    final hasMoreGroups = groups.length > _maxVisibleGroups;
 
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
         const SliverToBoxAdapter(child: SizedBox(height: 4)),
-        for (var i = 0; i < visibleGroups.length; i++) ...[
+        for (var i = 0; i < groups.length; i++) ...[
           SliverPersistentHeader(
             pinned: true,
             delegate: _DateHeaderDelegate(
-              label: visibleGroups[i].label,
+              label: groups[i].label,
               isFirstGroup: i == 0,
             ),
           ),
           SliverList(
             delegate: SliverChildBuilderDelegate(
-              (context, index) => _TimelineItem(model: visibleGroups[i].items[index]),
-              childCount: visibleGroups[i].items.length,
+              (context, index) => _TimelineItem(model: groups[i].items[index]),
+              childCount: groups[i].items.length,
             ),
           ),
         ],
-        if (hasMoreGroups)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Center(
-                child: FilledButton.tonal(
-                  onPressed: () {
-                    // TODO: Implement load more functionality with pagination
-                  },
-                  child: const Text('Load older entries'),
-                ),
-              ),
-            ),
-          ),
         const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
       ],
     );
