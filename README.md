@@ -31,7 +31,7 @@ A privacy-focused Flutter application for tracking your personal health data. Al
 
 Upload your medical reports in PDF format for AI-powered biomarker extraction, log daily vitals (e.g., heart rate, blood pressure), and monitor trends over time. Export your raw data or generate shareable summaries for your healthcare providers.
 
-**Supported Platforms:** iOS • Android • Web
+**Supported Platforms:** iOS • Android
 
 ## Motivation
 
