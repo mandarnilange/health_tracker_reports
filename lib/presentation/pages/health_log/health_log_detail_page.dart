@@ -150,6 +150,26 @@ class HealthLogDetailPage extends ConsumerWidget {
                   ),
                 ),
               ],
+              const SizedBox(height: 12),
+              // Tap hint for viewing trends
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Icon(
+                    Icons.trending_up,
+                    size: 14,
+                    color: Colors.grey[500],
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Tap to view trends',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.grey[500],
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

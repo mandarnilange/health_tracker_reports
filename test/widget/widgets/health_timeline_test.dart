@@ -27,7 +27,7 @@ void main() {
 
   setUp(() {
     mockGetUnifiedTimeline = MockGetUnifiedTimeline();
-    final now = DateTime(2025, 10, 20, 9);
+    final now = DateTime.now();
     entries = [
       HealthLog(
         id: 'log-1',
