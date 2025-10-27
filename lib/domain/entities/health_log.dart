@@ -38,11 +38,13 @@ class HealthLog extends Equatable implements HealthEntry {
       vitals.where((vital) => vital.isOutOfRange).toList();
 
   /// Copy helper for immutable updates.
+  static const _notesSentinel = Object();
+
   HealthLog copyWith({
     String? id,
     DateTime? timestamp,
     List<VitalMeasurement>? vitals,
-    String? notes,
+    Object? notes = _notesSentinel,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -50,7 +52,7 @@ class HealthLog extends Equatable implements HealthEntry {
       id: id ?? this.id,
       timestamp: timestamp ?? this.timestamp,
       vitals: vitals ?? this.vitals,
-      notes: notes ?? this.notes,
+      notes: identical(notes, _notesSentinel) ? this.notes : notes as String?,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

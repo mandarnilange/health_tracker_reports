@@ -41,6 +41,26 @@ void main() {
   setUpAll(() {
     // Register fallback values for mocktail
     registerFallbackValue(VitalType.heartRate);
+    registerFallbackValue(
+      Report(
+        id: 'fallback',
+        date: DateTime(2024, 1, 1),
+        labName: 'Fallback Lab',
+        biomarkers: [
+          Biomarker(
+            id: 'b1',
+            name: 'Fallback Biomarker',
+            value: 1,
+            unit: 'u',
+            referenceRange: const ReferenceRange(min: 0, max: 2),
+            measuredAt: DateTime(2024, 1, 1),
+          ),
+        ],
+        originalFilePath: '/tmp/fallback.pdf',
+        createdAt: DateTime(2024, 1, 1),
+        updatedAt: DateTime(2024, 1, 1),
+      ),
+    );
   });
 
   group('TrendsPage', () {
@@ -346,9 +366,12 @@ void main() {
       await tester.tap(find.text('Heart Rate').last);
       await tester.pumpAndSettle();
 
+      await tester.drag(find.byType(ListView).last, const Offset(0, -400));
+      await tester.pumpAndSettle();
+
       // Should display statistics
       expect(find.text('Statistics'), findsOneWidget);
-    }, skip: true); // Statistics panel not yet implemented - Future feature
+    });
 
     testWidgets('vital statistics card shows average value',
         (WidgetTester tester) async {
@@ -364,9 +387,12 @@ void main() {
       await tester.tap(find.text('Heart Rate').last);
       await tester.pumpAndSettle();
 
+      await tester.drag(find.byType(ListView).last, const Offset(0, -400));
+      await tester.pumpAndSettle();
+
       expect(find.text('Average'), findsOneWidget);
       expect(find.textContaining('72.3'), findsOneWidget);
-    }, skip: true); // Statistics panel not yet implemented - Future feature
+    });
 
     testWidgets('vital statistics card shows min and max values',
         (WidgetTester tester) async {
@@ -382,11 +408,14 @@ void main() {
       await tester.tap(find.text('Heart Rate').last);
       await tester.pumpAndSettle();
 
+      await tester.drag(find.byType(ListView).last, const Offset(0, -400));
+      await tester.pumpAndSettle();
+
       expect(find.text('Min'), findsOneWidget);
       expect(find.text('Max'), findsOneWidget);
-      expect(find.textContaining('70.0'), findsOneWidget);
-      expect(find.textContaining('75.0'), findsOneWidget);
-    }, skip: true); // Statistics panel not yet implemented - Future feature
+      expect(find.textContaining('70.0'), findsWidgets);
+      expect(find.textContaining('75.0'), findsWidgets);
+    });
 
     testWidgets('vital statistics card shows trend direction',
         (WidgetTester tester) async {
@@ -402,10 +431,13 @@ void main() {
       await tester.tap(find.text('Heart Rate').last);
       await tester.pumpAndSettle();
 
+      await tester.drag(find.byType(ListView).last, const Offset(0, -400));
+      await tester.pumpAndSettle();
+
       expect(find.text('Trend'), findsOneWidget);
       // Should show stable text
       expect(find.textContaining('Stable'), findsOneWidget);
-    }, skip: true); // Statistics panel not yet implemented - Future feature
+    });
 
     testWidgets('vital statistics card shows measurement count',
         (WidgetTester tester) async {
@@ -421,8 +453,11 @@ void main() {
       await tester.tap(find.text('Heart Rate').last);
       await tester.pumpAndSettle();
 
+      await tester.drag(find.byType(ListView).last, const Offset(0, -400));
+      await tester.pumpAndSettle();
+
       expect(find.textContaining('3 measurement'), findsOneWidget);
-    }, skip: true); // Statistics panel not yet implemented - Future feature
+    });
 
     testWidgets('shows empty state in Vitals tab when no vital is selected',
         (WidgetTester tester) async {

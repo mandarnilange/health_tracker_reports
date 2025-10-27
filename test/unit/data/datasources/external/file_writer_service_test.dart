@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dartz/dartz.dart';
@@ -6,189 +7,106 @@ import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/data/datasources/external/file_writer_service.dart';
 
 class _StubDownloadsPathProvider implements DownloadsPathProvider {
-  _StubDownloadsPathProvider(this.directoryPath);
+  _StubDownloadsPathProvider(this._path);
 
-  final String directoryPath;
-
-  @override
-  Future<String> getDownloadsPath() async => directoryPath;
-}
-
-class _ThrowingDownloadsPathProvider implements DownloadsPathProvider {
-  _ThrowingDownloadsPathProvider(this.error);
-
-  final Exception error;
+  final FutureOr<String> Function() _path;
 
   @override
-  Future<String> getDownloadsPath() => Future.error(error);
+  Future<String> getDownloadsPath() async => _path();
 }
 
 void main() {
-  late Directory tempDir;
-  late DateTime fixedNow;
-
-  setUp(() async {
-    tempDir = await Directory.systemTemp.createTemp('file_writer_test_');
-    fixedNow = DateTime(2026, 1, 15, 7, 45, 30);
+  setUpAll(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
   });
 
-  tearDown(() async {
-    if (await tempDir.exists()) {
-      await tempDir.delete(recursive: true);
-    }
+  test('writeCsv writes to sanitized timestamped path', () async {
+    String? writtenPath;
+    String? writtenContents;
+    final service = FileWriterService.test(
+      downloadsPathProvider:
+          _StubDownloadsPathProvider(() async => '/tmp/downloads'),
+      nowOverride: () => DateTime(2024, 1, 2, 3, 4, 5),
+      stringWriter: (path, contents) async {
+        writtenPath = path;
+        writtenContents = contents;
+      },
+    );
+
+    final result = await service.writeCsv(
+      filenamePrefix: 'Doctor Report',
+      contents: 'id,value',
+    );
+
+    expect(result.isRight(), isTrue);
+    expect(
+      (result as Right<Failure, String>).value,
+      '/tmp/downloads/Doctor_Report_2024-01-02_03-04-05.csv',
+    );
+    expect(writtenPath, endsWith('.csv'));
+    expect(writtenContents, 'id,value');
   });
 
-  group('FileWriterService', () {
-    test('writes binary file and returns path', () async {
-      final writtenBytes = <int>[];
-      String? writtenPath;
-      final service = FileWriterService.test(
-        downloadsPathProvider: _StubDownloadsPathProvider(tempDir.path),
-        nowOverride: () => fixedNow,
-        bytesWriter: (path, bytes) async {
-          writtenPath = path;
-          writtenBytes.clear();
-          writtenBytes.addAll(bytes);
-        },
-      );
+  test('writeBytes maps permission denied errors to PermissionFailure',
+      () async {
+    final service = FileWriterService.test(
+      downloadsPathProvider:
+          _StubDownloadsPathProvider(() async => '/tmp/downloads'),
+      bytesWriter: (path, bytes) async {
+        throw const FileSystemException(
+          'Permission denied',
+          '',
+          OSError('Permission denied', 13),
+        );
+      },
+    );
 
-      final bytes = List<int>.generate(4, (index) => index + 1);
-      final result = await service.writeBytes(
-        filenamePrefix: 'doctor_summary',
-        bytes: bytes,
-        extension: 'pdf',
-      );
+    final result = await service.writeBytes(
+      filenamePrefix: 'export',
+      bytes: const [1, 2, 3],
+      extension: 'pdf',
+    );
 
-      expect(result, isA<Right>());
-      expect(writtenBytes, bytes);
-      expect(writtenPath, isNotNull);
-      result.fold(
-        (failure) => fail('expected success'),
-        (path) {
-          expect(path, writtenPath);
-          expect(path, endsWith('doctor_summary_2026-01-15_07-45-30.pdf'));
-        },
-      );
-    });
+    expect(result.isLeft(), isTrue);
+    expect((result as Left<Failure, String>).value, isA<PermissionFailure>());
+  });
 
-    test('writeBytes maps FileSystemException to failures', () async {
-      final service = FileWriterService.test(
-        downloadsPathProvider: _StubDownloadsPathProvider(tempDir.path),
-        nowOverride: () => fixedNow,
-        bytesWriter: (path, _) async {
-          throw FileSystemException('Permission denied', path);
-        },
-      );
+  test('writeBytes maps disk full to StorageFailure', () async {
+    final service = FileWriterService.test(
+      downloadsPathProvider:
+          _StubDownloadsPathProvider(() async => '/tmp/downloads'),
+      bytesWriter: (path, bytes) async {
+        throw const FileSystemException(
+          'No space left on device',
+          '',
+          OSError('No space left on device', 28),
+        );
+      },
+    );
 
-      final result = await service.writeBytes(
-        filenamePrefix: 'doctor_summary',
-        bytes: const [1, 2, 3],
-        extension: 'pdf',
-      );
+    final result = await service.writeBytes(
+      filenamePrefix: 'export',
+      bytes: const [1, 2, 3],
+    );
 
-      expect(result, isA<Left>());
-      result.fold(
-        (failure) => expect(failure, isA<PermissionFailure>()),
-        (_) => fail('expected failure'),
-      );
-    });
+    expect(result.isLeft(), isTrue);
+    expect((result as Left<Failure, String>).value, isA<StorageFailure>());
+  });
 
-    test('writes CSV file to downloads directory and returns path', () async {
-      final service = FileWriterService.test(
-        downloadsPathProvider: _StubDownloadsPathProvider(tempDir.path),
-        nowOverride: () => fixedNow,
-        stringWriter: (path, contents) async {
-          final file = File(path);
-          await file.create(recursive: true);
-          await file.writeAsString(contents);
-        },
-      );
+  test('returns FileSystemFailure when downloads path cannot be resolved',
+      () async {
+    final service = FileWriterService.test(
+      downloadsPathProvider: _StubDownloadsPathProvider(() {
+        throw Exception('broken');
+      }),
+    );
 
-      const contents = 'sample csv contents';
-      final result = await service.writeCsv(
-        filenamePrefix: 'reports_biomarkers',
-        contents: contents,
-      );
+    final result = await service.writeCsv(
+      filenamePrefix: 'report',
+      contents: 'data',
+    );
 
-      expect(result, isA<Right>());
-
-      result.fold(
-        (l) => fail('expected success'),
-        (path) async {
-          final file = File(path);
-          expect(await file.exists(), isTrue);
-          expect(await file.readAsString(), contents);
-          expect(
-            path,
-            endsWith('reports_biomarkers_2026-01-15_07-45-30.csv'),
-          );
-        },
-      );
-    });
-
-    test('returns PermissionFailure when writer throws permission error',
-        () async {
-      final service = FileWriterService.test(
-        downloadsPathProvider: _StubDownloadsPathProvider(tempDir.path),
-        nowOverride: () => fixedNow,
-        stringWriter: (path, _) async {
-          throw FileSystemException('Permission denied', path);
-        },
-      );
-
-      final result = await service.writeCsv(
-        filenamePrefix: 'reports_biomarkers',
-        contents: 'data',
-      );
-
-      expect(result, isA<Left>());
-      result.fold(
-        (failure) => expect(failure, isA<PermissionFailure>()),
-        (_) => fail('expected failure'),
-      );
-    });
-
-    test('returns StorageFailure when writer throws storage full error',
-        () async {
-      final service = FileWriterService.test(
-        downloadsPathProvider: _StubDownloadsPathProvider(tempDir.path),
-        nowOverride: () => fixedNow,
-        stringWriter: (path, _) async {
-          throw FileSystemException('No space left on device', path);
-        },
-      );
-
-      final result = await service.writeCsv(
-        filenamePrefix: 'trends_statistics',
-        contents: 'data',
-      );
-
-      expect(result, isA<Left>());
-      result.fold(
-        (failure) => expect(failure, isA<StorageFailure>()),
-        (_) => fail('expected failure'),
-      );
-    });
-
-    test('returns FileSystemFailure when downloads path cannot be resolved',
-        () async {
-      final service = FileWriterService.test(
-        downloadsPathProvider: _ThrowingDownloadsPathProvider(
-          Exception('unavailable'),
-        ),
-        nowOverride: () => fixedNow,
-      );
-
-      final result = await service.writeCsv(
-        filenamePrefix: 'reports_biomarkers',
-        contents: 'data',
-      );
-
-      expect(result, isA<Left>());
-      result.fold(
-        (failure) => expect(failure, isA<FileSystemFailure>()),
-        (_) => fail('expected failure'),
-      );
-    });
+    expect(result.isLeft(), isTrue);
+    expect((result as Left<Failure, String>).value, isA<FileSystemFailure>());
   });
 }

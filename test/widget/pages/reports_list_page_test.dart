@@ -10,6 +10,7 @@ import 'package:health_tracker_reports/domain/entities/vital_measurement.dart';
 import 'package:health_tracker_reports/domain/usecases/get_unified_timeline.dart';
 import 'package:health_tracker_reports/presentation/pages/home/reports_list_page.dart';
 import 'package:health_tracker_reports/presentation/providers/timeline_provider.dart';
+import 'package:intl/intl.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockGetUnifiedTimeline extends Mock implements GetUnifiedTimeline {}
@@ -19,10 +20,11 @@ void main() {
 
   late MockGetUnifiedTimeline mockGetUnifiedTimeline;
   late List<HealthEntry> entries;
+  late DateTime now;
 
   setUp(() {
     mockGetUnifiedTimeline = MockGetUnifiedTimeline();
-    final now = DateTime(2025, 10, 20, 9);
+    now = DateTime(2025, 10, 20, 9);
     entries = [
       HealthLog(
         id: 'log-1',
@@ -82,8 +84,11 @@ void main() {
   testWidgets('renders timeline view and actions', (tester) async {
     await pumpPage(tester);
 
+    final expectedTimestamp =
+        DateFormat('MMM d, yyyy • h:mm a').format(now);
+
     expect(find.text('Health Timeline'), findsOneWidget);
-    expect(find.text('Morning log'), findsOneWidget);
+    expect(find.text(expectedTimestamp), findsOneWidget);
     expect(find.text('Quest Diagnostics'), findsOneWidget);
     expect(find.byIcon(Icons.upload_file), findsOneWidget);
   });

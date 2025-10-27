@@ -25,6 +25,31 @@ class MockSaveReport extends Mock implements SaveReport {}
 
 class MockDeleteReport extends Mock implements DeleteReport {}
 
+void _registerReportFallback() {
+  registerFallbackValue(
+    Report(
+      id: 'fallback',
+      date: DateTime(2024, 1, 1),
+      labName: 'Fallback Lab',
+      biomarkers: [
+        Biomarker(
+          id: 'b1',
+          name: 'Fallback Biomarker',
+          value: 1,
+          unit: 'u',
+          referenceRange: const ReferenceRange(min: 0, max: 2),
+          measuredAt: DateTime(2024, 1, 1),
+        ),
+      ],
+      originalFilePath: '/tmp/fallback.pdf',
+      createdAt: DateTime(2024, 1, 1),
+      updatedAt: DateTime(2024, 1, 1),
+    ),
+  );
+}
+
+final _ = _registerReportFallback();
+
 void main() {
   group('ReportDetailPage', () {
     late MockGetAllReports mockGetAllReports;

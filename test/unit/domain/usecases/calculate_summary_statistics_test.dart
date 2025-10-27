@@ -25,6 +25,10 @@ class MockGetVitalTrend extends Mock implements GetVitalTrend {}
 class MockCalculateTrend extends Mock implements CalculateTrend {}
 
 void main() {
+  registerFallbackValue(VitalType.heartRate);
+  registerFallbackValue(<String>[]);
+  registerFallbackValue(<TrendDataPoint>[]);
+
   late CalculateSummaryStatistics usecase;
   late MockReportRepository mockReportRepository;
   late MockHealthLogRepository mockHealthLogRepository;

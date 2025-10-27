@@ -25,6 +25,7 @@ class MockDeleteHealthLog extends Mock implements DeleteHealthLog {}
 Future<void> _pumpSheet(
   WidgetTester tester, {
   required List<Override> overrides,
+  HealthLog? initialLog,
 }) async {
   await tester.pumpWidget(
     ProviderScope(
@@ -34,7 +35,8 @@ Future<void> _pumpSheet(
           builder: (context) => Scaffold(
             body: Center(
               child: ElevatedButton(
-                onPressed: () => HealthLogEntrySheet.show(context),
+                onPressed: () =>
+                    HealthLogEntrySheet.show(context, initialLog: initialLog),
                 child: const Text('open sheet'),
               ),
             ),
@@ -120,6 +122,15 @@ void main() {
     });
 
     testWidgets('shows default vital inputs and notes field', (tester) async {
+      final binding = TestWidgetsFlutterBinding.ensureInitialized()
+          as TestWidgetsFlutterBinding;
+      binding.window.physicalSizeTestValue = const Size(1200, 2200);
+      binding.window.devicePixelRatioTestValue = 1.0;
+      addTearDown(() {
+        binding.window.clearPhysicalSizeTestValue();
+        binding.window.clearDevicePixelRatioTestValue();
+      });
+
       await _pumpSheet(
         tester,
         overrides: _buildOverrides(
@@ -133,17 +144,27 @@ void main() {
       expect(find.textContaining('BP Systolic'), findsWidgets);
       expect(find.textContaining('SpO2'), findsWidgets);
       expect(find.textContaining('Heart Rate'), findsWidgets);
-      final notesField = tester.widget<TextField>(
-        find.byWidgetPredicate(
-          (widget) =>
-              widget is TextField &&
-              widget.decoration?.labelText == 'Notes (Optional)',
-        ),
+      final textFieldFinder = find.byType(TextField);
+      expect(textFieldFinder, findsWidgets);
+      final textFields =
+          tester.widgetList<TextField>(find.byType(TextField)).toList();
+      final notesField = textFields.firstWhere(
+        (field) => field.maxLines == 3,
+        orElse: () => throw StateError('Notes field not found'),
       );
       expect(notesField.decoration?.labelText, 'Notes (Optional)');
-    }, skip: true);
+    });
 
     testWidgets('adds additional vital from dropdown', (tester) async {
+      final binding = TestWidgetsFlutterBinding.ensureInitialized()
+          as TestWidgetsFlutterBinding;
+      binding.window.physicalSizeTestValue = const Size(1200, 2200);
+      binding.window.devicePixelRatioTestValue = 1.0;
+      addTearDown(() {
+        binding.window.clearPhysicalSizeTestValue();
+        binding.window.clearDevicePixelRatioTestValue();
+      });
+
       await _pumpSheet(
         tester,
         overrides: _buildOverrides(
@@ -161,11 +182,20 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.textContaining('Temperature'), findsWidgets);
-    }, skip: true);
+    });
 
     testWidgets(
       'pre-fills inputs when editing an existing log',
       (tester) async {
+        final binding = TestWidgetsFlutterBinding.ensureInitialized()
+            as TestWidgetsFlutterBinding;
+        binding.window.physicalSizeTestValue = const Size(1200, 2200);
+        binding.window.devicePixelRatioTestValue = 1.0;
+        addTearDown(() {
+          binding.window.clearPhysicalSizeTestValue();
+          binding.window.clearDevicePixelRatioTestValue();
+        });
+
         final timestamp = DateTime(2025, 10, 20, 6, 30);
         final existingLog = HealthLog(
           id: 'log-1',
@@ -212,30 +242,33 @@ void main() {
         when(() => mockUpdate(any()))
             .thenAnswer((_) async => Right(existingLog));
 
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: _buildOverrides(
-              mockCreate: mockCreate,
-              mockGetAll: mockGetAll,
-              mockUpdate: mockUpdate,
-              mockDelete: mockDelete,
-            ),
-            child: MaterialApp(
-              home: HealthLogEntrySheet(initialLog: existingLog),
-            ),
+        await _pumpSheet(
+          tester,
+          overrides: _buildOverrides(
+            mockCreate: mockCreate,
+            mockGetAll: mockGetAll,
+            mockUpdate: mockUpdate,
+            mockDelete: mockDelete,
           ),
+          initialLog: existingLog,
         );
-
         final fields = tester
             .widgetList<TextFormField>(find.byType(TextFormField))
             .toList();
+        expect(fields.length, greaterThanOrEqualTo(4));
         expect(fields[0].controller?.text, '115');
         expect(fields[1].controller?.text, '75');
         expect(fields[2].controller?.text, '96');
         expect(fields[3].controller?.text, '68');
-        expect(find.textContaining('Morning jog'), findsOneWidget);
+
+        final notesField = tester
+            .widgetList<TextField>(find.byType(TextField))
+            .firstWhere(
+              (field) => field.maxLines == 3,
+              orElse: () => throw StateError('Notes field not found'),
+            );
+        expect(notesField.controller?.text, 'Morning jog');
       },
-      skip: true,
     );
   });
 }

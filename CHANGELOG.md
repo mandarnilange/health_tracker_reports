@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Allow clearing health log notes via `HealthLog.copyWith` so null-note timelines render correctly (lib/domain/entities/health_log.dart:43)
+- Register a fallback `VitalType` value in summary statistics tests to satisfy mocktail matchers (test/unit/domain/usecases/calculate_summary_statistics_test.dart:35)
+
+### Changed
+- Align router and widget expectations with the refreshed timeline and upload loading copy (test/unit/presentation/router_test.dart:11, test/widget/pages/reports_list_page_test.dart:13, test/widget/pages/upload/upload_page_test.dart:212)
+
+### Added
+- Unit coverage for the LLM extraction stack (service/repository/use case) to lock in API contract behaviour (test/unit/data/datasources/external/*_llm_service_test.dart, test/unit/data/repositories/llm_extraction_repository_impl_test.dart, test/unit/domain/usecases/extract_report_from_file_llm_test.dart)
+- File I/O safety tests for the download writer, image processing, and failure helpers (test/unit/data/datasources/external/file_writer_service_test.dart, test/unit/data/datasources/external/image_processing_service_test.dart, test/unit/core/error/failures_test.dart)
+- Widget smoke tests for comparison analytics and settings screens to guard key UI flows (test/widget/pages/trends/comparison_view_test.dart, test/widget/pages/settings/settings_page_test.dart)
+
+### Coverage
+- Current overall line coverage: **79.4%** (4430/5579)
+- Layer breakdown: domain 89.4%, presentation 81.1%, data 69.4%, core 44.6%
+- Focus files below 70% (>=20 LOC):
+  - `lib/presentation/pages/health_log/health_log_entry_sheet.dart` (47.6%)
+  - `lib/presentation/pages/export/doctor_pdf_config_page.dart` (48.5%)
+  - `lib/presentation/pages/trends/comparison_view.dart` (69.3%)
+  - `lib/presentation/pages/trends/trends_page.dart` (62.1%)
+  - `lib/data/datasources/external/file_writer_service.dart` (54.3%)
+  - `lib/data/datasources/external/image_processing_service.dart` (53.3%)
+  - `lib/core/di/injection_container.dart` (40.7%)
+  - Generated Hive adapters (`lib/data/models/*.g.dart`) remain at <5%
+
 ## [0.2.0-beta] - 2025-10-23
 
 ### Fixed - Test Suite Improvements

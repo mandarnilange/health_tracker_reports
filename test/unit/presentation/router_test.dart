@@ -10,7 +10,7 @@ void main() {
     group('Route Configuration', () {
       test('has correct number of routes', () {
         final router = AppRouter.router;
-        expect(router.configuration.routes.length, equals(7));
+        expect(router.configuration.routes.length, equals(10));
       });
     });
 

@@ -221,7 +221,10 @@ void main() {
       await pumpUntilFound(tester, find.byType(CircularProgressIndicator));
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      expect(find.text('Extracting biomarkers...'), findsOneWidget);
+      expect(
+        find.textContaining('Analyzing your report with our powerful AI'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('shows error card when extraction fails', (tester) async {
