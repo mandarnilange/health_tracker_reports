@@ -26,8 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Vital trend summary parity assertions (test/unit/domain/entities/vital_trend_summary_test.dart)
 
 ### Coverage
-- Current overall line coverage: **90.73%** (4904/5405)
-- Layer breakdown: core 93.24%, domain 93.03%, data 90.90%, presentation 89.95%
+- Current overall line coverage: **91.16%** (4927/5405)
+- Layer breakdown: core 93.24%, domain 93.03%, data 90.90%, presentation 90.61%
 - Remaining focus files below 80% (>=20 LOC):
   - `lib/presentation/router/app_router.dart` (56.9%)
   - `lib/presentation/pages/home/reports_list_page.dart` (73.7%)

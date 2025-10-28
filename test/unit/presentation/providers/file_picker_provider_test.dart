@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/presentation/providers/file_picker_provider.dart';
 
 class _FakeFilePicker extends FilePicker {
   FilePickerResult? result;
   Completer<FilePickerResult?>? completer;
+  PlatformException? exceptionToThrow;
 
   bool? lastAllowMultiple;
   List<String>? lastAllowedExtensions;
@@ -33,6 +35,13 @@ class _FakeFilePicker extends FilePicker {
     lastAllowMultiple = allowMultiple;
     lastAllowedExtensions = allowedExtensions;
     lastWithData = withData;
+
+    if (exceptionToThrow != null) {
+      final error = exceptionToThrow!;
+      exceptionToThrow = null;
+      throw error;
+    }
+
     onFileLoading?.call(FilePickerStatus.picking);
 
     if (completer != null) {
@@ -121,6 +130,37 @@ void main() {
       fakePlatform.completer!.complete(null);
       await firstCall;
 
+      expect(fakePlatform.callCount, 1);
+    });
+
+    test('rethrows PlatformException and resets guard', () async {
+      fakePlatform.exceptionToThrow = PlatformException(code: 'cancelled');
+
+      await expectLater(
+        picker.pickReportPath(),
+        throwsA(isA<PlatformException>()),
+      );
+
+      fakePlatform.result = FilePickerResult([
+        PlatformFile(
+          name: 'report.jpg',
+          path: '/tmp/report.jpg',
+          size: 0,
+        ),
+      ]);
+
+      final path = await picker.pickReportPath();
+
+      expect(path, '/tmp/report.jpg');
+      expect(fakePlatform.callCount, 2);
+    });
+
+    test('returns null when picker response is empty', () async {
+      fakePlatform.result = FilePickerResult(const []);
+
+      final path = await picker.pickReportPath();
+
+      expect(path, isNull);
       expect(fakePlatform.callCount, 1);
     });
   });
