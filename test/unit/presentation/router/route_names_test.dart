@@ -2,11 +2,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/presentation/router/route_names.dart';
 
 void main() {
-  test('reportDetailWithId builds correct path', () {
-    expect(RouteNames.reportDetailWithId('123'), '/report/123');
-  });
+  group('RouteNames', () {
+    test('exposes expected static paths', () {
+      expect(RouteNames.home, '/');
+      expect(RouteNames.review, '/review');
+      expect(RouteNames.healthLogDetail, '/health-log/:id');
+      expect(RouteNames.exportName, 'export');
+      expect(RouteNames.doctorPdfConfig, '/export/doctor-pdf');
+    });
 
-  test('healthLogDetailWithId builds correct path', () {
-    expect(RouteNames.healthLogDetailWithId('log-1'), '/health-log/log-1');
+    test('formats dynamic report routes correctly', () {
+      expect(RouteNames.reportDetailWithId('abc'), '/report/abc');
+      expect(
+        RouteNames.healthLogDetailWithId('log-42'),
+        '/health-log/log-42',
+      );
+    });
   });
 }

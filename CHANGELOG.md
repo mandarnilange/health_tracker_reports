@@ -18,19 +18,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unit coverage for the LLM extraction stack (service/repository/use case) to lock in API contract behaviour (test/unit/data/datasources/external/*_llm_service_test.dart, test/unit/data/repositories/llm_extraction_repository_impl_test.dart, test/unit/domain/usecases/extract_report_from_file_llm_test.dart)
 - File I/O safety tests for the download writer, image processing, and failure helpers (test/unit/data/datasources/external/file_writer_service_test.dart, test/unit/data/datasources/external/image_processing_service_test.dart, test/unit/core/error/failures_test.dart)
 - Widget smoke tests for comparison analytics and settings screens to guard key UI flows (test/widget/pages/trends/comparison_view_test.dart, test/widget/pages/settings/settings_page_test.dart)
+- Presentation-layer safety nets to drive coverage above 90% overall:
+  - Color palette and router path unit tests (test/unit/presentation/theme/app_colors_test.dart, test/unit/presentation/router/route_names_test.dart)
+  - Export provider failure path matrix and search provider specs (test/unit/presentation/providers/export_provider_test.dart, test/unit/presentation/providers/search_provider_test.dart)
+  - Trend/comparison widgets covering loading/error prompts and statistics rendering (test/widget/pages/trends/trends_page_test.dart, test/widget/pages/trends/comparison_view_test.dart)
+  - Chart rendering capture contract to ensure PNG exports remain stable (test/widget/data/datasources/external/chart_rendering_service_test.dart)
+  - Vital trend summary parity assertions (test/unit/domain/entities/vital_trend_summary_test.dart)
 
 ### Coverage
-- Current overall line coverage: **79.4%** (4430/5579)
-- Layer breakdown: domain 89.4%, presentation 81.1%, data 69.4%, core 44.6%
-- Focus files below 70% (>=20 LOC):
-  - `lib/presentation/pages/health_log/health_log_entry_sheet.dart` (47.6%)
-  - `lib/presentation/pages/export/doctor_pdf_config_page.dart` (48.5%)
-  - `lib/presentation/pages/trends/comparison_view.dart` (69.3%)
-  - `lib/presentation/pages/trends/trends_page.dart` (62.1%)
-  - `lib/data/datasources/external/file_writer_service.dart` (54.3%)
-  - `lib/data/datasources/external/image_processing_service.dart` (53.3%)
-  - `lib/core/di/injection_container.dart` (40.7%)
-  - Generated Hive adapters (`lib/data/models/*.g.dart`) remain at <5%
+- Current overall line coverage: **90.73%** (4904/5405)
+- Layer breakdown: core 93.24%, domain 93.03%, data 90.90%, presentation 89.95%
+- Remaining focus files below 80% (>=20 LOC):
+  - `lib/presentation/router/app_router.dart` (56.9%)
+  - `lib/presentation/pages/home/reports_list_page.dart` (73.7%)
+  - `lib/presentation/providers/file_picker_provider.dart` (75.0%)
+  - `lib/presentation/providers/export_provider.dart` (77.4%)
+  - `lib/presentation/pages/report_detail/report_detail_page.dart` (79.8%)
 
 ## [0.2.0-beta] - 2025-10-23
 

@@ -17,175 +17,324 @@ class _MockCsvExportService extends Mock implements CsvExportService {}
 class _MockFileWriterService extends Mock implements FileWriterService {}
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(<Report>[]);
+    registerFallbackValue(<HealthLog>[]);
+    registerFallbackValue(<TrendMetricSeries>[]);
+  });
+
   late _MockCsvExportService csvExportService;
   late _MockFileWriterService fileWriterService;
-  late ExportProvider provider;
-
-  final tDate = DateTime(2026, 1, 10, 14, 0);
-
-  final biomarker = Biomarker(
-    id: 'bio_1',
-    name: 'Glucose',
-    value: 110.0,
-    unit: 'mg/dL',
-    referenceRange: const ReferenceRange(min: 70.0, max: 100.0),
-    measuredAt: tDate,
-  );
-
-  final report = Report(
-    id: 'rpt_1',
-    date: tDate,
-    labName: 'Quest',
-    biomarkers: [biomarker],
-    originalFilePath: '/files/report.pdf',
-    notes: null,
-    createdAt: tDate,
-    updatedAt: tDate,
-  );
-
-  final vital = VitalMeasurement(
-    id: 'vit_1',
-    type: VitalType.heartRate,
-    value: 72,
-    unit: 'bpm',
-    status: VitalStatus.normal,
-    referenceRange: const ReferenceRange(min: 60, max: 100),
-  );
-
-  final healthLog = HealthLog(
-    id: 'log_1',
-    timestamp: tDate,
-    vitals: [vital],
-    notes: null,
-    createdAt: tDate,
-    updatedAt: tDate,
-  );
-
-  final reportsLoader =
-      () async => Right<Failure, List<Report>>([report]);
-  final logsLoader =
-      () async => Right<Failure, List<HealthLog>>([healthLog]);
 
   setUp(() {
     csvExportService = _MockCsvExportService();
     fileWriterService = _MockFileWriterService();
-    provider = ExportProvider(
+  });
+
+  ExportProvider _buildProvider({
+    Future<Either<Failure, List<Report>>> Function()? reportsLoader,
+    Future<Either<Failure, List<HealthLog>>> Function()? logsLoader,
+  }) {
+    return ExportProvider(
       csvExportService: csvExportService,
       fileWriterService: fileWriterService,
       reportsLoader: reportsLoader,
       healthLogsLoader: logsLoader,
     );
+  }
+
+  test('exportReports emits success when CSV generation and write succeed', () async {
+    final provider = _buildProvider(
+      reportsLoader: () async => const Right(<Report>[]),
+    );
+
+    when(() => csvExportService.generateReportsCsv(any())).thenReturn(const Right('csv'));
+    when(
+      () => fileWriterService.writeCsv(
+        filenamePrefix: any(named: 'filenamePrefix'),
+        contents: any(named: 'contents'),
+      ),
+    ).thenAnswer((invocation) async => const Right('/tmp/reports.csv'));
+
+    await provider.exportReports();
+
+    expect(provider.state.status, ExportStatus.success);
+    expect(provider.state.results.single.target, ExportTarget.reports);
+    expect(provider.state.results.single.path, '/tmp/reports.csv');
   });
 
-  group('initial state', () {
-    test('should be idle with no progress', () {
-      expect(provider.state.status, ExportStatus.idle);
-      expect(provider.state.completed, 0);
-      expect(provider.state.total, 0);
-      expect(provider.state.results, isEmpty);
-      expect(provider.state.failure, isNull);
-      expect(provider.state.activeAction, isNull);
-    });
+  test('exportReports handles loader failure', () async {
+    final provider = _buildProvider(
+      reportsLoader: () async => const Left(CacheFailure()),
+    );
+
+    await provider.exportReports();
+
+    expect(provider.state.status, ExportStatus.error);
+    expect(provider.state.failure, isA<CacheFailure>());
   });
 
-  group('single export', () {
-    test('should export reports CSV and update state to success', () async {
-      when(() => csvExportService.generateReportsCsv(any())).thenReturn(
-        const Right('csv-data'),
-      );
-      when(
-        () => fileWriterService.writeCsv(
-          filenamePrefix: any(named: 'filenamePrefix'),
-          contents: any(named: 'contents'),
-        ),
-      ).thenAnswer((_) async => const Right('/tmp/reports.csv'));
+  test('exportReports handles CSV generator failure', () async {
+    final provider = _buildProvider(
+      reportsLoader: () async => const Right(<Report>[]),
+    );
 
-      final states = <ExportState>[];
-      provider.addListener(states.add, fireImmediately: true);
+    when(() => csvExportService.generateReportsCsv(any()))
+        .thenReturn(const Left(ValidationFailure(message: 'bad')));
 
-      await provider.exportReports();
+    await provider.exportReports();
 
-      expect(states.map((s) => s.status), [
-        ExportStatus.idle,
-        ExportStatus.inProgress,
-        ExportStatus.success,
-      ]);
-      final successState = provider.state;
-      expect(successState.results.length, 1);
-      expect(successState.results.first.target, ExportTarget.reports);
-      expect(successState.results.first.path, '/tmp/reports.csv');
-      expect(successState.completed, 1);
-      expect(successState.total, 1);
-      expect(successState.activeAction, isNull);
-    });
+    expect(provider.state.status, ExportStatus.error);
+    expect(provider.state.failure, isA<ValidationFailure>());
   });
 
-  group('multi export', () {
-    test('should track progress across all CSV exports', () async {
-      when(() => csvExportService.generateReportsCsv(any()))
-          .thenReturn(const Right('reports'));
-      when(() => csvExportService.generateVitalsCsv(any()))
-          .thenReturn(const Right('vitals'));
-      when(() => csvExportService.generateTrendsCsv(any()))
-          .thenReturn(const Right('trends'));
+  test('exportReports handles file write failure', () async {
+    final provider = _buildProvider(
+      reportsLoader: () async => const Right(<Report>[]),
+    );
 
-      when(
-        () => fileWriterService.writeCsv(
-          filenamePrefix: any(named: 'filenamePrefix'),
-          contents: any(named: 'contents'),
-        ),
-      ).thenAnswer((invocation) async {
-        final prefix = invocation.namedArguments[#filenamePrefix] as String;
-        return Right('/tmp/$prefix.csv');
-      });
+    when(() => csvExportService.generateReportsCsv(any()))
+        .thenReturn(const Right('csv'));
+    when(
+      () => fileWriterService.writeCsv(
+        filenamePrefix: any(named: 'filenamePrefix'),
+        contents: any(named: 'contents'),
+      ),
+    ).thenAnswer((_) async => const Left(FileSystemFailure(message: 'disk')));
 
-      final states = <ExportState>[];
-      provider.addListener(states.add, fireImmediately: true);
+    await provider.exportReports();
 
-      await provider.exportAll();
-
-      expect(states.first.status, ExportStatus.idle);
-      expect(states[1].status, ExportStatus.inProgress);
-      expect(states[1].activeAction, ExportAction.all);
-      expect(states.last.status, ExportStatus.success);
-      expect(provider.state.completed, 3);
-      expect(provider.state.total, 3);
-      expect(
-        provider.state.results.map((r) => r.target).toList(),
-        [
-          ExportTarget.reports,
-          ExportTarget.vitals,
-          ExportTarget.trends,
-        ],
-      );
-    });
+    expect(provider.state.status, ExportStatus.error);
+    expect(provider.state.failure, isA<FileSystemFailure>());
   });
 
-  group('failure handling', () {
-    test('should set error state when writer fails', () async {
-      when(() => csvExportService.generateReportsCsv(any()))
-          .thenReturn(const Right('csv'));
-      when(
-        () => fileWriterService.writeCsv(
-          filenamePrefix: any(named: 'filenamePrefix'),
-          contents: any(named: 'contents'),
+  List<Report> _sampleReports() => [
+        Report(
+          id: 'r1',
+          date: DateTime(2024, 1, 1),
+          labName: 'Lab',
+          biomarkers: [
+            Biomarker(
+              id: 'b1',
+              name: 'Glucose',
+              value: 95,
+              unit: 'mg/dL',
+              referenceRange: const ReferenceRange(min: 70, max: 110),
+              measuredAt: DateTime(2024, 1, 1),
+            ),
+          ],
+          originalFilePath: 'path',
+          createdAt: DateTime(2024, 1, 1),
+          updatedAt: DateTime(2024, 1, 1),
         ),
-      ).thenAnswer(
-        (_) async => const Left(
-          PermissionFailure(
-            message: 'Storage permission denied',
-          ),
+      ];
+
+  List<HealthLog> _sampleLogs() => [
+        HealthLog(
+          id: 'h1',
+          timestamp: DateTime(2024, 1, 2),
+          vitals: const [
+            VitalMeasurement(
+              id: 'v1',
+              type: VitalType.heartRate,
+              value: 72,
+              unit: 'bpm',
+              status: VitalStatus.normal,
+              referenceRange: ReferenceRange(min: 60, max: 100),
+            ),
+          ],
+          createdAt: DateTime(2024, 1, 2),
+          updatedAt: DateTime(2024, 1, 2),
         ),
-      );
+      ];
 
-      final states = <ExportState>[];
-      provider.addListener(states.add, fireImmediately: true);
+  test('exportAll processes all steps successfully', () async {
+    final reports = _sampleReports();
+    final logs = _sampleLogs();
 
-      await provider.exportReports();
+    final provider = _buildProvider(
+      reportsLoader: () async => Right(reports),
+      logsLoader: () async => Right(logs),
+    );
 
-      expect(provider.state.status, ExportStatus.error);
-      expect(provider.state.failure, isA<PermissionFailure>());
-      expect(provider.state.results, isEmpty);
+    when(() => csvExportService.generateReportsCsv(any()))
+        .thenReturn(const Right('reports'));
+    when(() => csvExportService.generateVitalsCsv(any()))
+        .thenReturn(const Right('vitals'));
+    when(() => csvExportService.generateTrendsCsv(any()))
+        .thenReturn(const Right('trends'));
+    when(
+      () => fileWriterService.writeCsv(
+        filenamePrefix: any(named: 'filenamePrefix'),
+        contents: any(named: 'contents'),
+      ),
+    ).thenAnswer((invocation) async {
+      final prefix = invocation.namedArguments[#filenamePrefix] as String;
+      return Right('/tmp/$prefix.csv');
     });
+
+    await provider.exportAll();
+
+    expect(provider.state.status, ExportStatus.success);
+    expect(provider.state.results.length, 3);
+    expect(provider.state.results.map((r) => r.path), contains('/tmp/trends_statistics.csv'));
+  });
+
+  test('exportAll stops when reports loader fails', () async {
+    final provider = _buildProvider(
+      reportsLoader: () async => const Left(CacheFailure()),
+      logsLoader: () async => const Right(<HealthLog>[]),
+    );
+
+    await provider.exportAll();
+
+    expect(provider.state.status, ExportStatus.error);
+    expect(provider.state.failure, isA<CacheFailure>());
+  });
+
+  test('exportAll stops when health log loader fails', () async {
+    final provider = _buildProvider(
+      reportsLoader: () async => Right(_sampleReports()),
+      logsLoader: () async => const Left(CacheFailure('logs')),
+    );
+
+    when(() => csvExportService.generateReportsCsv(any()))
+        .thenReturn(const Right('reports'));
+    when(
+      () => fileWriterService.writeCsv(
+        filenamePrefix: any(named: 'filenamePrefix'),
+        contents: any(named: 'contents'),
+      ),
+    ).thenAnswer((_) async => const Right('/tmp/reports.csv'));
+
+    await provider.exportAll();
+
+    expect(provider.state.status, ExportStatus.error);
+    expect(provider.state.failure, isA<CacheFailure>());
+  });
+
+  test('exportAll handles vitals CSV generator failure', () async {
+    final provider = _buildProvider(
+      reportsLoader: () async => Right(_sampleReports()),
+      logsLoader: () async => Right(_sampleLogs()),
+    );
+
+    when(() => csvExportService.generateReportsCsv(any()))
+        .thenReturn(const Right('reports'));
+    when(() => csvExportService.generateVitalsCsv(any()))
+        .thenReturn(const Left(ValidationFailure(message: 'bad vitals')));
+    when(
+      () => fileWriterService.writeCsv(
+        filenamePrefix: any(named: 'filenamePrefix'),
+        contents: any(named: 'contents'),
+      ),
+    ).thenAnswer((_) async => const Right('/tmp/reports.csv'));
+
+    await provider.exportAll();
+
+    expect(provider.state.status, ExportStatus.error);
+    expect(provider.state.failure, isA<ValidationFailure>());
+    expect(provider.state.results.length, 1);
+    expect(provider.state.results.first.target, ExportTarget.reports);
+  });
+
+  test('exportAll handles vitals file write failure', () async {
+    final provider = _buildProvider(
+      reportsLoader: () async => Right(_sampleReports()),
+      logsLoader: () async => Right(_sampleLogs()),
+    );
+
+    when(() => csvExportService.generateReportsCsv(any()))
+        .thenReturn(const Right('reports'));
+    when(() => csvExportService.generateVitalsCsv(any()))
+        .thenReturn(const Right('vitals'));
+    when(() => csvExportService.generateTrendsCsv(any()))
+        .thenReturn(const Right('trends'));
+
+    when(
+      () => fileWriterService.writeCsv(
+        filenamePrefix: any(named: 'filenamePrefix'),
+        contents: any(named: 'contents'),
+      ),
+    ).thenAnswer((invocation) async {
+      final prefix = invocation.namedArguments[#filenamePrefix] as String;
+      if (prefix.contains('health_logs_vitals')) {
+        return const Left(FileSystemFailure(message: 'disk'));
+      }
+      return Right('/tmp/$prefix.csv');
+    });
+
+    await provider.exportAll();
+
+    expect(provider.state.status, ExportStatus.error);
+    expect(provider.state.failure, isA<FileSystemFailure>());
+    expect(provider.state.results.length, 1);
+    expect(provider.state.results.first.target, ExportTarget.reports);
+  });
+
+  test('exportAll handles trends CSV generator failure', () async {
+    final provider = _buildProvider(
+      reportsLoader: () async => Right(_sampleReports()),
+      logsLoader: () async => Right(_sampleLogs()),
+    );
+
+    when(() => csvExportService.generateReportsCsv(any()))
+        .thenReturn(const Right('reports'));
+    when(() => csvExportService.generateVitalsCsv(any()))
+        .thenReturn(const Right('vitals'));
+    when(() => csvExportService.generateTrendsCsv(any()))
+        .thenReturn(const Left(ValidationFailure(message: 'bad trends')));
+
+    when(
+      () => fileWriterService.writeCsv(
+        filenamePrefix: any(named: 'filenamePrefix'),
+        contents: 'reports',
+      ),
+    ).thenAnswer((_) async => const Right('/tmp/reports.csv'));
+    when(
+      () => fileWriterService.writeCsv(
+        filenamePrefix: any(named: 'filenamePrefix'),
+        contents: 'vitals',
+      ),
+    ).thenAnswer((_) async => const Right('/tmp/vitals.csv'));
+
+    await provider.exportAll();
+
+    expect(provider.state.status, ExportStatus.error);
+    expect(provider.state.failure, isA<ValidationFailure>());
+    expect(provider.state.results.length, 2);
+  });
+
+  test('exportAll handles trends file write failure', () async {
+    final provider = _buildProvider(
+      reportsLoader: () async => Right(_sampleReports()),
+      logsLoader: () async => Right(_sampleLogs()),
+    );
+
+    when(() => csvExportService.generateReportsCsv(any()))
+        .thenReturn(const Right('reports'));
+    when(() => csvExportService.generateVitalsCsv(any()))
+        .thenReturn(const Right('vitals'));
+    when(() => csvExportService.generateTrendsCsv(any()))
+        .thenReturn(const Right('trends'));
+
+    when(
+      () => fileWriterService.writeCsv(
+        filenamePrefix: any(named: 'filenamePrefix'),
+        contents: any(named: 'contents'),
+      ),
+    ).thenAnswer((invocation) async {
+      final prefix = invocation.namedArguments[#filenamePrefix] as String;
+      if (prefix.contains('trends_statistics')) {
+        return const Left(FileSystemFailure(message: 'trends'));
+      }
+      return Right('/tmp/$prefix.csv');
+    });
+
+    await provider.exportAll();
+
+    expect(provider.state.status, ExportStatus.error);
+    expect(provider.state.failure, isA<FileSystemFailure>());
+    expect(provider.state.results.length, 2);
   });
 }

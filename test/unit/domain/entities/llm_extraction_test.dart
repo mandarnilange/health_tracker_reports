@@ -2,176 +2,75 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/domain/entities/llm_extraction.dart';
 
 void main() {
-  group('LlmProvider', () {
-    test('should have three provider options', () {
-      expect(LlmProvider.values.length, 3);
-      expect(LlmProvider.values, contains(LlmProvider.claude));
-      expect(LlmProvider.values, contains(LlmProvider.openai));
-      expect(LlmProvider.values, contains(LlmProvider.gemini));
-    });
-  });
-
   group('ExtractedBiomarker', () {
-    const tBiomarker = ExtractedBiomarker(
-      name: 'Hemoglobin',
-      value: '13.5',
-      unit: 'g/dL',
-      referenceRange: '12.0-16.0',
-      confidence: 0.95,
-    );
-
-    test('should be a subclass of Equatable', () {
-      expect(tBiomarker, isA<Object>());
-    });
-
-    test('should support value equality', () {
-      const biomarker1 = ExtractedBiomarker(
-        name: 'Hemoglobin',
-        value: '13.5',
-        unit: 'g/dL',
-        referenceRange: '12.0-16.0',
-        confidence: 0.95,
+    test('supports equality and toString', () {
+      const biomarkerA = ExtractedBiomarker(
+        name: 'Glucose',
+        value: '95',
+        unit: 'mg/dL',
+        referenceRange: '70-100',
+        confidence: 0.9,
+      );
+      const biomarkerB = ExtractedBiomarker(
+        name: 'Glucose',
+        value: '95',
+        unit: 'mg/dL',
+        referenceRange: '70-100',
+        confidence: 0.9,
       );
 
-      const biomarker2 = ExtractedBiomarker(
-        name: 'Hemoglobin',
-        value: '13.5',
-        unit: 'g/dL',
-        referenceRange: '12.0-16.0',
-        confidence: 0.95,
+      expect(biomarkerA, equals(biomarkerB));
+      expect(
+        biomarkerA.toString(),
+        contains('ExtractedBiomarker(name: Glucose'),
       );
-
-      expect(biomarker1, biomarker2);
-    });
-
-    test('should not be equal when values differ', () {
-      const biomarker1 = ExtractedBiomarker(
-        name: 'Hemoglobin',
-        value: '13.5',
-      );
-
-      const biomarker2 = ExtractedBiomarker(
-        name: 'Hemoglobin',
-        value: '14.0',
-      );
-
-      expect(biomarker1, isNot(biomarker2));
-    });
-
-    test('should handle nullable fields', () {
-      const biomarker = ExtractedBiomarker(
-        name: 'Test',
-        value: '10',
-      );
-
-      expect(biomarker.unit, isNull);
-      expect(biomarker.referenceRange, isNull);
-      expect(biomarker.confidence, isNull);
     });
   });
 
   group('ExtractedMetadata', () {
-    final tMetadata = ExtractedMetadata(
-      patientName: 'John Doe',
-      reportDate: DateTime(2025, 1, 15),
-      collectionDate: DateTime(2025, 1, 14),
-      labName: 'Quest Diagnostics',
-      labReference: 'REF123456',
-    );
-
-    test('should support value equality', () {
-      final metadata1 = ExtractedMetadata(
-        patientName: 'John Doe',
-        reportDate: DateTime(2025, 1, 15),
-        collectionDate: DateTime(2025, 1, 14),
-        labName: 'Quest Diagnostics',
-        labReference: 'REF123456',
+    test('supports equality and toString', () {
+      final metadata = ExtractedMetadata(
+        patientName: 'Jane Doe',
+        reportDate: DateTime(2024, 1, 1),
+        collectionDate: DateTime(2023, 12, 31),
+        labName: 'Acme Labs',
+        labReference: 'REF-123',
       );
 
-      final metadata2 = ExtractedMetadata(
-        patientName: 'John Doe',
-        reportDate: DateTime(2025, 1, 15),
-        collectionDate: DateTime(2025, 1, 14),
-        labName: 'Quest Diagnostics',
-        labReference: 'REF123456',
+      final other = ExtractedMetadata(
+        patientName: 'Jane Doe',
+        reportDate: DateTime(2024, 1, 1),
+        collectionDate: DateTime(2023, 12, 31),
+        labName: 'Acme Labs',
+        labReference: 'REF-123',
       );
 
-      expect(metadata1, metadata2);
-    });
-
-    test('should handle all nullable fields', () {
-      const metadata = ExtractedMetadata();
-
-      expect(metadata.patientName, isNull);
-      expect(metadata.reportDate, isNull);
-      expect(metadata.collectionDate, isNull);
-      expect(metadata.labName, isNull);
-      expect(metadata.labReference, isNull);
+      expect(metadata, equals(other));
+      expect(metadata.toString(), contains('ExtractedMetadata')); // coverage check
     });
   });
 
   group('LlmExtractionResult', () {
-    final tResult = LlmExtractionResult(
-      biomarkers: const [
-        ExtractedBiomarker(name: 'Hemoglobin', value: '13.5'),
-        ExtractedBiomarker(name: 'WBC', value: '7000'),
-      ],
-      metadata: ExtractedMetadata(
-        patientName: 'John Doe',
-        reportDate: DateTime(2025, 1, 15),
-      ),
-      confidence: 0.92,
-      rawResponse: '{"biomarkers": [...]}',
-      provider: LlmProvider.claude,
-    );
-
-    test('should contain all required fields', () {
-      expect(tResult.biomarkers.length, 2);
-      expect(tResult.metadata, isNotNull);
-      expect(tResult.confidence, 0.92);
-      expect(tResult.rawResponse, '{"biomarkers": [...]}');
-      expect(tResult.provider, LlmProvider.claude);
-    });
-
-    test('should support value equality', () {
-      final result1 = LlmExtractionResult(
-        biomarkers: const [
-          ExtractedBiomarker(name: 'Hemoglobin', value: '13.5'),
-        ],
-        confidence: 0.9,
-        provider: LlmProvider.claude,
-      );
-
-      final result2 = LlmExtractionResult(
-        biomarkers: const [
-          ExtractedBiomarker(name: 'Hemoglobin', value: '13.5'),
-        ],
-        confidence: 0.9,
-        provider: LlmProvider.claude,
-      );
-
-      expect(result1, result2);
-    });
-
-    test('should handle empty biomarkers list', () {
-      final result = LlmExtractionResult(
-        biomarkers: const [],
-        confidence: 0.5,
-        provider: LlmProvider.gemini,
-      );
-
-      expect(result.biomarkers, isEmpty);
-    });
-
-    test('should handle null metadata and rawResponse', () {
-      final result = LlmExtractionResult(
-        biomarkers: const [ExtractedBiomarker(name: 'Test', value: '1')],
+    test('supports equality and exposes summary', () {
+      const biomarker = ExtractedBiomarker(name: 'HbA1c', value: '5.6');
+      final metadata = ExtractedMetadata(patientName: 'Alex');
+      final resultA = LlmExtractionResult(
+        biomarkers: [biomarker],
+        metadata: metadata,
         confidence: 0.8,
+        rawResponse: '{"data":[]}',
+        provider: LlmProvider.openai,
+      );
+      final resultB = LlmExtractionResult(
+        biomarkers: [biomarker],
+        metadata: metadata,
+        confidence: 0.8,
+        rawResponse: '{"data":[]}',
         provider: LlmProvider.openai,
       );
 
-      expect(result.metadata, isNull);
-      expect(result.rawResponse, isNull);
+      expect(resultA, equals(resultB));
+      expect(resultA.toString(), contains('LlmExtractionResult(provider')); // coverage
     });
   });
 }

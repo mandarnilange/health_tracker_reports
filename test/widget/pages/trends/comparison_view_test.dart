@@ -214,4 +214,140 @@ void main() {
     expect(find.text('Need more reports'), findsOneWidget);
     expect(find.textContaining('Select at least one more report'), findsOneWidget);
   });
+
+  testWidgets('shows biomarker selection prompts and clear action', (tester) async {
+    final reports = [
+      _createReport(id: 'R1', date: DateTime(2024, 1, 1), value: 13.5),
+      _createReport(id: 'R2', date: DateTime(2024, 2, 1), value: 14.5),
+    ];
+
+    await _pumpWithOverrides(
+      tester,
+      loadReports: () async => Right(reports),
+    );
+    await tester.pump();
+
+    // Initial state -> prompt to pick biomarker
+    expect(find.text('Select a biomarker'), findsWidgets);
+
+    final notifier = container.read(comparisonProvider.notifier);
+    notifier.state = notifier.state.copyWith(
+      selectedBiomarkerName: 'Hemoglobin',
+    );
+    await tester.pump();
+
+    expect(find.text('Select reports'), findsOneWidget);
+
+    notifier.state = notifier.state.copyWith(
+      selectedReportIds: {'R1', 'R2'},
+      comparisonData: const AsyncValue.data(null),
+    );
+    await tester.pump();
+
+    expect(find.text('Ready to compare'), findsOneWidget);
+    expect(find.byTooltip('Clear selection'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Clear selection'));
+    await tester.pump();
+
+    expect(find.text('Select a biomarker'), findsWidgets);
+  });
+
+  testWidgets('renders loading and error states for comparison data', (tester) async {
+    final reports = [
+      _createReport(id: 'R1', date: DateTime(2024, 1, 1), value: 13.5),
+      _createReport(id: 'R2', date: DateTime(2024, 2, 1), value: 14.5),
+    ];
+
+    await _pumpWithOverrides(
+      tester,
+      loadReports: () async => Right(reports),
+    );
+    await tester.pump();
+
+    final notifier = container.read(comparisonProvider.notifier);
+    notifier.state = ComparisonState(
+      selectedReportIds: {'R1', 'R2'},
+      selectedBiomarkerName: 'Hemoglobin',
+      comparisonData: const AsyncValue.loading(),
+    );
+    await tester.pump();
+
+    expect(find.text('Loading comparison data...'), findsOneWidget);
+
+    notifier.state = ComparisonState(
+      selectedReportIds: {'R1', 'R2'},
+      selectedBiomarkerName: 'Hemoglobin',
+      comparisonData: AsyncValue.error(const CacheFailure('oops'), StackTrace.empty),
+    );
+    await tester.pump();
+
+    expect(find.text('Failed to load comparison'), findsOneWidget);
+    expect(find.text('oops'), findsOneWidget);
+  });
+
+  testWidgets('renders trend chip variants for each direction', (tester) async {
+    final reports = [
+      _createReport(id: 'R1', date: DateTime(2024, 1, 1), value: 13.5),
+      _createReport(id: 'R2', date: DateTime(2024, 2, 1), value: 14.5),
+    ];
+
+    await _pumpWithOverrides(
+      tester,
+      loadReports: () async => Right(reports),
+    );
+    await tester.pump();
+
+    final notifier = container.read(comparisonProvider.notifier);
+    final baseComparison = BiomarkerComparison(
+      biomarkerName: 'Hemoglobin',
+      comparisons: [
+        ComparisonDataPoint(
+          reportId: 'R1',
+          reportDate: reports[0].date,
+          value: 13.5,
+          unit: 'g/dL',
+          status: BiomarkerStatus.normal,
+          deltaFromPrevious: null,
+          percentageChangeFromPrevious: null,
+        ),
+        ComparisonDataPoint(
+          reportId: 'R2',
+          reportDate: reports[1].date,
+          value: 14.5,
+          unit: 'g/dL',
+          status: BiomarkerStatus.normal,
+          deltaFromPrevious: 1,
+          percentageChangeFromPrevious: 7,
+        ),
+      ],
+      overallTrend: TrendDirection.increasing,
+    );
+
+    Future<void> pumpForTrend(TrendDirection direction) async {
+      notifier.state = ComparisonState(
+        selectedReportIds: {'R1', 'R2'},
+        selectedBiomarkerName: 'Hemoglobin',
+        comparisonData: AsyncValue.data(
+          baseComparison.copyWith(overallTrend: direction),
+        ),
+      );
+      await tester.pump();
+    }
+
+    await pumpForTrend(TrendDirection.increasing);
+    expect(find.text('Increasing'), findsOneWidget);
+
+    await pumpForTrend(TrendDirection.decreasing);
+    expect(find.text('Decreasing'), findsOneWidget);
+
+    await pumpForTrend(TrendDirection.stable);
+    expect(find.text('Stable'), findsOneWidget);
+
+    await pumpForTrend(TrendDirection.fluctuating);
+    expect(find.text('Fluctuating'), findsOneWidget);
+
+    await pumpForTrend(TrendDirection.insufficient);
+    expect(find.text('Insufficient data'), findsOneWidget);
+  });
 }
