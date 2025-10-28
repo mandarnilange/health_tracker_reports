@@ -1,62 +1,45 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:dartz/dartz.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/data/datasources/external/share_service.dart';
+import 'package:share_plus/share_plus.dart';
 
-class MockShareWrapper extends Mock implements ShareWrapper {}
+class _FakeShareWrapper implements ShareWrapper {
+  _FakeShareWrapper({this.shouldThrow = false});
+
+  final bool shouldThrow;
+  List<XFile>? shared;
+
+  @override
+  Future<void> shareXFiles(List<XFile> files) async {
+    if (shouldThrow) {
+      throw Exception('share failed');
+    }
+    shared = files;
+  }
+}
 
 void main() {
-  late ShareService service;
-  late MockShareWrapper mockShareWrapper;
+  test('shareFile delegates to wrapper and returns success', () async {
+    final wrapper = _FakeShareWrapper();
+    final service = ShareServiceImpl(shareWrapper: wrapper);
+    final file = XFile('path/to/file');
 
-  setUp(() {
-    mockShareWrapper = MockShareWrapper();
-    service = ShareServiceImpl(shareWrapper: mockShareWrapper);
+    final result = await service.shareFile(file);
+
+    expect(result, equals(const Right(null)));
+    expect(wrapper.shared, isNotNull);
+    expect(wrapper.shared, contains(file));
   });
 
-  group('ShareService', () {
-    test('should call Share.shareXFiles with the correct file', () async {
-      // Arrange
-      final file = XFile('/path/to/file.pdf');
-      when(() => mockShareWrapper.shareXFiles([file])).thenAnswer((_) async {});
+  test('shareFile surfaces ShareFailure when wrapper throws', () async {
+    final wrapper = _FakeShareWrapper(shouldThrow: true);
+    final service = ShareServiceImpl(shareWrapper: wrapper);
+    final file = XFile('path/to/file');
 
-      // Act
-      await service.shareFile(file);
+    final result = await service.shareFile(file);
 
-      // Assert
-      verify(() => mockShareWrapper.shareXFiles([file])).called(1);
-    });
-
-    test('should return ShareFailure when sharing fails', () async {
-      // Arrange
-      final file = XFile('/path/to/file.pdf');
-      when(() => mockShareWrapper.shareXFiles([file])).thenThrow(Exception('Share failed'));
-
-      // Act
-      final result = await service.shareFile(file);
-
-      // Assert
-            expect(result, isA<Left<Failure, void>>());
-            result.fold(
-              (failure) => expect(failure, isA<ShareFailure>()),
-              (_) => fail('should not succeed'),
-            );
-          });
-      
-          test('should return Right(null) when share is cancelled', () async {
-            // Arrange
-            final file = XFile('/path/to/file.pdf');
-            when(() => mockShareWrapper.shareXFiles([file])).thenAnswer((_) async => ShareResult('', ShareResultStatus.dismissed));
-      
-            // Act
-            final result = await service.shareFile(file);
-      
-            // Assert
-            expect(result, const Right(null));
-          });
-        });
-      }
-      
+    expect(result.isLeft(), isTrue);
+    expect(result.fold((f) => f, (_) => null), isA<ShareFailure>());
+  });
+}

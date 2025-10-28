@@ -31,4 +31,23 @@ void main() {
     expect(permission.message, 'Storage permission denied');
     expect(storage.message, 'Disk full');
   });
+
+  test('failure subclasses default message behaviour', () {
+    const cache = CacheFailure();
+    const filePicker = FilePickerFailure();
+    const network = NetworkFailure();
+    const notFound = NotFoundFailure(message: 'Missing report');
+    const validation = ValidationFailure(message: 'Invalid input');
+    const embedding = EmbeddingFailure(message: 'Embedding failed');
+    const invalidResponse =
+        InvalidResponseFailure(message: 'Malformed payload');
+
+    expect(cache.message, contains('Failed to access'));
+    expect(filePicker.message, contains('Failed to select file'));
+    expect(network.message, contains('Network connection failed'));
+    expect(notFound.message, 'Missing report');
+    expect(validation.message, 'Invalid input');
+    expect(embedding.message, 'Embedding failed');
+    expect(invalidResponse.message, 'Malformed payload');
+  });
 }

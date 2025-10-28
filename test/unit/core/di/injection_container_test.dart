@@ -1,12 +1,21 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/core/di/injection_container.dart';
 import 'package:health_tracker_reports/data/datasources/external/chart_rendering_service.dart';
+import 'package:health_tracker_reports/data/datasources/local/hive_database.dart';
 import 'package:health_tracker_reports/data/datasources/external/claude_llm_service.dart';
 import 'package:health_tracker_reports/data/datasources/external/gemini_llm_service.dart';
 import 'package:health_tracker_reports/data/datasources/external/openai_llm_service.dart';
 import 'package:health_tracker_reports/data/datasources/external/pdf_generator_service.dart';
 import 'package:health_tracker_reports/data/datasources/external/share_service.dart';
+import 'package:health_tracker_reports/data/models/app_config_model.dart';
+import 'package:health_tracker_reports/data/models/health_log_model.dart';
+import 'package:health_tracker_reports/data/models/report_model.dart';
 import 'package:health_tracker_reports/domain/entities/llm_extraction.dart';
+import 'package:hive/hive.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:uuid/uuid.dart';
 
@@ -70,6 +79,59 @@ void main() {
       final uuid = module.uuid;
       expect(uuid, isA<Uuid>());
       expect(uuid.v4().length, 36);
+    });
+
+    test('dio provider yields Dio instance', () {
+      final dio = module.dio;
+      expect(dio, isA<Dio>());
+    });
+
+    test('secureStorage provider yields FlutterSecureStorage', () {
+      final storage = module.secureStorage;
+      expect(storage, isA<FlutterSecureStorage>());
+    });
+
+    test('hive getter returns Hive interface', () {
+      final hive = module.hive;
+      expect(hive, Hive);
+    });
+
+    group('Hive database bindings', () {
+      late Directory tempDir;
+
+      setUpAll(() async {
+        tempDir = await Directory.systemTemp.createTemp('hive_test');
+        Hive.init(tempDir.path);
+        final db = HiveDatabase(hive: Hive);
+        await db.init();
+        await db.openBoxes();
+      });
+
+      tearDownAll(() async {
+        await Hive.deleteBoxFromDisk(HiveDatabase.reportBoxName);
+        await Hive.deleteBoxFromDisk(HiveDatabase.configBoxName);
+        await Hive.deleteBoxFromDisk(HiveDatabase.healthLogBoxName);
+        await Hive.close();
+        await tempDir.delete(recursive: true);
+      });
+
+      test('reportBox returns opened Hive box', () {
+        final box = module.reportBox;
+        expect(box.name, HiveDatabase.reportBoxName);
+        expect(box, isA<Box<ReportModel>>());
+      });
+
+      test('configBox returns opened Hive box', () {
+        final box = module.configBox;
+        expect(box.name, HiveDatabase.configBoxName);
+        expect(box, isA<Box<AppConfigModel>>());
+      });
+
+      test('healthLogBox returns opened Hive box', () {
+        final box = module.healthLogBox;
+        expect(box.name, HiveDatabase.healthLogBoxName);
+        expect(box, isA<Box<HealthLogModel>>());
+      });
     });
   });
 }

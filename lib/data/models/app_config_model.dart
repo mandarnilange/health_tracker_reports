@@ -40,26 +40,25 @@ class AppConfigModel extends AppConfig {
 
   /// Creates an [AppConfigModel] from a JSON map
   factory AppConfigModel.fromJson(Map<String, dynamic> json) {
-    // Parse llmApiKeys map
-    final apiKeysMap = json['llmApiKeys'] as Map<String, dynamic>? ?? {};
-    final llmApiKeys = <LlmProvider, String>{};
-    apiKeysMap.forEach((key, value) {
-      final provider = LlmProvider.values.firstWhere(
-        (p) => p.name == key,
-        orElse: () => LlmProvider.claude,
-      );
-      llmApiKeys[provider] = value as String;
-    });
+    final rawApiKeys = json['llmApiKeys'];
+    final parsedApiKeys = <LlmProvider, String>{};
 
-    // Parse llmProvider
-    final providerString = json['llmProvider'] as String? ?? 'claude';
-    final llmProvider = LlmProvider.values.firstWhere(
-      (p) => p.name == providerString,
-      orElse: () => LlmProvider.claude,
-    );
+    if (rawApiKeys is Map) {
+      rawApiKeys.forEach((key, value) {
+        if (key is! String) return;
+        final provider = _tryParseProvider(key);
+        if (provider == null) return;
+        if (value is String && value.isNotEmpty) {
+          parsedApiKeys[provider] = value;
+        }
+      });
+    }
+
+    final providerString = json['llmProvider'] as String?;
+    final llmProvider = _tryParseProvider(providerString ?? '') ?? LlmProvider.claude;
 
     return AppConfigModel(
-      llmApiKeys: llmApiKeys,
+      llmApiKeys: parsedApiKeys,
       llmProvider: llmProvider,
       darkModeEnabled: json['darkModeEnabled'] as bool? ?? false,
     );
@@ -85,5 +84,14 @@ class AppConfigModel extends AppConfig {
       llmProvider: llmProvider,
       darkModeEnabled: darkModeEnabled,
     );
+  }
+
+  static LlmProvider? _tryParseProvider(String name) {
+    for (final provider in LlmProvider.values) {
+      if (provider.name == name) {
+        return provider;
+      }
+    }
+    return null;
   }
 }

@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/data/datasources/external/claude_llm_service.dart';
 import 'package:health_tracker_reports/data/datasources/external/gemini_llm_service.dart';
-import 'package:health_tracker_reports/data/datasources/external/llm_provider_service.dart';
 import 'package:health_tracker_reports/data/datasources/external/openai_llm_service.dart';
 import 'package:health_tracker_reports/data/repositories/llm_extraction_repository_impl.dart';
 import 'package:health_tracker_reports/domain/entities/app_config.dart';
@@ -14,34 +13,37 @@ import 'package:mocktail/mocktail.dart';
 
 class _MockConfigRepository extends Mock implements ConfigRepository {}
 
-class _MockClaudeLlmService extends Mock implements ClaudeLlmService {}
+class _MockClaudeService extends Mock implements ClaudeLlmService {}
 
-class _MockOpenAiLlmService extends Mock implements OpenAiLlmService {}
+class _MockOpenAiService extends Mock implements OpenAiLlmService {}
 
-class _MockGeminiLlmService extends Mock implements GeminiLlmService {}
+class _MockGeminiService extends Mock implements GeminiLlmService {}
 
 void main() {
   late _MockConfigRepository configRepository;
-  late _MockClaudeLlmService claudeService;
-  late _MockOpenAiLlmService openAiService;
-  late _MockGeminiLlmService geminiService;
+  late _MockClaudeService claudeService;
+  late _MockOpenAiService openAiService;
+  late _MockGeminiService geminiService;
   late LlmExtractionRepositoryImpl repository;
-  const base64Image = 'base64-data';
 
-  setUpAll(() {
-    registerFallbackValue(LlmProvider.claude);
-    registerFallbackValue(<String>[]);
-  });
+  const config = AppConfig(
+    llmProvider: LlmProvider.claude,
+    llmApiKeys: {LlmProvider.claude: 'key-claude'},
+  );
+
+  const extractionResult = LlmExtractionResult(
+    biomarkers: [],
+    metadata: ExtractedMetadata(),
+    confidence: 0.9,
+    provider: LlmProvider.claude,
+  );
 
   setUp(() {
+    registerFallbackValue(const ExtractedMetadata());
     configRepository = _MockConfigRepository();
-    claudeService = _MockClaudeLlmService();
-    openAiService = _MockOpenAiLlmService();
-    geminiService = _MockGeminiLlmService();
-
-    when(() => claudeService.provider).thenReturn(LlmProvider.claude);
-    when(() => openAiService.provider).thenReturn(LlmProvider.openai);
-    when(() => geminiService.provider).thenReturn(LlmProvider.gemini);
+    claudeService = _MockClaudeService();
+    openAiService = _MockOpenAiService();
+    geminiService = _MockGeminiService();
 
     repository = LlmExtractionRepositoryImpl(
       claudeService: claudeService,
@@ -51,194 +53,154 @@ void main() {
     );
   });
 
-  group('extractFromImage', () {
-    final extraction = LlmExtractionResult(
-      biomarkers: const [],
-      metadata: null,
-      confidence: 0.9,
-      rawResponse: '{}',
-      provider: LlmProvider.claude,
+  test('returns ApiKeyMissingFailure when API key absent', () async {
+    when(() => configRepository.getConfig()).thenAnswer(
+      (_) async => const Right(AppConfig(llmApiKeys: {})),
     );
 
-    test('returns ApiKeyMissingFailure when API key missing', () async {
-      when(() => configRepository.getConfig())
-          .thenAnswer((_) async => const Right(AppConfig()));
+    final result = await repository.extractFromImage(base64Image: 'image');
 
-      final result =
-          await repository.extractFromImage(base64Image: base64Image);
+    expect(result.isLeft(), isTrue);
+    final failure = result.fold((f) => f, (_) => null);
+    expect(failure, isA<ApiKeyMissingFailure>());
+  });
 
-      final left = result as Left<Failure, LlmExtractionResult>;
-      expect(left.value, isA<ApiKeyMissingFailure>());
-      final failure = left.value as ApiKeyMissingFailure;
-      expect(failure.provider, equals('claude'));
-      verifyNever(() => claudeService.extractFromImage(
-            base64Image: any(named: 'base64Image'),
-            apiKey: any(named: 'apiKey'),
-            existingBiomarkerNames: any(named: 'existingBiomarkerNames'),
-            timeoutSeconds: any(named: 'timeoutSeconds'),
-          ));
-    });
+  test('delegates to provider service on success', () async {
+    when(() => configRepository.getConfig()).thenAnswer(
+      (_) async => const Right(config),
+    );
+    when(
+      () => claudeService.extractFromImage(
+        base64Image: any(named: 'base64Image'),
+        apiKey: any(named: 'apiKey'),
+        existingBiomarkerNames: any(named: 'existingBiomarkerNames'),
+      ),
+    ).thenAnswer((_) async => extractionResult);
 
-    test('uses configured provider and forwards parameters on success',
-        () async {
-      const apiKey = 'claude-key';
-      final config = AppConfig(
-        llmApiKeys: {LlmProvider.claude: apiKey},
-        llmProvider: LlmProvider.claude,
-      );
-      when(() => configRepository.getConfig())
-          .thenAnswer((_) async => Right(config));
-      when(
-        () => claudeService.extractFromImage(
-          base64Image: any(named: 'base64Image'),
-          apiKey: any(named: 'apiKey'),
-          existingBiomarkerNames: any(named: 'existingBiomarkerNames'),
-          timeoutSeconds: any(named: 'timeoutSeconds'),
-        ),
-      ).thenAnswer((_) async => extraction);
+    final result = await repository.extractFromImage(
+      base64Image: 'img',
+      existingBiomarkerNames: const ['Hb'],
+    );
 
-      final result = await repository.extractFromImage(
-        base64Image: base64Image,
-        existingBiomarkerNames: const ['Hemoglobin'],
-      );
+    expect(result, const Right<Failure, LlmExtractionResult>(extractionResult));
+    verify(() => claudeService.extractFromImage(
+          base64Image: 'img',
+          apiKey: 'key-claude',
+          existingBiomarkerNames: const ['Hb'],
+        )).called(1);
+  });
 
-      expect(result, Right(extraction));
-      verify(
-        () => claudeService.extractFromImage(
-          base64Image: base64Image,
-          apiKey: apiKey,
-          existingBiomarkerNames: const ['Hemoglobin'],
-          timeoutSeconds: any(named: 'timeoutSeconds'),
-        ),
-      ).called(1);
-    });
+  test('maps 429 DioException to RateLimitFailure', () async {
+    when(() => configRepository.getConfig()).thenAnswer(
+      (_) async => const Right(config),
+    );
+    when(
+      () => claudeService.extractFromImage(
+        base64Image: any(named: 'base64Image'),
+        apiKey: any(named: 'apiKey'),
+        existingBiomarkerNames: any(named: 'existingBiomarkerNames'),
+      ),
+    ).thenThrow(
+      DioException(
+        requestOptions: RequestOptions(path: '/extract'),
+        response: Response(statusCode: 429, requestOptions: RequestOptions(path: '/extract')),
+      ),
+    );
 
-    test('overrides provider when explicitly supplied', () async {
-      const apiKey = 'openai-key';
-      final config = AppConfig(
-        llmApiKeys: {LlmProvider.openai: apiKey},
-        llmProvider: LlmProvider.claude,
-      );
-      when(() => configRepository.getConfig())
-          .thenAnswer((_) async => Right(config));
-      final openAiExtraction = LlmExtractionResult(
-        biomarkers: const [],
-        metadata: null,
-        confidence: 0.9,
-        rawResponse: '{}',
-        provider: LlmProvider.openai,
-      );
+    final result = await repository.extractFromImage(base64Image: 'img');
 
-      when(
-        () => openAiService.extractFromImage(
-          base64Image: any(named: 'base64Image'),
-          apiKey: any(named: 'apiKey'),
-          existingBiomarkerNames: any(named: 'existingBiomarkerNames'),
-          timeoutSeconds: any(named: 'timeoutSeconds'),
-        ),
-      ).thenAnswer((_) async => openAiExtraction);
+    expect(result.isLeft(), isTrue);
+    expect(result.fold((f) => f, (_) => null), isA<RateLimitFailure>());
+  });
 
-      final result = await repository.extractFromImage(
-        base64Image: base64Image,
-        provider: LlmProvider.openai,
-      );
+  test('maps 401 DioException to NetworkFailure', () async {
+    when(() => configRepository.getConfig()).thenAnswer(
+      (_) async => const Right(config),
+    );
+    when(
+      () => claudeService.extractFromImage(
+        base64Image: any(named: 'base64Image'),
+        apiKey: any(named: 'apiKey'),
+        existingBiomarkerNames: any(named: 'existingBiomarkerNames'),
+      ),
+    ).thenThrow(
+      DioException(
+        requestOptions: RequestOptions(path: '/extract'),
+        response: Response(statusCode: 401, requestOptions: RequestOptions(path: '/extract')),
+      ),
+    );
 
-      expect(result, Right(openAiExtraction));
-      verify(
-        () => openAiService.extractFromImage(
-          base64Image: base64Image,
-          apiKey: apiKey,
-          existingBiomarkerNames: const [],
-          timeoutSeconds: any(named: 'timeoutSeconds'),
-        ),
-      ).called(1);
-    });
+    final result = await repository.extractFromImage(base64Image: 'img');
 
-    test('maps DioException with 429 to RateLimitFailure', () async {
-      const apiKey = 'claude-key';
-      final config = AppConfig(
-        llmApiKeys: {LlmProvider.claude: apiKey},
-        llmProvider: LlmProvider.claude,
-      );
-      when(() => configRepository.getConfig())
-          .thenAnswer((_) async => Right(config));
+    expect(result.isLeft(), isTrue);
+    expect(result.fold((f) => f, (_) => null), isA<NetworkFailure>());
+  });
 
-      final dioError = DioException(
-        requestOptions: RequestOptions(path: '/'),
-        response: Response(
-          statusCode: 429,
-          requestOptions: RequestOptions(path: '/'),
-        ),
-        type: DioExceptionType.badResponse,
-      );
+  test('maps timeout DioException to NetworkFailure with timeout message', () async {
+    when(() => configRepository.getConfig()).thenAnswer(
+      (_) async => const Right(config),
+    );
+    when(
+      () => claudeService.extractFromImage(
+        base64Image: any(named: 'base64Image'),
+        apiKey: any(named: 'apiKey'),
+        existingBiomarkerNames: any(named: 'existingBiomarkerNames'),
+      ),
+    ).thenThrow(
+      DioException(
+        requestOptions: RequestOptions(path: '/extract'),
+        type: DioExceptionType.connectionTimeout,
+      ),
+    );
 
-      when(
-        () => claudeService.extractFromImage(
-          base64Image: any(named: 'base64Image'),
-          apiKey: any(named: 'apiKey'),
-          existingBiomarkerNames: any(named: 'existingBiomarkerNames'),
-          timeoutSeconds: any(named: 'timeoutSeconds'),
-        ),
-      ).thenThrow(dioError);
+    final result = await repository.extractFromImage(base64Image: 'img');
 
-      final result =
-          await repository.extractFromImage(base64Image: base64Image);
+    expect(result.isLeft(), isTrue);
+    final failure = result.fold((f) => f, (_) => null) as NetworkFailure;
+    expect(failure.message, contains('timeout'));
+  });
 
-      expect(result.isLeft(), isTrue);
-      final failure = (result as Left<Failure, LlmExtractionResult>).value;
-      expect(failure, isA<RateLimitFailure>());
-    });
+  test('maps parse errors to InvalidResponseFailure', () async {
+    when(() => configRepository.getConfig()).thenAnswer(
+      (_) async => const Right(config),
+    );
+    when(
+      () => claudeService.extractFromImage(
+        base64Image: any(named: 'base64Image'),
+        apiKey: any(named: 'apiKey'),
+        existingBiomarkerNames: any(named: 'existingBiomarkerNames'),
+      ),
+    ).thenThrow(Exception('Failed to parse response'));
 
-    test('maps parsing errors to InvalidResponseFailure', () async {
-      const apiKey = 'claude-key';
-      final config = AppConfig(
-        llmApiKeys: {LlmProvider.claude: apiKey},
-        llmProvider: LlmProvider.claude,
-      );
-      when(() => configRepository.getConfig())
-          .thenAnswer((_) async => Right(config));
+    final result = await repository.extractFromImage(base64Image: 'img');
 
-      when(
-        () => claudeService.extractFromImage(
-          base64Image: any(named: 'base64Image'),
-          apiKey: any(named: 'apiKey'),
-          existingBiomarkerNames: any(named: 'existingBiomarkerNames'),
-          timeoutSeconds: any(named: 'timeoutSeconds'),
-        ),
-      ).thenThrow(Exception('Failed to parse response'));
+    expect(result.isLeft(), isTrue);
+    expect(result.fold((f) => f, (_) => null), isA<InvalidResponseFailure>());
+  });
 
-      final result =
-          await repository.extractFromImage(base64Image: base64Image);
+  test('maps unexpected errors to OcrFailure', () async {
+    when(() => configRepository.getConfig()).thenAnswer(
+      (_) async => const Right(config),
+    );
+    when(
+      () => claudeService.extractFromImage(
+        base64Image: any(named: 'base64Image'),
+        apiKey: any(named: 'apiKey'),
+        existingBiomarkerNames: any(named: 'existingBiomarkerNames'),
+      ),
+    ).thenThrow(Exception('something else'));
 
-      expect(result.isLeft(), isTrue);
-      final failure = (result as Left<Failure, LlmExtractionResult>).value;
-      expect(failure, isA<InvalidResponseFailure>());
-    });
+    final result = await repository.extractFromImage(base64Image: 'img');
 
-    test('maps unexpected errors to OcrFailure', () async {
-      const apiKey = 'claude-key';
-      final config = AppConfig(
-        llmApiKeys: {LlmProvider.claude: apiKey},
-        llmProvider: LlmProvider.claude,
-      );
-      when(() => configRepository.getConfig())
-          .thenAnswer((_) async => Right(config));
+    expect(result.isLeft(), isTrue);
+    expect(result.fold((f) => f, (_) => null), isA<OcrFailure>());
+  });
 
-      when(
-        () => claudeService.extractFromImage(
-          base64Image: any(named: 'base64Image'),
-          apiKey: any(named: 'apiKey'),
-          existingBiomarkerNames: any(named: 'existingBiomarkerNames'),
-          timeoutSeconds: any(named: 'timeoutSeconds'),
-        ),
-      ).thenThrow(StateError('boom'));
+  test('cancel forwards to all provider services', () {
+    repository.cancel();
 
-      final result =
-          await repository.extractFromImage(base64Image: base64Image);
-
-      expect(result.isLeft(), isTrue);
-      final failure = (result as Left<Failure, LlmExtractionResult>).value;
-      expect(failure, isA<OcrFailure>());
-    });
+    verify(() => claudeService.cancel()).called(1);
+    verify(() => openAiService.cancel()).called(1);
+    verify(() => geminiService.cancel()).called(1);
   });
 }

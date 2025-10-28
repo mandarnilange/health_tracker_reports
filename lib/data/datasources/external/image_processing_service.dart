@@ -9,8 +9,11 @@ import 'package:pdfx/pdfx.dart';
 @LazySingleton()
 class ImageProcessingService {
   /// Converts PDF file to list of base64-encoded PNG images
-  Future<List<String>> pdfToBase64Images(String pdfPath) async {
-    final document = await PdfDocument.openFile(pdfPath);
+  Future<List<String>> pdfToBase64Images(
+    String pdfPath, {
+    Future<PdfDocument> Function(String path)? openDocument,
+  }) async {
+    final document = await (openDocument ?? PdfDocument.openFile)(pdfPath);
     final pageCount = document.pagesCount;
     final images = <String>[];
 

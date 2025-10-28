@@ -1623,6 +1623,9 @@ flutter test
 # Run with coverage
 flutter test --coverage
 
+# Filter generated files from coverage (run after collecting coverage)
+dart run tool/filter_coverage.dart
+
 # Generate coverage report
 genhtml coverage/lcov.info -o coverage/html
 

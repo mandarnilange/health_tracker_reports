@@ -93,6 +93,51 @@ void main() {
     expect((result as Left<Failure, String>).value, isA<StorageFailure>());
   });
 
+
+  test('writeBytes maps other file system errors to FileSystemFailure', () async {
+    final service = FileWriterService.test(
+      downloadsPathProvider:
+          _StubDownloadsPathProvider(() async => '/tmp/downloads'),
+      bytesWriter: (path, bytes) async {
+        throw const FileSystemException('Unexpected');
+      },
+    );
+
+    final result = await service.writeBytes(
+      filenamePrefix: 'export',
+      bytes: const [1, 2, 3],
+    );
+
+    expect(result.isLeft(), isTrue);
+    final failure = (result as Left<Failure, String>).value;
+    expect(failure, isA<FileSystemFailure>());
+    expect(failure.message, contains('Unexpected'));
+  });
+
+  test('writeBytes writes bytes to sanitized path on success', () async {
+    String? capturedPath;
+    List<int>? capturedBytes;
+    final service = FileWriterService.test(
+      downloadsPathProvider:
+          _StubDownloadsPathProvider(() async => '/downloads'),
+      nowOverride: () => DateTime(2025, 5, 6, 7, 8, 9),
+      bytesWriter: (path, bytes) async {
+        capturedPath = path;
+        capturedBytes = bytes;
+      },
+    );
+
+    final result = await service.writeBytes(
+      filenamePrefix: 'Doctor Summary!',
+      bytes: const [9, 8, 7],
+      extension: 'Pdf ',
+    );
+
+    expect(result.isRight(), isTrue);
+    expect(capturedPath, '/downloads/Doctor_Summary__2025-05-06_07-08-09.pdf');
+    expect(capturedBytes, [9, 8, 7]);
+  });
+
   test('returns FileSystemFailure when downloads path cannot be resolved',
       () async {
     final service = FileWriterService.test(
@@ -108,5 +153,25 @@ void main() {
 
     expect(result.isLeft(), isTrue);
     expect((result as Left<Failure, String>).value, isA<FileSystemFailure>());
+  });
+
+  test('writeCsv maps unexpected errors to FileSystemFailure', () async {
+    final service = FileWriterService.test(
+      downloadsPathProvider:
+          _StubDownloadsPathProvider(() async => '/downloads'),
+      stringWriter: (path, contents) async {
+        throw StateError('boom');
+      },
+    );
+
+    final result = await service.writeCsv(
+      filenamePrefix: 'report',
+      contents: 'abc',
+    );
+
+    expect(result.isLeft(), isTrue);
+    final failure = (result as Left<Failure, String>).value;
+    expect(failure, isA<FileSystemFailure>());
+    expect(failure.message, contains('Failed to save file'));
   });
 }
