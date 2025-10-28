@@ -9,10 +9,10 @@ import 'package:image/image.dart' as img;
 import 'package:pdfx/pdfx.dart';
 
 void main() {
-  late ImageProcessingService service;
+  late ImageProcessingServiceImpl service;
 
   setUp(() {
-    service = ImageProcessingService();
+    service = ImageProcessingServiceImpl();
   });
 
   test('imageToBase64 reads file bytes and encodes as base64', () async {

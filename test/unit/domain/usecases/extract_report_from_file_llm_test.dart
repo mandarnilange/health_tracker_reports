@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
-import 'package:health_tracker_reports/data/datasources/external/image_processing_service.dart';
+import 'package:health_tracker_reports/domain/services/image_processing_service.dart';
 import 'package:health_tracker_reports/domain/entities/llm_extraction.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/domain/repositories/llm_extraction_repository.dart';

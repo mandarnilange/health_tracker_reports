@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:health_tracker_reports/presentation/providers/export_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:health_tracker_reports/data/datasources/external/share_service.dart';
+import 'package:health_tracker_reports/domain/services/share_service.dart';
 import 'package:health_tracker_reports/presentation/providers/share_provider.dart';
 import 'package:health_tracker_reports/presentation/router/route_names.dart';
 

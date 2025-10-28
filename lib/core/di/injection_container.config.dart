@@ -71,6 +71,16 @@ import 'package:health_tracker_reports/domain/repositories/report_repository.dar
     as _i767;
 import 'package:health_tracker_reports/domain/repositories/timeline_repository.dart'
     as _i880;
+import 'package:health_tracker_reports/domain/services/csv_export_service.dart'
+    as _i12;
+import 'package:health_tracker_reports/domain/services/file_writer_service.dart'
+    as _i394;
+import 'package:health_tracker_reports/domain/services/image_processing_service.dart'
+    as _i548;
+import 'package:health_tracker_reports/domain/services/pdf_generator_service.dart'
+    as _i407;
+import 'package:health_tracker_reports/domain/services/share_service.dart'
+    as _i231;
 import 'package:health_tracker_reports/domain/usecases/calculate_summary_statistics.dart'
     as _i549;
 import 'package:health_tracker_reports/domain/usecases/calculate_trend.dart'
@@ -151,8 +161,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i917.PdfDocumentWrapper>(
         () => appModule.pdfDocumentWrapper);
     gh.lazySingleton<_i60.ShareWrapper>(() => appModule.shareWrapper);
-    gh.lazySingleton<_i46.ImageProcessingService>(
-        () => _i46.ImageProcessingService());
     gh.lazySingleton<_i361.ExportVitalsToCsv>(() => _i361.ExportVitalsToCsv());
     gh.lazySingleton<_i680.CalculateTrend>(() => _i680.CalculateTrend());
     gh.lazySingleton<_i733.ExportTrendsToCsv>(() => _i733.ExportTrendsToCsv());
@@ -169,6 +177,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i273.ReportLocalDataSource>(() =>
         _i273.ReportLocalDataSourceImpl(
             box: gh<_i979.Box<_i936.ReportModel>>()));
+    gh.lazySingleton<_i548.ImageProcessingService>(
+        () => _i46.ImageProcessingServiceImpl());
     gh.lazySingleton<_i26.ClaudeLlmService>(
         () => _i26.ClaudeLlmService(gh<_i361.Dio>()));
     gh.lazySingleton<_i549.OpenAiLlmService>(
@@ -180,8 +190,6 @@ extension GetItInjectableX on _i174.GetIt {
             box: gh<_i979.Box<_i386.AppConfigModel>>()));
     gh.lazySingleton<_i767.ReportRepository>(() => _i508.ReportRepositoryImpl(
         localDataSource: gh<_i273.ReportLocalDataSource>()));
-    gh.lazySingleton<_i60.ShareService>(
-        () => _i60.ShareServiceImpl(shareWrapper: gh<_i60.ShareWrapper>()));
     gh.lazySingleton<_i889.CompareBiomarkerAcrossReports>(() =>
         _i889.CompareBiomarkerAcrossReports(
             repository: gh<_i767.ReportRepository>()));
@@ -196,15 +204,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i49.HealthLogRepository>(() =>
         _i250.HealthLogRepositoryImpl(
             localDataSource: gh<_i154.HealthLogLocalDataSource>()));
+    gh.lazySingleton<_i231.ShareService>(
+        () => _i60.ShareServiceImpl(shareWrapper: gh<_i60.ShareWrapper>()));
     gh.lazySingleton<_i848.SecureConfigStorage>(
         () => _i848.SecureConfigStorageImpl(gh<_i558.FlutterSecureStorage>()));
-    gh.lazySingleton<_i611.CsvExportService>(() => _i611.CsvExportService(
+    gh.lazySingleton<_i394.FileWriterService>(() => _i446.FileWriterServiceImpl(
+        downloadsPathProvider: gh<_i446.DownloadsPathProvider>()));
+    gh.lazySingleton<_i12.CsvExportService>(() => _i611.CsvExportServiceImpl(
           exportReportsToCsv: gh<_i249.ExportReportsToCsv>(),
           exportVitalsToCsv: gh<_i361.ExportVitalsToCsv>(),
           exportTrendsToCsv: gh<_i733.ExportTrendsToCsv>(),
         ));
-    gh.lazySingleton<_i446.FileWriterService>(() => _i446.FileWriterService(
-        downloadsPathProvider: gh<_i446.DownloadsPathProvider>()));
     gh.factory<Map<_i229.LlmProvider, _i693.LlmProviderService>>(
       () => appModule.llmProviderServices(
         gh<_i48.GeminiLlmService>(),
@@ -217,6 +227,12 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i875.TimelineRepositoryImpl(
               reportLocalDataSource: gh<_i273.ReportLocalDataSource>(),
               healthLogLocalDataSource: gh<_i154.HealthLogLocalDataSource>(),
+            ));
+    gh.lazySingleton<_i407.PdfGeneratorService>(
+        () => _i917.PdfGeneratorServiceImpl(
+              pdfDocumentWrapper: gh<_i917.PdfDocumentWrapper>(),
+              chartRenderingService: gh<_i560.ChartRenderingService>(),
+              fileWriterService: gh<_i394.FileWriterService>(),
             ));
     gh.lazySingleton<_i989.GetAllHealthLogs>(() =>
         _i989.GetAllHealthLogs(repository: gh<_i49.HealthLogRepository>()));
@@ -247,18 +263,18 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.lazySingleton<_i312.GetUnifiedTimeline>(() =>
         _i312.GetUnifiedTimeline(repository: gh<_i880.TimelineRepository>()));
-    gh.lazySingleton<_i917.PdfGeneratorService>(
-        () => _i917.PdfGeneratorServiceImpl(
-              pdfDocumentWrapper: gh<_i917.PdfDocumentWrapper>(),
-              chartRenderingService: gh<_i560.ChartRenderingService>(),
-              fileWriterService: gh<_i446.FileWriterService>(),
-            ));
     gh.lazySingleton<_i111.LlmExtractionRepository>(
         () => _i836.LlmExtractionRepositoryImpl(
               claudeService: gh<_i26.ClaudeLlmService>(),
               openAiService: gh<_i549.OpenAiLlmService>(),
               geminiService: gh<_i48.GeminiLlmService>(),
               configRepository: gh<_i649.ConfigRepository>(),
+            ));
+    gh.factory<_i990.ExtractReportFromFileLlm>(
+        () => _i990.ExtractReportFromFileLlm(
+              llmRepository: gh<_i111.LlmExtractionRepository>(),
+              imageService: gh<_i548.ImageProcessingService>(),
+              reportRepository: gh<_i767.ReportRepository>(),
             ));
     gh.lazySingleton<_i549.CalculateSummaryStatistics>(
         () => _i549.CalculateSummaryStatistics(
@@ -270,15 +286,9 @@ extension GetItInjectableX on _i174.GetIt {
             ));
     gh.factory<_i1005.UpdateConfig>(
         () => _i1005.UpdateConfig(gh<_i649.ConfigRepository>()));
-    gh.factory<_i990.ExtractReportFromFileLlm>(
-        () => _i990.ExtractReportFromFileLlm(
-              llmRepository: gh<_i111.LlmExtractionRepository>(),
-              imageService: gh<_i46.ImageProcessingService>(),
-              reportRepository: gh<_i767.ReportRepository>(),
-            ));
     gh.lazySingleton<_i789.GenerateDoctorPdf>(() => _i789.GenerateDoctorPdf(
           calculateSummaryStatistics: gh<_i549.CalculateSummaryStatistics>(),
-          pdfGeneratorService: gh<_i917.PdfGeneratorService>(),
+          pdfGeneratorService: gh<_i407.PdfGeneratorService>(),
         ));
     gh.lazySingleton<_i839.ExtractReportFromFile>(() =>
         _i839.ExtractReportFromFile(

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
+import 'package:health_tracker_reports/domain/services/file_writer_service.dart';
 import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
@@ -54,17 +55,17 @@ class PathProviderDownloadsPath implements DownloadsPathProvider {
   }
 }
 
-/// Service responsible for writing CSV payloads to disk with friendly names.
-@lazySingleton
-class FileWriterService {
-  FileWriterService({
+/// Implementation of FileWriterService responsible for writing files to disk with friendly names.
+@LazySingleton(as: FileWriterService)
+class FileWriterServiceImpl implements FileWriterService {
+  FileWriterServiceImpl({
     required this.downloadsPathProvider,
   })  : now = DateTime.now,
         _stringWriter = _defaultStringWriter,
         _bytesWriter = _defaultBytesWriter;
 
   @visibleForTesting
-  FileWriterService.test({
+  FileWriterServiceImpl.test({
     required this.downloadsPathProvider,
     DateTimeProvider? nowOverride,
     FileWriterCallback? stringWriter,
@@ -91,6 +92,7 @@ class FileWriterService {
   }
 
   /// Writes the provided CSV contents to disk and returns the saved file path.
+  @override
   Future<Either<Failure, String>> writeCsv({
     required String filenamePrefix,
     required String contents,
@@ -102,7 +104,19 @@ class FileWriterService {
     );
   }
 
-  Future<Either<Failure, String>> writeBytes({
+  @override
+  Future<Either<Failure, String>> writePdf({
+    required String filenamePrefix,
+    required List<int> bytes,
+  }) async {
+    return _writeBytes(
+      filenamePrefix: filenamePrefix,
+      bytes: bytes,
+      extension: 'pdf',
+    );
+  }
+
+  Future<Either<Failure, String>> _writeBytes({
     required String filenamePrefix,
     required List<int> bytes,
     String extension = 'bin',

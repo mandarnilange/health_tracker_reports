@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
-import 'package:health_tracker_reports/data/datasources/external/csv_export_service.dart';
-import 'package:health_tracker_reports/data/datasources/external/file_writer_service.dart';
+import 'package:health_tracker_reports/domain/services/csv_export_service.dart';
+import 'package:health_tracker_reports/domain/services/file_writer_service.dart';
 import 'package:health_tracker_reports/domain/entities/biomarker.dart';
 import 'package:health_tracker_reports/domain/entities/health_log.dart';
 import 'package:health_tracker_reports/domain/entities/reference_range.dart';

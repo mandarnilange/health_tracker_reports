@@ -5,7 +5,7 @@ import 'package:health_tracker_reports/domain/entities/doctor_summary_config.dar
 import 'package:health_tracker_reports/domain/entities/summary_statistics.dart';
 import 'package:health_tracker_reports/domain/usecases/calculate_summary_statistics.dart';
 import 'package:health_tracker_reports/domain/usecases/generate_doctor_pdf.dart';
-import 'package:health_tracker_reports/data/datasources/external/pdf_generator_service.dart';
+import 'package:health_tracker_reports/domain/services/pdf_generator_service.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
 
 class MockCalculateSummaryStatistics extends Mock implements CalculateSummaryStatistics {}

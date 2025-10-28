@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
-import 'package:health_tracker_reports/data/datasources/external/image_processing_service.dart';
+import 'package:health_tracker_reports/domain/services/image_processing_service.dart';
 import 'package:health_tracker_reports/domain/entities/biomarker.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/domain/entities/reference_range.dart';

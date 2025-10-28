@@ -21,10 +21,10 @@ String stripBom(String value) {
 }
 
 void main() {
-  late CsvExportService service;
+  late CsvExportServiceImpl service;
 
   setUp(() {
-    service = CsvExportService(
+    service = CsvExportServiceImpl(
       exportReportsToCsv: ExportReportsToCsv(),
       exportVitalsToCsv: ExportVitalsToCsv(),
       exportTrendsToCsv: ExportTrendsToCsv(),

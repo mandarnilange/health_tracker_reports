@@ -596,12 +596,12 @@ void main() {
       final router = AppRouter.createRouter();
       addTearDown(router.dispose);
 
-      final csvService = CsvExportService(
+      final csvService = CsvExportServiceImpl(
         exportReportsToCsv: ExportReportsToCsv(),
         exportVitalsToCsv: ExportVitalsToCsv(),
         exportTrendsToCsv: ExportTrendsToCsv(),
       );
-      final fileWriterService = FileWriterService.test(
+      final fileWriterService = FileWriterServiceImpl.test(
         downloadsPathProvider: const _StubDownloadsPathProvider(),
         stringWriter: (_, __) async {},
         bytesWriter: (_, __) async {},

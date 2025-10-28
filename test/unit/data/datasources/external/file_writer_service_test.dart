@@ -23,7 +23,7 @@ void main() {
   test('writeCsv writes to sanitized timestamped path', () async {
     String? writtenPath;
     String? writtenContents;
-    final service = FileWriterService.test(
+    final service = FileWriterServiceImpl.test(
       downloadsPathProvider:
           _StubDownloadsPathProvider(() async => '/tmp/downloads'),
       nowOverride: () => DateTime(2024, 1, 2, 3, 4, 5),
@@ -49,7 +49,7 @@ void main() {
 
   test('writeBytes maps permission denied errors to PermissionFailure',
       () async {
-    final service = FileWriterService.test(
+    final service = FileWriterServiceImpl.test(
       downloadsPathProvider:
           _StubDownloadsPathProvider(() async => '/tmp/downloads'),
       bytesWriter: (path, bytes) async {
@@ -61,10 +61,10 @@ void main() {
       },
     );
 
-    final result = await service.writeBytes(
+    final result = await service.writePdf(
       filenamePrefix: 'export',
       bytes: const [1, 2, 3],
-      extension: 'pdf',
+      
     );
 
     expect(result.isLeft(), isTrue);
@@ -72,7 +72,7 @@ void main() {
   });
 
   test('writeBytes maps disk full to StorageFailure', () async {
-    final service = FileWriterService.test(
+    final service = FileWriterServiceImpl.test(
       downloadsPathProvider:
           _StubDownloadsPathProvider(() async => '/tmp/downloads'),
       bytesWriter: (path, bytes) async {
@@ -84,7 +84,7 @@ void main() {
       },
     );
 
-    final result = await service.writeBytes(
+    final result = await service.writePdf(
       filenamePrefix: 'export',
       bytes: const [1, 2, 3],
     );
@@ -95,7 +95,7 @@ void main() {
 
 
   test('writeBytes maps other file system errors to FileSystemFailure', () async {
-    final service = FileWriterService.test(
+    final service = FileWriterServiceImpl.test(
       downloadsPathProvider:
           _StubDownloadsPathProvider(() async => '/tmp/downloads'),
       bytesWriter: (path, bytes) async {
@@ -103,7 +103,7 @@ void main() {
       },
     );
 
-    final result = await service.writeBytes(
+    final result = await service.writePdf(
       filenamePrefix: 'export',
       bytes: const [1, 2, 3],
     );
@@ -117,7 +117,7 @@ void main() {
   test('writeBytes writes bytes to sanitized path on success', () async {
     String? capturedPath;
     List<int>? capturedBytes;
-    final service = FileWriterService.test(
+    final service = FileWriterServiceImpl.test(
       downloadsPathProvider:
           _StubDownloadsPathProvider(() async => '/downloads'),
       nowOverride: () => DateTime(2025, 5, 6, 7, 8, 9),
@@ -127,10 +127,9 @@ void main() {
       },
     );
 
-    final result = await service.writeBytes(
+    final result = await service.writePdf(
       filenamePrefix: 'Doctor Summary!',
       bytes: const [9, 8, 7],
-      extension: 'Pdf ',
     );
 
     expect(result.isRight(), isTrue);
@@ -140,7 +139,7 @@ void main() {
 
   test('returns FileSystemFailure when downloads path cannot be resolved',
       () async {
-    final service = FileWriterService.test(
+    final service = FileWriterServiceImpl.test(
       downloadsPathProvider: _StubDownloadsPathProvider(() {
         throw Exception('broken');
       }),
@@ -156,7 +155,7 @@ void main() {
   });
 
   test('writeCsv maps unexpected errors to FileSystemFailure', () async {
-    final service = FileWriterService.test(
+    final service = FileWriterServiceImpl.test(
       downloadsPathProvider:
           _StubDownloadsPathProvider(() async => '/downloads'),
       stringWriter: (path, contents) async {

@@ -1,11 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
+import 'package:health_tracker_reports/domain/services/share_service.dart';
 import 'package:injectable/injectable.dart';
 import 'package:share_plus/share_plus.dart';
-
-abstract class ShareService {
-  Future<Either<Failure, void>> shareFile(XFile file);
-}
 
 @LazySingleton(as: ShareService)
 class ShareServiceImpl implements ShareService {
@@ -14,7 +11,10 @@ class ShareServiceImpl implements ShareService {
   ShareServiceImpl({required this.shareWrapper});
 
   @override
-  Future<Either<Failure, void>> shareFile(XFile file) async {
+  Future<Either<Failure, void>> shareFile(dynamic file) async {
+    if (file is! XFile) {
+      return const Left(ShareFailure(message: 'Invalid file type'));
+    }
     try {
       await shareWrapper.shareXFiles([file]);
       return const Right(null);

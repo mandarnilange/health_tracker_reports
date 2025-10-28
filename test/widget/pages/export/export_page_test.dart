@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
+import 'package:health_tracker_reports/domain/services/csv_export_service.dart';
+import 'package:health_tracker_reports/domain/services/file_writer_service.dart';
+import 'package:health_tracker_reports/domain/services/share_service.dart';
 import 'package:health_tracker_reports/data/datasources/external/csv_export_service.dart';
 import 'package:health_tracker_reports/data/datasources/external/file_writer_service.dart';
-import 'package:health_tracker_reports/data/datasources/external/share_service.dart';
 import 'package:health_tracker_reports/domain/entities/health_log.dart';
 import 'package:health_tracker_reports/domain/entities/report.dart';
 import 'package:health_tracker_reports/domain/usecases/export_reports_to_csv.dart';
@@ -19,12 +21,12 @@ import 'package:share_plus/share_plus.dart';
 class _SpyExportProvider extends ExportProvider {
   _SpyExportProvider()
       : super(
-          csvExportService: CsvExportService(
+          csvExportService: CsvExportServiceImpl(
             exportReportsToCsv: ExportReportsToCsv(),
             exportVitalsToCsv: ExportVitalsToCsv(),
             exportTrendsToCsv: ExportTrendsToCsv(),
           ),
-          fileWriterService: FileWriterService.test(
+          fileWriterService: FileWriterServiceImpl.test(
             downloadsPathProvider: _StubDownloadsPathProvider(),
             stringWriter: (_, __) async {},
             bytesWriter: (_, __) async {},
@@ -69,9 +71,11 @@ class _StubShareService implements ShareService {
   final sharedFiles = <String>[];
 
   @override
-  Future<Either<Failure, void>> shareFile(XFile file) async {
-    called = true;
-    sharedFiles.add(file.path);
+  Future<Either<Failure, void>> shareFile(dynamic file) async {
+    if (file is XFile) {
+      called = true;
+      sharedFiles.add(file.path);
+    }
     return const Right(null);
   }
 }

@@ -2,20 +2,14 @@ import 'package:dartz/dartz.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/domain/entities/summary_statistics.dart';
 import 'package:health_tracker_reports/domain/entities/doctor_summary_config.dart';
+import 'package:health_tracker_reports/domain/services/pdf_generator_service.dart';
+import 'package:health_tracker_reports/domain/services/file_writer_service.dart';
 import 'package:health_tracker_reports/data/datasources/external/chart_rendering_service.dart';
-import 'package:health_tracker_reports/data/datasources/external/file_writer_service.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'dart:typed_data';
 import 'package:intl/intl.dart';
 import 'package:injectable/injectable.dart';
-
-abstract class PdfGeneratorService {
-  Future<Either<Failure, String>> generatePdf(
-    SummaryStatistics stats,
-    DoctorSummaryConfig config,
-  );
-}
 
 @LazySingleton(as: PdfGeneratorService)
 class PdfGeneratorServiceImpl implements PdfGeneratorService {
@@ -93,10 +87,9 @@ class PdfGeneratorServiceImpl implements PdfGeneratorService {
       final bytes = await pdfDocumentWrapper.save();
       final prefix = _buildFilenamePrefix(config);
 
-      final savedPath = await fileWriterService.writeBytes(
+      final savedPath = await fileWriterService.writePdf(
         filenamePrefix: prefix,
         bytes: bytes,
-        extension: 'pdf',
       );
 
       return savedPath;

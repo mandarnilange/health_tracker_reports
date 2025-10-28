@@ -11,11 +11,11 @@ import 'package:health_tracker_reports/data/datasources/external/gemini_llm_serv
 import 'package:health_tracker_reports/data/datasources/external/openai_llm_service.dart';
 import 'package:health_tracker_reports/data/datasources/external/claude_llm_service.dart';
 import 'package:health_tracker_reports/data/datasources/external/share_service.dart';
+import 'package:health_tracker_reports/data/datasources/external/pdf_generator_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:hive/hive.dart';
 import 'package:injectable/injectable.dart';
 import 'package:health_tracker_reports/data/datasources/external/chart_rendering_service.dart';
-import 'package:health_tracker_reports/data/datasources/external/pdf_generator_service.dart';
 
 import 'injection_container.config.dart';
 

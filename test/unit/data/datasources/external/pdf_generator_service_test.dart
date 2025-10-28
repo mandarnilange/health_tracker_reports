@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_tracker_reports/core/error/failures.dart';
 import 'package:health_tracker_reports/data/datasources/external/chart_rendering_service.dart';
-import 'package:health_tracker_reports/data/datasources/external/file_writer_service.dart';
 import 'package:health_tracker_reports/data/datasources/external/pdf_generator_service.dart';
+import 'package:health_tracker_reports/domain/services/file_writer_service.dart';
+import 'package:health_tracker_reports/domain/services/pdf_generator_service.dart';
 import 'package:health_tracker_reports/domain/entities/doctor_summary_config.dart';
 import 'package:health_tracker_reports/domain/entities/summary_statistics.dart';
 import 'package:mocktail/mocktail.dart';
@@ -22,7 +23,7 @@ class _MockFileWriterService extends Mock implements FileWriterService {}
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late PdfGeneratorService service;
+  late PdfGeneratorServiceImpl service;
   late _MockPdfWrapper mockWrapper;
   late _MockChartRenderingService mockChartService;
   late _MockFileWriterService mockFileWriter;
@@ -45,10 +46,9 @@ void main() {
     when(() => mockChartService.getLineChart(any(), any(), any()))
         .thenReturn(Container());
     when(
-      () => mockFileWriter.writeBytes(
+      () => mockFileWriter.writePdf(
         filenamePrefix: any(named: 'filenamePrefix'),
         bytes: any(named: 'bytes'),
-        extension: any(named: 'extension'),
       ),
     ).thenAnswer((_) async => const Right('/tmp/doctor_summary.pdf'));
 
@@ -96,28 +96,24 @@ void main() {
     expect(result, equals(const Right('/tmp/doctor_summary.pdf')));
 
     final verification = verify(
-      () => mockFileWriter.writeBytes(
+      () => mockFileWriter.writePdf(
         filenamePrefix: captureAny(named: 'filenamePrefix'),
         bytes: captureAny(named: 'bytes'),
-        extension: captureAny(named: 'extension'),
       ),
     )..called(1);
 
     final capturedPrefix = verification.captured[0] as String;
     final capturedBytes = verification.captured[1] as List<int>;
-    final capturedExtension = verification.captured[2] as String;
 
     expect(capturedPrefix, startsWith('doctor_summary_20260101_20260131'));
     expect(capturedBytes, pdfBytes);
-    expect(capturedExtension, 'pdf');
   });
 
   test('returns failure when file writer reports error', () async {
     when(
-      () => mockFileWriter.writeBytes(
+      () => mockFileWriter.writePdf(
         filenamePrefix: any(named: 'filenamePrefix'),
         bytes: any(named: 'bytes'),
-        extension: any(named: 'extension'),
       ),
     ).thenAnswer(
       (_) async => Left(FileSystemFailure(message: 'disk full')),

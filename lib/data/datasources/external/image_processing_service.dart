@@ -4,10 +4,11 @@ import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:injectable/injectable.dart';
 import 'package:pdfx/pdfx.dart';
+import 'package:health_tracker_reports/domain/services/image_processing_service.dart';
 
-/// Service for processing PDFs and images for LLM extraction
-@LazySingleton()
-class ImageProcessingService {
+/// Implementation of ImageProcessingService for processing PDFs and images for LLM extraction
+@LazySingleton(as: ImageProcessingService)
+class ImageProcessingServiceImpl implements ImageProcessingService {
   /// Converts PDF file to list of base64-encoded PNG images
   Future<List<String>> pdfToBase64Images(
     String pdfPath, {
