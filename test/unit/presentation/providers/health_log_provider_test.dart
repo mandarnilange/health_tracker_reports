@@ -153,6 +153,30 @@ void main() {
       expect(notifier.state.hasError, isTrue);
       expect(notifier.state.error, isA<ValidationFailure>());
     });
+
+    test('triggers timeline refresh callback on success', () async {
+      var timelineRefreshCalled = false;
+
+      when(() => mockGetAllHealthLogs())
+          .thenAnswer((_) async => Right([tHealthLog]));
+      when(() => mockCreateHealthLog(any()))
+          .thenAnswer((_) async => Right(tHealthLog));
+
+      final notifierWithCallback = HealthLogsNotifier(
+        getAllHealthLogs: mockGetAllHealthLogs,
+        createHealthLog: mockCreateHealthLog,
+        updateHealthLog: mockUpdateHealthLog,
+        deleteHealthLog: mockDeleteHealthLog,
+        onDataChanged: () async {
+          timelineRefreshCalled = true;
+        },
+      );
+
+      await notifierWithCallback.addHealthLog(tCreateParams);
+      await pumpEventQueue();
+
+      expect(timelineRefreshCalled, isTrue);
+    });
   });
 
   group('updateHealthLog', () {
@@ -178,6 +202,30 @@ void main() {
 
       expect(notifier.state.hasError, isTrue);
       expect(notifier.state.error, isA<CacheFailure>());
+    });
+
+    test('triggers timeline refresh callback on success', () async {
+      var timelineRefreshCalled = false;
+
+      when(() => mockGetAllHealthLogs())
+          .thenAnswer((_) async => Right([tHealthLog]));
+      when(() => mockUpdateHealthLog(any()))
+          .thenAnswer((_) async => Right(tHealthLog));
+
+      final notifierWithCallback = HealthLogsNotifier(
+        getAllHealthLogs: mockGetAllHealthLogs,
+        createHealthLog: mockCreateHealthLog,
+        updateHealthLog: mockUpdateHealthLog,
+        deleteHealthLog: mockDeleteHealthLog,
+        onDataChanged: () async {
+          timelineRefreshCalled = true;
+        },
+      );
+
+      await notifierWithCallback.updateHealthLog(tUpdateParams);
+      await pumpEventQueue();
+
+      expect(timelineRefreshCalled, isTrue);
     });
   });
 

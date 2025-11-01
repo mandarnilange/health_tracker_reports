@@ -66,13 +66,12 @@ class ExtractReportFromFileLlm {
           existingBiomarkerNames: existingBiomarkerNames,
         );
 
-        await result.fold(
+        result.fold(
           (failure) {
             // Store the failure to report it if no biomarkers are found
             lastFailure = failure;
-            return Future.value();
           },
-          (extraction) async {
+          (extraction) {
             // Use metadata from first page
             if (index == 0 && extraction.metadata != null) {
               patientName = extraction.metadata!.patientName;

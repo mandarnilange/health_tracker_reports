@@ -1,11 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:health_tracker_reports/presentation/pages/health_log/health_log_entry_sheet.dart';
+import 'package:health_tracker_reports/presentation/providers/health_log_provider.dart';
+import 'package:health_tracker_reports/presentation/providers/reports_provider.dart';
+import 'package:health_tracker_reports/presentation/providers/timeline_provider.dart';
 import 'package:health_tracker_reports/presentation/router/route_names.dart';
 import 'package:health_tracker_reports/presentation/widgets/health_timeline.dart';
 
-class ReportsListPage extends StatelessWidget {
+class ReportsListPage extends ConsumerStatefulWidget {
   const ReportsListPage({super.key});
+
+  @override
+  ConsumerState<ReportsListPage> createState() => _ReportsListPageState();
+}
+
+class _ReportsListPageState extends ConsumerState<ReportsListPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Listen to reports and health logs changes and refresh timeline
+    Future.microtask(() {
+      ref.listenManual(
+        reportsProvider,
+        (previous, next) {
+          // When reports change, refresh timeline
+          if (next.hasValue && previous != next) {
+            ref.read(timelineProvider.notifier).refresh();
+          }
+        },
+      );
+      ref.listenManual(
+        healthLogsProvider,
+        (previous, next) {
+          // When health logs change, refresh timeline
+          if (next.hasValue && previous != next) {
+            ref.read(timelineProvider.notifier).refresh();
+          }
+        },
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

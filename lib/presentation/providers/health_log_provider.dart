@@ -38,10 +38,12 @@ class HealthLogsNotifier extends StateNotifier<AsyncValue<List<HealthLog>>> {
     required CreateHealthLog createHealthLog,
     required UpdateHealthLog updateHealthLog,
     required DeleteHealthLog deleteHealthLog,
+    Future<void> Function()? onDataChanged,
   })  : _getAllHealthLogs = getAllHealthLogs,
         _createHealthLog = createHealthLog,
         _updateHealthLog = updateHealthLog,
         _deleteHealthLog = deleteHealthLog,
+        _onDataChanged = onDataChanged,
         super(const AsyncValue.loading()) {
     loadHealthLogs();
   }
@@ -50,6 +52,7 @@ class HealthLogsNotifier extends StateNotifier<AsyncValue<List<HealthLog>>> {
   final CreateHealthLog _createHealthLog;
   final UpdateHealthLog _updateHealthLog;
   final DeleteHealthLog _deleteHealthLog;
+  final Future<void> Function()? _onDataChanged;
 
   Future<void> loadHealthLogs() async {
     state = const AsyncValue.loading();
@@ -66,7 +69,11 @@ class HealthLogsNotifier extends StateNotifier<AsyncValue<List<HealthLog>>> {
       (failure) async {
         state = AsyncValue.error(failure, StackTrace.current);
       },
-      (_) async => await loadHealthLogs(),
+      (_) async {
+        await loadHealthLogs();
+        // Trigger timeline refresh if callback is provided
+        await _onDataChanged?.call();
+      },
     );
   }
 
@@ -76,7 +83,11 @@ class HealthLogsNotifier extends StateNotifier<AsyncValue<List<HealthLog>>> {
       (failure) async {
         state = AsyncValue.error(failure, StackTrace.current);
       },
-      (_) async => await loadHealthLogs(),
+      (_) async {
+        await loadHealthLogs();
+        // Trigger timeline refresh if callback is provided
+        await _onDataChanged?.call();
+      },
     );
   }
 

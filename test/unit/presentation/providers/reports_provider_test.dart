@@ -130,6 +130,27 @@ void main() {
     verify(() => mockGetAllReports()).called(greaterThanOrEqualTo(1));
   });
 
+  test('saveReport should trigger timeline refresh callback if provided',
+      () async {
+    final report = testReports.first;
+    var timelineRefreshCalled = false;
+
+    when(() => mockGetAllReports()).thenAnswer((_) async => Right(testReports));
+    when(() => mockSaveReport(report)).thenAnswer((_) async => Right(report));
+
+    final notifier = ReportsNotifier(
+      getAllReports: mockGetAllReports,
+      saveReportProvider: () => mockSaveReport,
+      onDataChanged: () async {
+        timelineRefreshCalled = true;
+      },
+    );
+
+    await notifier.saveReport(report);
+
+    expect(timelineRefreshCalled, isTrue);
+  });
+
   test('saveReport should emit error state on failure', () async {
     final report = testReports.first;
     const failure = CacheFailure('Unable to save');

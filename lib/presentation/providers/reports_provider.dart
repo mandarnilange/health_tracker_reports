@@ -28,14 +28,17 @@ class ReportsNotifier extends StateNotifier<AsyncValue<List<Report>>> {
   ReportsNotifier({
     required GetAllReports getAllReports,
     required SaveReport Function() saveReportProvider,
+    Future<void> Function()? onDataChanged,
   })  : _getAllReports = getAllReports,
         _saveReportProvider = saveReportProvider,
+        _onDataChanged = onDataChanged,
         super(const AsyncValue.loading()) {
     _initialize();
   }
 
   final GetAllReports _getAllReports;
   final SaveReport Function() _saveReportProvider;
+  final Future<void> Function()? _onDataChanged;
 
   /// Current sort option for the reports list
   ReportSortOption _sortOption = ReportSortOption.newestFirst;
@@ -98,6 +101,8 @@ class ReportsNotifier extends StateNotifier<AsyncValue<List<Report>>> {
       },
       (savedReport) async {
         await loadReports();
+        // Trigger timeline refresh if callback is provided
+        await _onDataChanged?.call();
         return Right(savedReport);
       },
     );
